@@ -5,16 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cartier & Miller</title>
   <link rel="icon" type="image/png" href="/favicon.png" />
-  <meta name="description" content="Cartier & Miller 奢侈品平台">
+  <meta name="description" content="Cartier & Miller operations center for accounts, conversations, and proxy routing.">
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Cartier & Miller Command Center" />
-  <meta property="og:description" content="Deep red high-contrast operations dashboard for accounts, chat and proxy routing." />
+  <meta property="og:description" content="Neutral operations dashboard for accounts, conversations, and proxy routing." />
   <meta property="og:image" content="/share-card.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="twitter:card" content="summary_large_image" />
   <meta property="twitter:title" content="Cartier & Miller Command Center" />
-  <meta property="twitter:description" content="Deep red high-contrast operations dashboard for accounts, chat and proxy routing." />
+  <meta property="twitter:description" content="Neutral operations dashboard for accounts, conversations, and proxy routing." />
   <meta property="twitter:image" content="/share-card.png" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,9 +23,24 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { height: 100%; font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-    body { min-height: 100%; background:
-      radial-gradient(circle at top, rgba(178,34,34,0.18), transparent 38%),
-      linear-gradient(180deg, #120909 0%, #090707 100%);
+    body {
+      min-height: 100%;
+      background:
+        radial-gradient(circle at top, rgba(85, 97, 108, 0.12), transparent 38%),
+        linear-gradient(180deg, #f7f8fa 0%, #eef2f6 100%);
+      color: #1f2933;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, rgba(85, 97, 108, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(85, 97, 108, 0.035) 1px, transparent 1px);
+      background-size: 32px 32px;
+      mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.35), transparent 76%);
+      opacity: 0.42;
     }
     #root { width: 100%; min-height: 100vh; }
   </style>
