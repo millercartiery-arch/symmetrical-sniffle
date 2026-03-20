@@ -95,7 +95,7 @@ const AccountManager: React.FC = () => {
         total: pag.total ?? 0,
       }));
     } catch (err: any) {
-      message.error(t('accounts.fetch_failed', { defaultValue: 'Failed to fetch sub-accounts' }));
+      message.error(t('accounts.fetch_failed'));
     } finally {
       setSubAccLoading(false);
     }
@@ -124,7 +124,7 @@ const AccountManager: React.FC = () => {
   const closeModal = (name: keyof typeof modals) => setModals((prev) => ({ ...prev, [name]: false }));
 
   const selectAllAcrossPages = async () => {
-    const hide = message.loading(t('accounts.loading_all_ids', { defaultValue: 'Loading all IDs...' }), 0);
+    const hide = message.loading(t('accounts.loading_all_ids'), 0);
     try {
       const res: any = await api.get('/accounts/ids', {
         params: {
@@ -135,14 +135,11 @@ const AccountManager: React.FC = () => {
       if (res && Array.isArray(res.ids)) {
         setSelectedKeys(res.ids);
         message.success(
-          t('accounts.selected_all_records', {
-            defaultValue: 'Selected all {{count}} records',
-            count: res.ids.length,
-          })
+          t('accounts.selected_all_records', { count: res.ids.length })
         );
       }
     } catch (err) {
-      message.error(t('accounts.select_all_failed', { defaultValue: 'Select all failed' }));
+      message.error(t('accounts.select_all_failed'));
     } finally {
       hide();
     }
@@ -150,13 +147,13 @@ const AccountManager: React.FC = () => {
 
   const exportWithSelectedFields = async () => {
     if (selectedExportFields.length === 0) {
-      message.warning(t('accounts.select_export_field_required', { defaultValue: 'Select at least one export field' }));
+      message.warning(t('accounts.select_export_field_required'));
       return;
     }
     let dataToExport = accounts;
     const total = (accPagination.total as number) ?? 0;
     if (total > accounts.length) {
-      const hide = message.loading(t('accounts.loading_full_export_data', { defaultValue: 'Loading full data for export...' }), 0);
+      const hide = message.loading(t('accounts.loading_full_export_data'), 0);
       try {
         const res: any = await api.get('/accounts', {
           params: {
@@ -169,9 +166,7 @@ const AccountManager: React.FC = () => {
         dataToExport = Array.isArray(res?.items) ? res.items : accounts;
       } catch (err) {
         message.warning(
-          t('accounts.export_current_page_only', {
-            defaultValue: 'Unable to load the full dataset. Exporting the current page only.',
-          })
+          t('accounts.export_current_page_only')
         );
       } finally {
         hide();
@@ -209,11 +204,7 @@ const AccountManager: React.FC = () => {
     URL.revokeObjectURL(url);
     closeModal('exportFields');
     message.success(
-      t('accounts.export_completed', {
-        defaultValue: 'Export completed: {{filename}} ({{count}} records)',
-        filename,
-        count: picked.length,
-      })
+      t('accounts.export_completed', { filename, count: picked.length })
     );
     api.post('/audit/log', {
       action: 'EXPORT',
@@ -225,19 +216,19 @@ const AccountManager: React.FC = () => {
     { title: 'ID', dataIndex: 'id', width: 80, className: 'text-xs opacity-60' },
     { title: t('accounts.phone'), dataIndex: 'phone', render: (val: string) => <span className="font-mono">{val}</span> },
     {
-      title: t('accounts.sent_daily_max', { defaultValue: 'Sent/Daily Max' }),
+      title: t('accounts.sent_daily_max'),
       render: (_: any, rec: any) => (
         <span className="font-mono">{rec.today_sent || 0} / {rec.daily_limit || 25}</span>
       ),
     },
     {
-      title: t('accounts.total_sent_recv', { defaultValue: 'Total Sent/Recv' }),
+      title: t('accounts.total_sent_recv'),
       render: (_: any, rec: any) => (
         <span className="font-mono">{rec.sent_count || 0} / {rec.received_count || 0}</span>
       ),
     },
     {
-      title: t('accounts.cooldown_status', { defaultValue: 'Cooldown Status' }),
+      title: t('accounts.cooldown_status'),
       dataIndex: 'status',
       render: (status: string, rec: any) => {
         if (status === 'Cooldown' && rec.cooldown_end) {
@@ -250,12 +241,7 @@ const AccountManager: React.FC = () => {
             const s = Math.floor((diff % 60000) / 1000);
             return (
               <span style={{ color: '#fa8c16' }}>
-                {t('accounts.cooldown_remaining', {
-                  defaultValue: '{{h}}h {{m}}m {{s}}s remaining',
-                  h,
-                  m,
-                  s,
-                })}
+                {t('accounts.cooldown_remaining', { h, m, s })}
               </span>
             );
           }
@@ -280,13 +266,10 @@ const AccountManager: React.FC = () => {
             } catch (err: any) {
               if (err.response?.status === 409) {
                 message.error(
-                  t('accounts.locked_by_other_user', {
-                    defaultValue: 'This account is currently being edited by {{user}} (TC-17)',
-                    user: err.response.data.user,
-                  })
+                  t('accounts.locked_by_other_user', { user: err.response.data.user })
                 );
               } else {
-                message.error(t('accounts.lock_failed_generic', { defaultValue: 'Unable to lock account' }));
+                message.error(t('accounts.lock_failed_generic'));
               }
             }
           }}
@@ -309,22 +292,22 @@ const AccountManager: React.FC = () => {
   const inventoryFocus =
     inventoryStats.tnReady === 0
       ? {
-          title: t('accounts.focus.protocol_not_ready_title', { defaultValue: 'Protocol routing is not ready' }),
-          copy: t('accounts.focus.protocol_not_ready_copy', { defaultValue: 'No active TN-ready inventory is visible on the current slice. Validate imported accounts and proxy bindings before opening new outbound volume.' }),
-          action: t('accounts.focus.review_proxy_pool', { defaultValue: 'Review proxy pool' }),
+          title: t('accounts.focus.protocol_not_ready_title'),
+          copy: t('accounts.focus.protocol_not_ready_copy'),
+          action: t('accounts.focus.review_proxy_pool'),
           onClick: () => setActiveTab('proxy-pool'),
         }
       : inventoryStats.cooldown > inventoryStats.ready
         ? {
-            title: t('accounts.focus.recovery_title', { defaultValue: 'Recovery should come before scale' }),
-            copy: t('accounts.focus.recovery_copy', { defaultValue: 'Cooldown inventory is larger than the ready pool. Operators should clear unstable accounts before pushing more conversations into queue.' }),
-            action: t('accounts.focus.review_inventory', { defaultValue: 'Review account inventory' }),
+            title: t('accounts.focus.recovery_title'),
+            copy: t('accounts.focus.recovery_copy'),
+            action: t('accounts.focus.review_inventory'),
             onClick: () => setActiveTab('accounts'),
           }
         : {
-            title: t('accounts.focus.healthy_title', { defaultValue: 'Inventory is usable for controlled execution' }),
-            copy: t('accounts.focus.healthy_copy', { defaultValue: 'Ready accounts and TN protocol coverage are visible. This is the right time to refresh assets, export clean slices and move only validated inventory into live routing.' }),
-            action: t('accounts.focus.export_clean_inventory', { defaultValue: 'Export clean inventory' }),
+            title: t('accounts.focus.healthy_title'),
+            copy: t('accounts.focus.healthy_copy'),
+            action: t('accounts.focus.export_clean_inventory'),
             onClick: () => openModal('exportFields'),
           };
 
@@ -332,19 +315,19 @@ const AccountManager: React.FC = () => {
     <Content className="cm-page" style={{ padding: 16 }}>
       <div className="cm-page-header">
         <div>
-          <div className="cm-kpi-eyebrow">{t('accounts.page_eyebrow', { defaultValue: 'Resource Management' })}</div>
+          <div className="cm-kpi-eyebrow">{t('accounts.page_eyebrow')}</div>
           <h1 className="cm-page-title cm-brand-title" style={{ fontSize: 32 }}>
-            {t('accounts.page_title', { defaultValue: 'Inventory & Routing' })}
+            {t('accounts.page_title')}
           </h1>
           <div className="cm-page-subtitle">
-            {t('accounts.page_subtitle', { defaultValue: 'Resource inventory, sub-account activation and proxy orchestration now share one operational surface with faster scanning and clearer anomaly emphasis.' })}
+            {t('accounts.page_subtitle')}
           </div>
         </div>
       </div>
 
       <div className="cm-hero-band">
         <div className="cm-hero-panel">
-          <div className="cm-kpi-eyebrow">{t('accounts.inventory_command', { defaultValue: 'Inventory Command' })}</div>
+          <div className="cm-kpi-eyebrow">{t('accounts.inventory_command')}</div>
           <h2 className="cm-page-title" style={{ fontSize: 28, marginTop: 8 }}>
             {inventoryFocus.title}
           </h2>
@@ -355,56 +338,56 @@ const AccountManager: React.FC = () => {
             <Button type="primary" className="cm-primary-button" onClick={inventoryFocus.onClick}>
               {inventoryFocus.action}
             </Button>
-            <Button onClick={() => setActiveTab('accounts')}>{t('accounts.inspect_inventory', { defaultValue: 'Inspect inventory' })}</Button>
-            <Button onClick={() => setActiveTab('sub-accounts')}>{t('accounts.open_sub_accounts', { defaultValue: 'Open sub-accounts' })}</Button>
+            <Button onClick={() => setActiveTab('accounts')}>{t('accounts.inspect_inventory')}</Button>
+            <Button onClick={() => setActiveTab('sub-accounts')}>{t('accounts.open_sub_accounts')}</Button>
           </div>
           <div className="cm-hero-metrics">
             <div className="cm-mini-stat">
-              <div className="cm-kpi-eyebrow">{t('accounts.visible_inventory', { defaultValue: 'Visible Inventory' })}</div>
+              <div className="cm-kpi-eyebrow">{t('accounts.visible_inventory')}</div>
               <strong>{inventoryStats.total}</strong>
-              <span>{t('accounts.visible_inventory_meta', { defaultValue: 'Accounts inside the current operational window' })}</span>
+              <span>{t('accounts.visible_inventory_meta')}</span>
             </div>
             <div className="cm-mini-stat">
-              <div className="cm-kpi-eyebrow">{t('accounts.ready_pool', { defaultValue: 'Ready Pool' })}</div>
+              <div className="cm-kpi-eyebrow">{t('accounts.ready_pool')}</div>
               <strong>{inventoryStats.ready}</strong>
-              <span>{t('accounts.ready_pool_meta', { defaultValue: 'Accounts currently available for controlled work' })}</span>
+              <span>{t('accounts.ready_pool_meta')}</span>
             </div>
             <div className="cm-mini-stat">
-              <div className="cm-kpi-eyebrow">{t('accounts.cooldown_pressure', { defaultValue: 'Cooldown Pressure' })}</div>
+              <div className="cm-kpi-eyebrow">{t('accounts.cooldown_pressure')}</div>
               <strong>{inventoryStats.cooldown}</strong>
-              <span>{t('accounts.cooldown_pressure_meta', { defaultValue: 'Inventory temporarily blocked by cooldown or recovery' })}</span>
+              <span>{t('accounts.cooldown_pressure_meta')}</span>
             </div>
             <div className="cm-mini-stat">
-              <div className="cm-kpi-eyebrow">{t('accounts.tn_protocol_ready', { defaultValue: 'TN Protocol Ready' })}</div>
+              <div className="cm-kpi-eyebrow">{t('accounts.tn_protocol_ready')}</div>
               <strong>{inventoryStats.tnReady}</strong>
-              <span>{t('accounts.tn_protocol_ready_meta', { defaultValue: 'Assets with protocol-level readiness on the current slice' })}</span>
+              <span>{t('accounts.tn_protocol_ready_meta')}</span>
             </div>
           </div>
         </div>
 
         <div className="cm-hero-panel">
-          <div className="cm-kpi-eyebrow">{t('accounts.operator_guidance', { defaultValue: 'Operator Guidance' })}</div>
+          <div className="cm-kpi-eyebrow">{t('accounts.operator_guidance')}</div>
           <div className="cm-signal-list" style={{ marginTop: 16 }}>
             <div className="cm-signal-item">
               <div>
-                <strong>{t('accounts.guidance_refresh_title', { defaultValue: 'Refresh before taking action' })}</strong>
-                <span>{t('accounts.guidance_refresh_copy', { defaultValue: 'Always reload inventory before exporting, binding proxies or activating sub-accounts.' })}</span>
+                <strong>{t('accounts.guidance_refresh_title')}</strong>
+                <span>{t('accounts.guidance_refresh_copy')}</span>
               </div>
-              <Button size="small" onClick={fetchAccounts}>{t('common.refresh', { defaultValue: '刷新' })}</Button>
+              <Button size="small" onClick={fetchAccounts}>{t('common.refresh')}</Button>
             </div>
             <div className="cm-signal-item">
               <div>
-                <strong>{t('accounts.guidance_clean_title', { defaultValue: 'Separate clean inventory from unstable assets' })}</strong>
-                <span>{t('accounts.guidance_clean_copy', { defaultValue: 'Use status filters to isolate ready inventory from cooldown and dead accounts before batch actions.' })}</span>
+                <strong>{t('accounts.guidance_clean_title')}</strong>
+                <span>{t('accounts.guidance_clean_copy')}</span>
               </div>
-              <Button size="small" onClick={() => setAccountStatusFilter('Ready')}>{t('accounts.show_ready', { defaultValue: 'Show ready' })}</Button>
+              <Button size="small" onClick={() => setAccountStatusFilter('Ready')}>{t('accounts.show_ready')}</Button>
             </div>
             <div className="cm-signal-item">
               <div>
-                <strong>{t('accounts.guidance_proxy_title', { defaultValue: 'Move routing work into the proxy surface' })}</strong>
-                <span>{t('accounts.guidance_proxy_copy', { defaultValue: 'Proxy health determines delivery consistency. Treat it as a primary operating area, not a secondary settings page.' })}</span>
+                <strong>{t('accounts.guidance_proxy_title')}</strong>
+                <span>{t('accounts.guidance_proxy_copy')}</span>
               </div>
-              <Button size="small" onClick={() => setActiveTab('proxy-pool')}>{t('accounts.open_proxy_pool', { defaultValue: 'Open proxy pool' })}</Button>
+              <Button size="small" onClick={() => setActiveTab('proxy-pool')}>{t('accounts.open_proxy_pool')}</Button>
             </div>
           </div>
         </div>
@@ -413,23 +396,23 @@ const AccountManager: React.FC = () => {
       <div className="cm-feature-grid" style={{ marginBottom: 14 }}>
         <div className="cm-feature-card">
           <DatabaseOutlined style={{ fontSize: 18, color: 'var(--cm-brand-color)' }} />
-          <div style={{ color: 'var(--cm-text-primary)', marginTop: 10, fontWeight: 600 }}>{t('accounts.feature_sync_title', { defaultValue: 'Sync TextNow Accounts' })}</div>
-          <div style={{ color: 'var(--cm-text-secondary)', marginTop: 4 }}>{t('accounts.feature_sync_copy', { defaultValue: 'Refresh inventory and inspect routeable assets.' })}</div>
+          <div style={{ color: 'var(--cm-text-primary)', marginTop: 10, fontWeight: 600 }}>{t('accounts.feature_sync_title')}</div>
+          <div style={{ color: 'var(--cm-text-secondary)', marginTop: 4 }}>{t('accounts.feature_sync_copy')}</div>
         </div>
         <div className="cm-feature-card">
           <RocketOutlined style={{ fontSize: 18, color: 'var(--cm-brand-color)' }} />
-          <div style={{ color: 'var(--cm-text-primary)', marginTop: 10, fontWeight: 600 }}>{t('accounts.feature_auto_reply_title', { defaultValue: 'Setup Auto Reply' })}</div>
-          <div style={{ color: 'var(--cm-text-secondary)', marginTop: 4 }}>{t('accounts.feature_auto_reply_copy', { defaultValue: 'Pair accounts with templates and execution rules.' })}</div>
+          <div style={{ color: 'var(--cm-text-primary)', marginTop: 10, fontWeight: 600 }}>{t('accounts.feature_auto_reply_title')}</div>
+          <div style={{ color: 'var(--cm-text-secondary)', marginTop: 4 }}>{t('accounts.feature_auto_reply_copy')}</div>
         </div>
         <div className="cm-feature-card">
           <LinkOutlined style={{ fontSize: 18, color: 'var(--cm-brand-color)' }} />
-          <div style={{ color: 'var(--cm-text-primary)', marginTop: 10, fontWeight: 600 }}>{t('accounts.feature_ai_title', { defaultValue: 'Configure AI Engine' })}</div>
-          <div style={{ color: 'var(--cm-text-secondary)', marginTop: 4 }}>{t('accounts.feature_ai_copy', { defaultValue: 'Connect translation and behavior services for automation.' })}</div>
+          <div style={{ color: 'var(--cm-text-primary)', marginTop: 10, fontWeight: 600 }}>{t('accounts.feature_ai_title')}</div>
+          <div style={{ color: 'var(--cm-text-secondary)', marginTop: 4 }}>{t('accounts.feature_ai_copy')}</div>
         </div>
         <div className="cm-feature-card">
           <ThunderboltOutlined style={{ fontSize: 18, color: 'var(--cm-brand-color)' }} />
-          <div style={{ color: 'var(--cm-text-primary)', marginTop: 10, fontWeight: 600 }}>{t('accounts.feature_proxy_review_title', { defaultValue: 'Proxy Health Review' })}</div>
-          <div style={{ color: 'var(--cm-text-secondary)', marginTop: 4 }}>{t('accounts.feature_proxy_review_copy', { defaultValue: 'Surface latency spikes before delivery drops start.' })}</div>
+          <div style={{ color: 'var(--cm-text-primary)', marginTop: 10, fontWeight: 600 }}>{t('accounts.feature_proxy_review_title')}</div>
+          <div style={{ color: 'var(--cm-text-secondary)', marginTop: 4 }}>{t('accounts.feature_proxy_review_copy')}</div>
         </div>
       </div>
 
@@ -504,7 +487,7 @@ const AccountManager: React.FC = () => {
         open={modals.activateCard}
         onCancel={() => closeModal('activateCard')}
         onSuccess={() => {
-          message.success(t('accounts.activate_card_success', { defaultValue: 'Card activated, sub account created' }));
+          message.success(t('accounts.activate_card_success'));
           fetchSubAccounts();
         }}
       />
@@ -519,7 +502,7 @@ const AccountManager: React.FC = () => {
           setSelectedAccount(null);
         }}
         onSave={() => {
-          message.success(t('accounts.save_success', { defaultValue: 'Saved successfully' }));
+          message.success(t('accounts.save_success'));
           closeModal('accountConfig');
           fetchAccounts();
         }}

@@ -47,9 +47,9 @@ const getDeltaLabel = (
   previous: number | undefined,
   t: (key: string, options?: Record<string, unknown>) => string
 ) => {
-  if (previous == null) return t("dashboard.live_baseline", { defaultValue: "Live baseline" });
+  if (previous == null) return t("dashboard.live_baseline");
   const delta = current - previous;
-  if (delta === 0) return t("dashboard.stable_vs_last_refresh", { defaultValue: "Stable vs last refresh" });
+  if (delta === 0) return t("dashboard.stable_vs_last_refresh");
   const direction = delta > 0 ? "up" : "down";
   const base = previous === 0 ? 100 : Math.round((Math.abs(delta) / Math.abs(previous)) * 100);
   return t(`dashboard.delta_${direction}`, {
@@ -97,16 +97,16 @@ const CompactPanel: React.FC<{
 }> = ({ data, onRefresh, t }) => (
   <Space size="middle" wrap>
     <Tag color="green">
-      {t("dashboard.compact_online", { defaultValue: "Online" })} {data.onlineAccounts ?? 0}
+      {t("dashboard.compact_online")} {data.onlineAccounts ?? 0}
     </Tag>
     <Tag color="blue">
-      {t("dashboard.compact_sent", { defaultValue: "Sent" })} {data.todaySent ?? 0}
+      {t("dashboard.compact_sent")} {data.todaySent ?? 0}
     </Tag>
     <Tag color="orange">
-      {t("dashboard.compact_failed", { defaultValue: "Failed" })} {data.todayFailed ?? 0}
+      {t("dashboard.compact_failed")} {data.todayFailed ?? 0}
     </Tag>
     <Button icon={<ReloadOutlined />} size="small" onClick={onRefresh}>
-      {t("common.refresh", { defaultValue: "刷新" })}
+      {t("common.refresh")}
     </Button>
   </Space>
 );
@@ -156,49 +156,29 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
   const focusTone =
     (data.todayFailed ?? 0) > 0
       ? {
-          title: t("dashboard.focus.delivery_title", {
-            defaultValue: "Delivery issues require attention",
-          }),
-          copy: t("dashboard.focus.delivery_copy", {
-            defaultValue:
-              "One or more sends failed recently. Review failed tasks before opening new throughput.",
-          }),
-          cta: t("dashboard.focus.delivery_cta", { defaultValue: "Review failed tasks" }),
+          title: t("dashboard.focus.delivery_title"),
+          copy: t("dashboard.focus.delivery_copy"),
+          cta: t("dashboard.focus.delivery_cta"),
           target: "/admin/tasks?status=failed",
         }
       : (data.deadAccounts ?? 0) > 0
         ? {
-            title: t("dashboard.focus.recovery_title", {
-              defaultValue: "Inventory recovery should come first",
-            }),
-            copy: t("dashboard.focus.recovery_copy", {
-              defaultValue:
-                "Locked or dead accounts are reducing usable capacity. Clean inventory before scaling campaigns.",
-            }),
-            cta: t("dashboard.focus.recovery_cta", { defaultValue: "Inspect locked inventory" }),
+            title: t("dashboard.focus.recovery_title"),
+            copy: t("dashboard.focus.recovery_copy"),
+            cta: t("dashboard.focus.recovery_cta"),
             target: "/admin/accounts?status=Dead",
           }
         : executionPressure > 0
           ? {
-              title: t("dashboard.focus.capacity_title", {
-                defaultValue: "Capacity is close to saturation",
-              }),
-              copy: t("dashboard.focus.capacity_copy", {
-                defaultValue:
-                  "Running work is high compared with available inventory. Rebalance proxies and ready accounts before adding more load.",
-              }),
-              cta: t("dashboard.focus.capacity_cta", { defaultValue: "Open proxy routing" }),
+              title: t("dashboard.focus.capacity_title"),
+              copy: t("dashboard.focus.capacity_copy"),
+              cta: t("dashboard.focus.capacity_cta"),
               target: "/admin/accounts?tab=proxy-pool",
             }
           : {
-              title: t("dashboard.focus.clear_title", {
-                defaultValue: "System is clear for outbound work",
-              }),
-              copy: t("dashboard.focus.clear_copy", {
-                defaultValue:
-                  "Routing health is stable and there are no active delivery alarms. You can safely move into execution and conversation handling.",
-              }),
-              cta: t("dashboard.focus.clear_cta", { defaultValue: "Open conversation center" }),
+              title: t("dashboard.focus.clear_title"),
+              copy: t("dashboard.focus.clear_copy"),
+              cta: t("dashboard.focus.clear_cta"),
               target: "/admin/conversations",
             };
 
@@ -206,22 +186,16 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
     () => [
       {
         key: "accounts",
-        title: t("dashboard.account.total", { defaultValue: "Total Accounts" }),
+        title: t("dashboard.account.total"),
         value: data.totalAccounts ?? 0,
-        meta: t("dashboard.cards.accounts_meta", {
-          defaultValue: "{{count}} accounts available for active routing",
-          count: data.onlineAccounts ?? 0,
-        }),
+        meta: t("dashboard.cards.accounts_meta", { count: data.onlineAccounts ?? 0 }),
         icon: <UsergroupAddOutlined style={{ color: "#f6ece7", fontSize: 18 }} />,
       },
       {
         key: "online",
-        title: t("dashboard.account.online", { defaultValue: "Online Accounts" }),
+        title: t("dashboard.account.online"),
         value: data.onlineAccounts ?? 0,
-        meta: t("dashboard.cards.online_meta", {
-          defaultValue: "{{percent}}% of inventory is currently available",
-          percent: onlineRatio,
-        }),
+        meta: t("dashboard.cards.online_meta", { percent: onlineRatio }),
         trend: getDeltaLabel(data.onlineAccounts ?? 0, previousSnapshot?.onlineAccounts, t),
         progress: (
           <Progress
@@ -235,25 +209,19 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
       },
       {
         key: "todaySent",
-        title: t("dashboard.message.todaySent", { defaultValue: "Today Sent" }),
+        title: t("dashboard.message.todaySent"),
         value: data.todaySent ?? 0,
-        meta: t("dashboard.cards.sent_meta", {
-          defaultValue: "Outbound baseline for today's operator activity",
-        }),
+        meta: t("dashboard.cards.sent_meta"),
         sparkline: buildSparkline(history.map((item) => item.todaySent), "#3f69ff"),
         icon: <RiseOutlined style={{ color: "#3f69ff", fontSize: 18 }} />,
       },
       {
         key: "todayFailed",
-        title: t("dashboard.message.todayFailed", { defaultValue: "Today Failed" }),
+        title: t("dashboard.message.todayFailed"),
         value: data.todayFailed ?? 0,
         meta: data.todayFailed
-          ? t("dashboard.cards.failed_meta_active", {
-              defaultValue: "Failures are active and should be reviewed now",
-            })
-          : t("dashboard.cards.failed_meta_clear", {
-              defaultValue: "No active delivery alarms",
-            }),
+          ? t("dashboard.cards.failed_meta_active")
+          : t("dashboard.cards.failed_meta_clear"),
         className: getLatencyTone(data.todayFailed ?? 0, data.deadAccounts ?? 0),
         onClick: () => navigate("/admin/tasks?status=failed"),
         icon: <CloseCircleOutlined style={{ color: "#c0392b", fontSize: 18 }} />,
@@ -287,9 +255,9 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
         <Alert
           type="error"
           showIcon
-          message={t("common.error", { defaultValue: "加载失败" })}
+          message={t("common.error")}
           description={error}
-          action={<Button icon={<ReloadOutlined />} onClick={refresh}>{t("common.retry", { defaultValue: "重试" })}</Button>}
+          action={<Button icon={<ReloadOutlined />} onClick={refresh}>{t("common.retry")}</Button>}
         />
       </Card>
     );
@@ -303,31 +271,28 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
     <div className="cm-page" style={{ padding: 18 }}>
       <div className="cm-page-header">
         <div>
-          <Text className="cm-kpi-eyebrow">{t("dashboard.overview_eyebrow", { defaultValue: "System Overview" })}</Text>
+          <Text className="cm-kpi-eyebrow">{t("dashboard.overview_eyebrow")}</Text>
           <Title level={2} className="cm-page-title cm-brand-title">
-            {t("dashboard.page_title", { defaultValue: "Command Dashboard" })}
+            {t("dashboard.page_title")}
           </Title>
           <Text className="cm-page-subtitle">
-            {t("dashboard.page_subtitle", {
-              defaultValue:
-                "Run the operation from signals, not raw tables. This view surfaces what needs action, what is stable and where capacity is slipping.",
-            })}
+            {t("dashboard.page_subtitle")}
           </Text>
         </div>
         <Space wrap>
           <div className="cm-health-pill">
             <CheckCircleOutlined style={{ color: "var(--cm-green)" }} />
-            <span>{t("dashboard.system_health", { defaultValue: "System Health" })}: {healthScore}%</span>
+            <span>{t("dashboard.system_health")}: {healthScore}%</span>
           </div>
           <Button icon={<ReloadOutlined />} onClick={refresh}>
-            {t("common.refresh", { defaultValue: "刷新" })}
+            {t("common.refresh")}
           </Button>
         </Space>
       </div>
 
       <div className="cm-hero-band">
         <div className="cm-hero-panel">
-          <Text className="cm-kpi-eyebrow">{t("dashboard.today_focus", { defaultValue: "Today's Focus" })}</Text>
+          <Text className="cm-kpi-eyebrow">{t("dashboard.today_focus")}</Text>
           <Title level={3} style={{ color: "var(--cm-text-primary)", margin: "8px 0 8px" }}>
             {focusTone.title}
           </Title>
@@ -336,53 +301,53 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
           </Text>
           <div className="cm-hero-metrics">
             <div className="cm-mini-stat">
-              <div className="cm-kpi-eyebrow">{t("dashboard.ready_capacity", { defaultValue: "Ready Capacity" })}</div>
+              <div className="cm-kpi-eyebrow">{t("dashboard.ready_capacity")}</div>
               <strong>{data.onlineAccounts ?? 0}</strong>
-              <span>{t("dashboard.ready_capacity_meta", { defaultValue: "Accounts ready for live routing" })}</span>
+              <span>{t("dashboard.ready_capacity_meta")}</span>
             </div>
             <div className="cm-mini-stat">
-              <div className="cm-kpi-eyebrow">{t("dashboard.running_load", { defaultValue: "Running Load" })}</div>
+              <div className="cm-kpi-eyebrow">{t("dashboard.running_load")}</div>
               <strong>{data.runningTasks ?? 0}</strong>
-              <span>{t("dashboard.running_load_meta", { defaultValue: "Tasks currently consuming throughput" })}</span>
+              <span>{t("dashboard.running_load_meta")}</span>
             </div>
             <div className="cm-mini-stat">
-              <div className="cm-kpi-eyebrow">{t("dashboard.risk_inventory", { defaultValue: "Risk Inventory" })}</div>
+              <div className="cm-kpi-eyebrow">{t("dashboard.risk_inventory")}</div>
               <strong>{(data.deadAccounts ?? 0) + (data.cooldownAccounts ?? 0)}</strong>
-              <span>{t("dashboard.risk_inventory_meta", { defaultValue: "Locked and cooling accounts combined" })}</span>
+              <span>{t("dashboard.risk_inventory_meta")}</span>
             </div>
           </div>
           <div className="cm-priority-actions">
             <Button type="primary" className="cm-primary-button" onClick={() => navigate(focusTone.target)}>
               {focusTone.cta}
             </Button>
-            <Button onClick={() => navigate("/admin/accounts")}>{t("dashboard.open_inventory", { defaultValue: "Open inventory" })}</Button>
+            <Button onClick={() => navigate("/admin/accounts")}>{t("dashboard.open_inventory")}</Button>
           </div>
         </div>
 
         <div className="cm-hero-panel">
-          <Text className="cm-kpi-eyebrow">{t("dashboard.operator_brief", { defaultValue: "Operator Brief" })}</Text>
+          <Text className="cm-kpi-eyebrow">{t("dashboard.operator_brief")}</Text>
           <Title level={4} style={{ color: "var(--cm-text-primary)", margin: "8px 0 14px" }}>
-            {t("dashboard.business_readout", { defaultValue: "Business Readout" })}
+            {t("dashboard.business_readout")}
           </Title>
           <div className="cm-signal-list">
             <div className="cm-signal-item">
               <div>
-                <strong>{t("dashboard.inventory_coverage", { defaultValue: "Inventory Coverage" })}</strong>
-                <span>{t("dashboard.inventory_coverage_meta", { defaultValue: "Percent of total accounts available right now" })}</span>
+                <strong>{t("dashboard.inventory_coverage")}</strong>
+                <span>{t("dashboard.inventory_coverage_meta")}</span>
               </div>
               <Tag color={onlineRatio >= 40 ? "green" : "orange"}>{onlineRatio}%</Tag>
             </div>
             <div className="cm-signal-item">
               <div>
-                <strong>{t("dashboard.execution_quality", { defaultValue: "Execution Quality" })}</strong>
-                <span>{t("dashboard.execution_quality_meta", { defaultValue: "Completion rate across active task flow" })}</span>
+                <strong>{t("dashboard.execution_quality")}</strong>
+                <span>{t("dashboard.execution_quality_meta")}</span>
               </div>
               <Tag color={completionRate >= 80 ? "green" : "orange"}>{completionRate}%</Tag>
             </div>
             <div className="cm-signal-item">
               <div>
-                <strong>{t("dashboard.failure_pressure", { defaultValue: "Failure Pressure" })}</strong>
-                <span>{t("dashboard.failure_pressure_meta", { defaultValue: "Tasks that need review before scaling" })}</span>
+                <strong>{t("dashboard.failure_pressure")}</strong>
+                <span>{t("dashboard.failure_pressure_meta")}</span>
               </div>
               <Tag color={(data.todayFailed ?? 0) > 0 ? "orange" : "green"}>{data.todayFailed ?? 0}</Tag>
             </div>
@@ -425,23 +390,23 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
 
       <div className="cm-priority-grid">
         <div className="cm-priority-card">
-          <Text className="cm-kpi-eyebrow">{t("dashboard.recovery_eyebrow", { defaultValue: "Recovery" })}</Text>
-          <h3>{t("dashboard.recovery_title", { defaultValue: "Stabilize the route base" })}</h3>
-          <p>{t("dashboard.recovery_copy", { defaultValue: "Review locked inventory, cooldown pressure and routing quality before adding new outbound volume." })}</p>
+          <Text className="cm-kpi-eyebrow">{t("dashboard.recovery_eyebrow")}</Text>
+          <h3>{t("dashboard.recovery_title")}</h3>
+          <p>{t("dashboard.recovery_copy")}</p>
           <div className="cm-priority-actions">
-            <Button onClick={() => navigate("/admin/accounts?status=Dead")}>{t("dashboard.locked_inventory", { defaultValue: "Locked inventory" })}</Button>
-            <Button onClick={() => navigate("/admin/accounts?tab=proxy-pool")}>{t("dashboard.proxy_routing", { defaultValue: "Proxy routing" })}</Button>
+            <Button onClick={() => navigate("/admin/accounts?status=Dead")}>{t("dashboard.locked_inventory")}</Button>
+            <Button onClick={() => navigate("/admin/accounts?tab=proxy-pool")}>{t("dashboard.proxy_routing")}</Button>
           </div>
         </div>
         <div className="cm-priority-card">
-          <Text className="cm-kpi-eyebrow">{t("dashboard.execution_eyebrow", { defaultValue: "Execution" })}</Text>
-          <h3>{t("dashboard.execution_title", { defaultValue: "Keep operators in motion" })}</h3>
-          <p>{t("dashboard.execution_copy", { defaultValue: "Move from exceptions into live work by opening the threads that need replies or by reviewing running tasks." })}</p>
+          <Text className="cm-kpi-eyebrow">{t("dashboard.execution_eyebrow")}</Text>
+          <h3>{t("dashboard.execution_title")}</h3>
+          <p>{t("dashboard.execution_copy")}</p>
           <div className="cm-priority-actions">
             <Button type="primary" className="cm-primary-button" onClick={() => navigate("/admin/conversations")}>
-              {t("dashboard.open_conversation_center", { defaultValue: "Open conversation center" })}
+              {t("dashboard.open_conversation_center")}
             </Button>
-            <Button onClick={() => navigate("/admin/tasks")}>{t("dashboard.review_task_flow", { defaultValue: "Review task flow" })}</Button>
+            <Button onClick={() => navigate("/admin/tasks")}>{t("dashboard.review_task_flow")}</Button>
           </div>
         </div>
       </div>
@@ -451,23 +416,19 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
           <div className="cm-section-card" style={{ padding: 14 }}>
             <div className="cm-page-header" style={{ marginBottom: 12 }}>
               <div>
-                <Text className="cm-kpi-eyebrow">{t("dashboard.execution_capacity", { defaultValue: "Execution Capacity" })}</Text>
+                <Text className="cm-kpi-eyebrow">{t("dashboard.execution_capacity")}</Text>
                 <Title level={4} className="cm-page-title">
-                  {t("dashboard.task_throughput", { defaultValue: "Task Throughput" })}
+                  {t("dashboard.task_throughput")}
                 </Title>
               </div>
               <Text style={{ color: "var(--cm-text-secondary)" }}>
-                {t("dashboard.running_of_total", {
-                  defaultValue: "{{running}} running of {{total}} total tasks",
-                  running: data.runningTasks ?? 0,
-                  total: data.totalTasks ?? 0,
-                })}
+                {t("dashboard.running_of_total", { running: data.runningTasks ?? 0, total: data.totalTasks ?? 0 })}
               </Text>
             </div>
             <Row gutter={[16, 16]}>
               <Col xs={24} md={12}>
                 <div className="cm-glass-card" style={{ borderRadius: 16, padding: 14 }}>
-                  <Text className="cm-kpi-eyebrow">{t("dashboard.completion_rate", { defaultValue: "Completion Rate" })}</Text>
+                  <Text className="cm-kpi-eyebrow">{t("dashboard.completion_rate")}</Text>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginTop: 12 }}>
                     <Progress
                       type="circle"
@@ -481,7 +442,7 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
                         {completionRate}%
                       </Title>
                       <Text style={{ color: "var(--cm-text-secondary)" }}>
-                        {t("dashboard.success_quality", { defaultValue: "Success quality across active throughput." })}
+                        {t("dashboard.success_quality")}
                       </Text>
                     </div>
                   </div>
@@ -489,12 +450,12 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
               </Col>
               <Col xs={24} md={12}>
                 <div className="cm-glass-card" style={{ borderRadius: 16, padding: 14, height: "100%" }}>
-                  <Text className="cm-kpi-eyebrow">{t("dashboard.immediate_actions", { defaultValue: "Immediate Actions" })}</Text>
+                  <Text className="cm-kpi-eyebrow">{t("dashboard.immediate_actions")}</Text>
                   <Space direction="vertical" size={10} style={{ width: "100%", marginTop: 12 }}>
-                    <Button block onClick={() => navigate("/admin/accounts?status=Dead")}>{t("dashboard.recover_locked_inventory", { defaultValue: "Recover locked inventory" })}</Button>
-                    <Button block onClick={() => navigate("/admin/conversations")}>{t("dashboard.prioritize_live_conversations", { defaultValue: "Prioritize live conversations" })}</Button>
+                    <Button block onClick={() => navigate("/admin/accounts?status=Dead")}>{t("dashboard.recover_locked_inventory")}</Button>
+                    <Button block onClick={() => navigate("/admin/conversations")}>{t("dashboard.prioritize_live_conversations")}</Button>
                     <Button block type="primary" className="cm-primary-button" onClick={() => navigate("/admin/accounts?tab=proxy-pool")}>
-                      {t("dashboard.validate_proxy_routing", { defaultValue: "Validate proxy routing" })}
+                      {t("dashboard.validate_proxy_routing")}
                     </Button>
                   </Space>
                 </div>
@@ -504,29 +465,29 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
         </Col>
         <Col xs={24} xl={9}>
           <div className="cm-section-card" style={{ padding: 14, height: "100%" }}>
-            <Text className="cm-kpi-eyebrow">{t("dashboard.live_status", { defaultValue: "Live Status" })}</Text>
+            <Text className="cm-kpi-eyebrow">{t("dashboard.live_status")}</Text>
             <Title level={4} className="cm-page-title" style={{ marginTop: 6 }}>
-              {t("dashboard.operational_signals", { defaultValue: "Operational Signals" })}
+              {t("dashboard.operational_signals")}
             </Title>
             <div className="cm-signal-list" style={{ marginTop: 10 }}>
               <div className="cm-signal-item">
                 <div>
-                  <strong>{t("dashboard.cooldown_accounts", { defaultValue: "Cooldown Accounts" })}</strong>
-                  <span>{t("dashboard.cooldown_accounts_meta", { defaultValue: "Accounts temporarily unavailable for new work" })}</span>
+                  <strong>{t("dashboard.cooldown_accounts")}</strong>
+                  <span>{t("dashboard.cooldown_accounts_meta")}</span>
                 </div>
                 <Tag color="orange">{data.cooldownAccounts ?? 0}</Tag>
               </div>
               <div className="cm-signal-item">
                 <div>
-                  <strong>{t("dashboard.running_tasks", { defaultValue: "Running Tasks" })}</strong>
-                  <span>{t("dashboard.running_tasks_meta", { defaultValue: "Current task workload across the system" })}</span>
+                  <strong>{t("dashboard.running_tasks")}</strong>
+                  <span>{t("dashboard.running_tasks_meta")}</span>
                 </div>
                 <Tag color="blue">{data.runningTasks ?? 0}</Tag>
               </div>
               <div className="cm-signal-item">
                 <div>
-                  <strong>{t("dashboard.last_update", { defaultValue: "Last Update" })}</strong>
-                  <span>{t("dashboard.last_update_meta", { defaultValue: "Most recent backend stats refresh" })}</span>
+                  <strong>{t("dashboard.last_update")}</strong>
+                  <span>{t("dashboard.last_update_meta")}</span>
                 </div>
                 <Tag>
                   {data.system?.lastUpdate
