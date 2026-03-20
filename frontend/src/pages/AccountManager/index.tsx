@@ -412,24 +412,24 @@ const AccountManager: React.FC = () => {
 
       <div className="cm-feature-grid" style={{ marginBottom: 20 }}>
         <div className="cm-feature-card">
-          <DatabaseOutlined style={{ fontSize: 18, color: '#f3d5d5' }} />
-          <div style={{ color: '#f5e9e5', marginTop: 10, fontWeight: 600 }}>Sync TextNow Accounts</div>
-          <div style={{ color: '#b9a19a', marginTop: 4 }}>Refresh inventory and inspect routeable assets.</div>
+          <DatabaseOutlined style={{ fontSize: 18, color: '#8b0000' }} />
+          <div style={{ color: '#231815', marginTop: 10, fontWeight: 600 }}>Sync TextNow Accounts</div>
+          <div style={{ color: '#6f5750', marginTop: 4 }}>Refresh inventory and inspect routeable assets.</div>
         </div>
         <div className="cm-feature-card">
-          <RocketOutlined style={{ fontSize: 18, color: '#f3d5d5' }} />
-          <div style={{ color: '#f5e9e5', marginTop: 10, fontWeight: 600 }}>Setup Auto Reply</div>
-          <div style={{ color: '#b9a19a', marginTop: 4 }}>Pair accounts with templates and execution rules.</div>
+          <RocketOutlined style={{ fontSize: 18, color: '#8b0000' }} />
+          <div style={{ color: '#231815', marginTop: 10, fontWeight: 600 }}>Setup Auto Reply</div>
+          <div style={{ color: '#6f5750', marginTop: 4 }}>Pair accounts with templates and execution rules.</div>
         </div>
         <div className="cm-feature-card">
-          <LinkOutlined style={{ fontSize: 18, color: '#f3d5d5' }} />
-          <div style={{ color: '#f5e9e5', marginTop: 10, fontWeight: 600 }}>Configure AI Engine</div>
-          <div style={{ color: '#b9a19a', marginTop: 4 }}>Connect translation and behavior services for automation.</div>
+          <LinkOutlined style={{ fontSize: 18, color: '#8b0000' }} />
+          <div style={{ color: '#231815', marginTop: 10, fontWeight: 600 }}>Configure AI Engine</div>
+          <div style={{ color: '#6f5750', marginTop: 4 }}>Connect translation and behavior services for automation.</div>
         </div>
         <div className="cm-feature-card">
-          <ThunderboltOutlined style={{ fontSize: 18, color: '#f3d5d5' }} />
-          <div style={{ color: '#f5e9e5', marginTop: 10, fontWeight: 600 }}>Proxy Health Review</div>
-          <div style={{ color: '#b9a19a', marginTop: 4 }}>Surface latency spikes before delivery drops start.</div>
+          <ThunderboltOutlined style={{ fontSize: 18, color: '#8b0000' }} />
+          <div style={{ color: '#231815', marginTop: 10, fontWeight: 600 }}>Proxy Health Review</div>
+          <div style={{ color: '#6f5750', marginTop: 4 }}>Surface latency spikes before delivery drops start.</div>
         </div>
       </div>
 

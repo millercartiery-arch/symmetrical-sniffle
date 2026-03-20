@@ -9,9 +9,9 @@ body {
   height: 100%;
   font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background:
-    radial-gradient(circle at top, rgba(178, 34, 34, 0.18), transparent 34%),
-    linear-gradient(180deg, #120909 0%, #090707 100%);
-  color: var(--cm-white);
+    radial-gradient(circle at top, rgba(178, 34, 34, 0.08), transparent 34%),
+    linear-gradient(180deg, #fffdfc 0%, #f7efec 100%);
+  color: #2b1d1a;
 }
 
 body {
@@ -42,14 +42,14 @@ a {
 
 .cm-shell {
   background:
-    radial-gradient(circle at top, rgba(178, 34, 34, 0.12), transparent 28%),
-    linear-gradient(180deg, rgba(17, 10, 10, 0.98), rgba(10, 10, 10, 0.98));
+    radial-gradient(circle at top, rgba(178, 34, 34, 0.08), transparent 28%),
+    linear-gradient(180deg, rgba(255, 253, 252, 0.98), rgba(247, 239, 236, 0.98));
 }
 
 .cm-glass-card {
-  background: linear-gradient(180deg, rgba(26, 26, 26, 0.94), rgba(18, 18, 18, 0.98));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(250, 246, 244, 0.98));
   border: 1px solid var(--cm-border);
-  box-shadow: var(--cm-shadow);
+  box-shadow: 0 18px 48px rgba(139, 0, 0, 0.06);
 }
 
 .cm-brand-title {
@@ -74,12 +74,12 @@ a {
 }
 
 .cm-sidebar {
-  background: linear-gradient(180deg, rgba(17, 12, 12, 0.98), rgba(10, 10, 10, 1)) !important;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 241, 238, 1)) !important;
 }
 
 .cm-sidebar .ant-menu {
   background: transparent !important;
-  color: var(--cm-text-muted);
+  color: #6f5750;
 }
 
 .cm-sidebar .ant-menu-item {
@@ -105,7 +105,7 @@ a {
 }
 
 .cm-header {
-  background: rgba(13, 9, 9, 0.85) !important;
+  background: rgba(255, 255, 255, 0.9) !important;
   backdrop-filter: blur(18px);
 }
 
@@ -114,9 +114,9 @@ a {
   border-radius: 24px;
   border: 1px solid var(--cm-border);
   background:
-    radial-gradient(circle at top right, rgba(178, 34, 34, 0.12), transparent 28%),
-    linear-gradient(180deg, rgba(18, 18, 18, 0.96), rgba(10, 10, 10, 0.99));
-  box-shadow: var(--cm-shadow);
+    radial-gradient(circle at top right, rgba(178, 34, 34, 0.07), transparent 28%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 243, 240, 0.98));
+  box-shadow: 0 18px 48px rgba(139, 0, 0, 0.08);
 }
 
 .cm-page-header {
@@ -129,12 +129,12 @@ a {
 }
 
 .cm-page-title {
-  color: var(--cm-white) !important;
+  color: #231815 !important;
   margin: 0 !important;
 }
 
 .cm-page-subtitle {
-  color: var(--cm-text-muted) !important;
+  color: #6f5750 !important;
   max-width: 720px;
 }
 
@@ -149,16 +149,16 @@ a {
   padding: 18px;
   border-radius: 20px;
   border: 1px solid var(--cm-border);
-  background: linear-gradient(180deg, rgba(29, 18, 18, 0.95), rgba(18, 18, 18, 0.98));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(249, 244, 241, 0.98));
 }
 
 .cm-kpi-card.cm-danger {
   border-color: rgba(192, 57, 43, 0.6);
-  background: linear-gradient(180deg, rgba(62, 20, 20, 0.9), rgba(22, 14, 14, 0.98));
+  background: linear-gradient(180deg, rgba(255, 245, 245, 0.96), rgba(255, 237, 237, 0.98));
 }
 
 .cm-kpi-eyebrow {
-  color: var(--cm-text-muted);
+  color: #8a6d66;
   font-size: 12px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -167,14 +167,14 @@ a {
 .cm-kpi-value {
   display: block;
   margin-top: 10px;
-  color: var(--cm-white);
+  color: #231815;
   font-size: clamp(30px, 3vw, 42px);
   font-weight: 700;
   line-height: 1;
 }
 
 .cm-kpi-meta {
-  color: var(--cm-text-muted);
+  color: #6f5750;
   font-size: 12px;
 }
 
@@ -185,8 +185,8 @@ a {
   padding: 8px 14px;
   border-radius: 999px;
   border: 1px solid var(--cm-border-strong);
-  background: rgba(139, 0, 0, 0.12);
-  color: var(--cm-white);
+  background: rgba(139, 0, 0, 0.06);
+  color: #231815;
 }
 
 .cm-chat-shell {
@@ -201,8 +201,8 @@ a {
 .cm-section-card {
   border-radius: 22px;
   border: 1px solid var(--cm-border);
-  background: linear-gradient(180deg, rgba(22, 22, 22, 0.98), rgba(12, 12, 12, 0.98));
-  box-shadow: var(--cm-shadow);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(249, 244, 241, 0.98));
+  box-shadow: 0 18px 48px rgba(139, 0, 0, 0.06);
 }
 
 .cm-empty-state {
@@ -226,9 +226,9 @@ a {
   height: 72px;
   margin-bottom: 18px;
   border-radius: 24px;
-  background: radial-gradient(circle at top, rgba(178, 34, 34, 0.32), rgba(139, 0, 0, 0.12));
-  border: 1px solid rgba(178, 34, 34, 0.3);
-  color: #f3d5d5;
+  background: radial-gradient(circle at top, rgba(178, 34, 34, 0.12), rgba(139, 0, 0, 0.04));
+  border: 1px solid rgba(178, 34, 34, 0.18);
+  color: #8b0000;
   font-size: 28px;
 }
 
@@ -243,7 +243,7 @@ a {
   padding: 14px;
   border-radius: 16px;
   border: 1px solid var(--cm-border);
-  background: rgba(139, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.92);
   text-align: left;
 }
 
@@ -259,9 +259,9 @@ a {
   border-radius: 22px;
   border: 1px solid var(--cm-border);
   background:
-    radial-gradient(circle at top right, rgba(178, 34, 34, 0.12), transparent 28%),
-    linear-gradient(180deg, rgba(26, 18, 18, 0.98), rgba(12, 12, 12, 0.98));
-  box-shadow: var(--cm-shadow);
+    radial-gradient(circle at top right, rgba(178, 34, 34, 0.06), transparent 28%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(249, 244, 241, 0.98));
+  box-shadow: 0 18px 48px rgba(139, 0, 0, 0.06);
 }
 
 .cm-hero-panel {
@@ -278,14 +278,14 @@ a {
 .cm-mini-stat {
   padding: 14px 16px;
   border-radius: 18px;
-  border: 1px solid rgba(178, 34, 34, 0.14);
-  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(178, 34, 34, 0.12);
+  background: rgba(255, 255, 255, 0.92);
 }
 
 .cm-mini-stat strong {
   display: block;
   margin-top: 8px;
-  color: var(--cm-white);
+  color: #231815;
   font-size: 28px;
   line-height: 1;
 }
@@ -293,7 +293,7 @@ a {
 .cm-mini-stat span {
   display: block;
   margin-top: 8px;
-  color: var(--cm-text-muted);
+  color: #6f5750;
   font-size: 12px;
 }
 
@@ -310,13 +310,13 @@ a {
 
 .cm-priority-card h3 {
   margin: 10px 0 6px;
-  color: var(--cm-white);
+  color: #231815;
   font-size: 22px;
 }
 
 .cm-priority-card p {
   margin: 0;
-  color: var(--cm-text-muted);
+  color: #6f5750;
   line-height: 1.6;
 }
 
@@ -340,17 +340,17 @@ a {
   min-height: 52px;
   padding: 12px 14px;
   border-radius: 16px;
-  border: 1px solid rgba(178, 34, 34, 0.16);
-  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(178, 34, 34, 0.12);
+  background: rgba(255, 255, 255, 0.94);
 }
 
 .cm-signal-item strong {
-  color: var(--cm-white);
+  color: #231815;
   font-size: 15px;
 }
 
 .cm-signal-item span {
-  color: var(--cm-text-muted);
+  color: #6f5750;
   font-size: 12px;
 }
 
@@ -395,19 +395,19 @@ a {
 }
 
 .cm-table-shell .ant-table-thead > tr > th {
-  background: rgba(139, 0, 0, 0.1) !important;
-  color: #ecd9d4 !important;
+  background: rgba(139, 0, 0, 0.06) !important;
+  color: #2b1d1a !important;
   border-bottom-color: var(--cm-border) !important;
 }
 
 .cm-table-shell .ant-table-tbody > tr > td {
-  background: rgba(18, 18, 18, 0.92) !important;
-  border-bottom-color: rgba(74, 35, 35, 0.44) !important;
-  color: var(--cm-white);
+  background: rgba(255, 255, 255, 0.98) !important;
+  border-bottom-color: rgba(234, 222, 217, 0.9) !important;
+  color: #2b1d1a;
 }
 
 .cm-table-shell .ant-table-tbody > tr:hover > td {
-  background: rgba(139, 0, 0, 0.08) !important;
+  background: rgba(139, 0, 0, 0.04) !important;
 }
 
 .cm-form-grid {
@@ -433,16 +433,16 @@ a {
   border: 1px solid var(--cm-border-strong);
   border-bottom: none;
   background:
-    radial-gradient(circle at top, rgba(178, 34, 34, 0.2), transparent 42%),
-    linear-gradient(180deg, rgba(29, 18, 18, 0.98), rgba(12, 12, 12, 1));
-  box-shadow: 0 -18px 42px rgba(0, 0, 0, 0.45);
+    radial-gradient(circle at top, rgba(178, 34, 34, 0.08), transparent 42%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(249, 244, 241, 1));
+  box-shadow: 0 -18px 42px rgba(139, 0, 0, 0.06);
 }
 
 .cm-privacy-handle {
   width: 64px;
   height: 6px;
   border-radius: 999px;
-  background: rgba(234, 234, 234, 0.22);
+  background: rgba(139, 0, 0, 0.16);
   margin: 0 auto 18px;
 }
 
@@ -455,8 +455,8 @@ a {
 .cm-privacy-panel {
   padding: 20px;
   border-radius: 20px;
-  border: 1px solid rgba(178, 34, 34, 0.2);
-  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(178, 34, 34, 0.12);
+  background: rgba(255, 255, 255, 0.94);
 }
 
 .cm-privacy-scroll {

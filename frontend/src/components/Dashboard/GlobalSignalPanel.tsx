@@ -274,10 +274,10 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
       <div className="cm-hero-band">
         <div className="cm-hero-panel">
           <Text className="cm-kpi-eyebrow">Today&apos;s Focus</Text>
-          <Title level={3} style={{ color: "#f7ece8", margin: "8px 0 8px" }}>
+          <Title level={3} style={{ color: "#231815", margin: "8px 0 8px" }}>
             {focusTone.title}
           </Title>
-          <Text style={{ color: "#c8b2ac", lineHeight: 1.7 }}>
+          <Text style={{ color: "#6f5750", lineHeight: 1.7 }}>
             {focusTone.copy}
           </Text>
           <div className="cm-hero-metrics">
@@ -307,7 +307,7 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
 
         <div className="cm-hero-panel">
           <Text className="cm-kpi-eyebrow">Operator Brief</Text>
-          <Title level={4} style={{ color: "#f7ece8", margin: "8px 0 14px" }}>
+          <Title level={4} style={{ color: "#231815", margin: "8px 0 14px" }}>
             Business Readout
           </Title>
           <div className="cm-signal-list">
@@ -402,7 +402,7 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
                   Task Throughput
                 </Title>
               </div>
-              <Text style={{ color: "#b9a19a" }}>
+              <Text style={{ color: "#6f5750" }}>
                 {data.runningTasks ?? 0} running of {data.totalTasks ?? 0} total tasks
               </Text>
             </div>
@@ -419,10 +419,10 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
                       trailColor="rgba(255,255,255,0.08)"
                     />
                     <div style={{ flex: 1 }}>
-                      <Title level={3} style={{ color: "#f7ece8", margin: 0 }}>
+                      <Title level={3} style={{ color: "#231815", margin: 0 }}>
                         {completionRate}%
                       </Title>
-                      <Text style={{ color: "#b9a19a" }}>
+                      <Text style={{ color: "#6f5750" }}>
                         Success quality across active throughput.
                       </Text>
                     </div>

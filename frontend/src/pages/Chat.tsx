@@ -542,8 +542,8 @@ const Chat: React.FC = () => {
         <div className="cm-chat-sidebar" style={{ padding: 18 }}>
           <div style={{ marginBottom: 16 }}>
             <Text className="cm-kpi-eyebrow">Conversations</Text>
-            <Title level={4} style={{ margin: "6px 0 4px", color: "#f7ece8" }}>Queue & Filters</Title>
-            <Text style={{ color: "#b9a19a" }}>Search phone, remark, company or tags to reach a contact faster.</Text>
+          <Title level={4} style={{ margin: "6px 0 4px", color: "#231815" }}>Queue & Filters</Title>
+          <Text style={{ color: "#6f5750" }}>Search phone, remark, company or tags to reach a contact faster.</Text>
           </div>
           <Input placeholder="搜索号码 / 备注 / 公司" prefix={<SearchOutlined />} value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} allowClear style={{ marginBottom: 12 }} />
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 14 }}>
@@ -564,8 +564,8 @@ const Chat: React.FC = () => {
             <div className="cm-empty-state">
               <div className="cm-empty-hero">
                 <div className="cm-empty-badge"><MessageOutlined /></div>
-                <Title level={4} style={{ color: "#f7ece8", marginBottom: 8 }}>No Conversations Yet</Title>
-                <Text style={{ color: "#b9a19a" }}>Configure tenant routing or create the first task to start filling this queue.</Text>
+                <Title level={4} style={{ color: "#231815", marginBottom: 8 }}>No Conversations Yet</Title>
+                <Text style={{ color: "#6f5750" }}>Configure tenant routing or create the first task to start filling this queue.</Text>
                 <Space style={{ marginTop: 16 }}>
                   <Button type="primary" className="cm-primary-button" icon={<PlusOutlined />} onClick={() => navigate("/admin/dashboard")}>Create First Task</Button>
                   <Button icon={<SettingOutlined />} onClick={() => setSettingsOpen(true)}>Settings</Button>
@@ -588,7 +588,7 @@ const Chat: React.FC = () => {
                     <List.Item onClick={() => void handleSelectConversation(chat)} style={{ background: active ? "rgba(139, 0, 0, 0.16)" : "transparent", borderRadius: 16, border: active ? "1px solid rgba(178, 34, 34, 0.34)" : "1px solid transparent", marginBottom: 8, padding: "10px 12px", cursor: "pointer" }}>
                       <List.Item.Meta
                         avatar={<Badge dot={Boolean(chat.unreadCount)} offset={[-4, 4]}><Avatar style={{ backgroundColor: token.colorPrimary }}>{displayName?.[0]?.toUpperCase() ?? "?"}</Avatar></Badge>}
-                        title={<Space wrap><Text strong style={{ color: "#f7ece8" }}>{displayName}</Text>{remark.company ? <Tag color="blue" style={{ borderRadius: 999 }}>{remark.company}</Tag> : null}<Tag color={statusTone[statusKind]} style={{ borderRadius: 999, marginLeft: "auto" }}>{statusKind}</Tag></Space>}
+                        title={<Space wrap><Text strong style={{ color: "#231815" }}>{displayName}</Text>{remark.company ? <Tag color="blue" style={{ borderRadius: 999 }}>{remark.company}</Tag> : null}<Tag color={statusTone[statusKind]} style={{ borderRadius: 999, marginLeft: "auto" }}>{statusKind}</Tag></Space>}
                         description={<div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}><Text type="secondary" ellipsis style={{ maxWidth: 180 }}>{notePreview}</Text><Text type="secondary">{chat.time ?? ""}</Text></div>}
                       />
                     </List.Item>
@@ -603,8 +603,8 @@ const Chat: React.FC = () => {
           <div style={{ padding: "18px 18px 0", display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
             <div>
               <Text className="cm-kpi-eyebrow">Live Thread</Text>
-              <Title level={4} style={{ margin: "6px 0 4px", color: "#f7ece8" }}>{selectedChat ? selectedDisplayName : "Conversation Workspace"}</Title>
-              <Text style={{ color: "#b9a19a" }}>{selectedChat ? selectedRemark.notes || formatPhoneNumber(selectedChat.phone) : "Select a conversation to review messages, notes and translation preview."}</Text>
+              <Title level={4} style={{ margin: "6px 0 4px", color: "#231815" }}>{selectedChat ? selectedDisplayName : "Conversation Workspace"}</Title>
+              <Text style={{ color: "#6f5750" }}>{selectedChat ? selectedRemark.notes || formatPhoneNumber(selectedChat.phone) : "Select a conversation to review messages, notes and translation preview."}</Text>
             </div>
             <Space wrap>
               <Button icon={<EditOutlined />} onClick={() => setRemarkOpen(true)} disabled={!selectedChat}>备注</Button>
@@ -612,19 +612,19 @@ const Chat: React.FC = () => {
             </Space>
           </div>
 
-          <div ref={msgListRef} style={{ flex: 1, overflowY: "auto", padding: 16, margin: 18, borderRadius: 18, background: "linear-gradient(180deg, rgba(24, 24, 24, 0.98), rgba(12, 12, 12, 0.98))" }}>
+            <div ref={msgListRef} style={{ flex: 1, overflowY: "auto", padding: 16, margin: 18, borderRadius: 18, background: "linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(249, 244, 241, 0.98))" }}>
             {loadingMsgs ? (
               <Spin />
             ) : !selectedChat ? (
-              <div className="cm-empty-state"><div className="cm-empty-hero"><div className="cm-empty-badge"><ThunderboltOutlined /></div><Title level={3} style={{ color: "#f7ece8", marginBottom: 8 }}>Conversation workspace is standing by</Title><Text style={{ color: "#b9a19a" }}>Choose a live thread from the left to review message history, add a commercial note and prepare the next response.</Text><Space style={{ marginTop: 16 }}><Button type="primary" className="cm-primary-button" onClick={() => setStatusTab("normal")}>Focus active queue</Button><Button onClick={() => setSettingsOpen(true)}>Workspace settings</Button></Space></div></div>
+              <div className="cm-empty-state"><div className="cm-empty-hero"><div className="cm-empty-badge"><ThunderboltOutlined /></div><Title level={3} style={{ color: "#231815", marginBottom: 8 }}>Conversation workspace is standing by</Title><Text style={{ color: "#6f5750" }}>Choose a live thread from the left to review message history, add a commercial note and prepare the next response.</Text><Space style={{ marginTop: 16 }}><Button type="primary" className="cm-primary-button" onClick={() => setStatusTab("normal")}>Focus active queue</Button><Button onClick={() => setSettingsOpen(true)}>Workspace settings</Button></Space></div></div>
             ) : messages.length === 0 ? (
-              <div className="cm-empty-state"><div className="cm-empty-hero"><div className="cm-empty-badge"><MessageOutlined /></div><Title level={4} style={{ color: "#f7ece8", marginBottom: 8 }}>Thread is connected but still empty</Title><Text style={{ color: "#b9a19a" }}>Use this space to store context first, then send the opening reply with translation support if required.</Text><Space style={{ marginTop: 16 }}><Button type="primary" className="cm-primary-button" onClick={() => setRemarkOpen(true)}>Add commercial note</Button><Button onClick={() => document.querySelector('textarea')?.focus()}>Draft first reply</Button></Space></div></div>
+              <div className="cm-empty-state"><div className="cm-empty-hero"><div className="cm-empty-badge"><MessageOutlined /></div><Title level={4} style={{ color: "#231815", marginBottom: 8 }}>Thread is connected but still empty</Title><Text style={{ color: "#6f5750" }}>Use this space to store context first, then send the opening reply with translation support if required.</Text><Space style={{ marginTop: 16 }}><Button type="primary" className="cm-primary-button" onClick={() => setRemarkOpen(true)}>Add commercial note</Button><Button onClick={() => document.querySelector('textarea')?.focus()}>Draft first reply</Button></Space></div></div>
             ) : (
               messages.map((msg) => {
                 const isMine = msg.direction === "outbound";
                 return (
                   <div key={msg.id} style={{ display: "flex", justifyContent: isMine ? "flex-end" : "flex-start", marginBottom: 12 }}>
-                    <div style={{ maxWidth: "72%", padding: "10px 14px", borderRadius: 16, background: isMine ? "linear-gradient(135deg, #8B0000, #B22222)" : "rgba(255,255,255,0.04)", color: isMine ? "#fff" : "#f4e8e4", border: isMine ? "none" : "1px solid rgba(255,255,255,0.06)" }}>
+                    <div style={{ maxWidth: "72%", padding: "10px 14px", borderRadius: 16, background: isMine ? "linear-gradient(135deg, #8B0000, #B22222)" : "rgba(255,255,255,0.98)", color: isMine ? "#fff" : "#231815", border: isMine ? "none" : "1px solid rgba(234, 222, 217, 0.9)" }}>
                       <div>{msg.content}</div>
                       <div style={{ fontSize: 10, textAlign: "right", marginTop: 4, color: isMine ? "#eed6d6" : token.colorTextSecondary }}>{formatTime(msg.created_at)} · {formatMessageStatus(msg.status, msg.direction, t)}</div>
                     </div>
@@ -650,12 +650,12 @@ const Chat: React.FC = () => {
               <TextArea placeholder="输入消息，Enter 发送，Shift + Enter 换行" autoSize={{ minRows: 2, maxRows: 5 }} value={draft} onChange={(event) => setDraft(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); void handleSendMessage(); } }} disabled={sending || !selectedChat} />
 
               {translateEnabled ? (
-                <div style={{ marginTop: 12, padding: 12, borderRadius: 14, border: `1px solid ${token.colorBorder}`, background: "rgba(255,255,255,0.03)" }}>
+                <div style={{ marginTop: 12, padding: 12, borderRadius: 14, border: `1px solid ${token.colorBorder}`, background: "rgba(255,255,255,0.96)" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
                     <Text type="secondary">{translating ? "翻译中..." : translationError ? translationError : translatedDraft ? `检测语言: ${detectedLanguage || "auto"}` : "输入两字以上后自动生成译文预览"}</Text>
                     {translatedDraft ? <Tag color="blue" style={{ borderRadius: 999 }}>{sendMode === "translated" ? "当前发送译文" : "当前发送原文"}</Tag> : null}
                   </div>
-                  {translatedDraft ? <div style={{ marginTop: 8, whiteSpace: "pre-wrap", color: "#f4e8e4" }}>{translatedDraft}</div> : null}
+                  {translatedDraft ? <div style={{ marginTop: 8, whiteSpace: "pre-wrap", color: "#231815" }}>{translatedDraft}</div> : null}
                 </div>
               ) : null}
 
