@@ -213,31 +213,34 @@ const Chat: React.FC = () => {
     const restricted = conversations.filter((item) => item.banned).length;
     if (unreadSignals > 0) {
       return {
-        title: "Operator replies need attention",
-        copy: "Unread signals are active in the queue. Review high-intent threads before creating more outbound work.",
-        action: "Review queue",
+        title: t("chat.focus.unread_title", { defaultValue: "Operator replies need attention" }),
+        copy: t("chat.focus.unread_copy", { defaultValue: "Unread signals are active in the queue. Review high-intent threads before creating more outbound work." }),
+        action: t("chat.focus.review_queue", { defaultValue: "Review queue" }),
         onClick: () => setStatusTab("normal"),
       };
     }
     if (restricted > 0) {
       return {
-        title: "Restricted contacts are shaping the queue",
-        copy: "Some threads are blocked or flagged. Keep the workspace clean by isolating restricted contacts from live operators.",
-        action: "Filter restricted",
+        title: t("chat.focus.restricted_title", { defaultValue: "Restricted contacts are shaping the queue" }),
+        copy: t("chat.focus.restricted_copy", { defaultValue: "Some threads are blocked or flagged. Keep the workspace clean by isolating restricted contacts from live operators." }),
+        action: t("chat.focus.filter_restricted", { defaultValue: "Filter restricted" }),
         onClick: () => setStatusTab("banned"),
       };
     }
     return {
-      title: "Conversation desk is clear for execution",
-      copy: "No urgent chat alarms are visible. This is the right state for agents to triage new replies, apply remarks and prepare translated responses.",
-      action: "Open settings",
+      title: t("chat.focus.clear_title", { defaultValue: "Conversation desk is clear for execution" }),
+      copy: t("chat.focus.clear_copy", { defaultValue: "No urgent chat alarms are visible. This is the right state for agents to triage new replies, apply remarks and prepare translated responses." }),
+      action: t("chat.focus.open_settings", { defaultValue: "Open settings" }),
       onClick: () => setSettingsOpen(true),
     };
-  }, [conversations]);
+  }, [conversations, t]);
 
   const selectedConversationHealth = selectedChat
     ? getAccountStatusKind(selectedChat.status)
     : "normal";
+  const selectedConversationHealthLabel = t(`status.account.${selectedConversationHealth}`, {
+    defaultValue: selectedConversationHealth,
+  });
 
   const scrollToBottom = useCallback(() => {
     const element = msgListRef.current;
@@ -337,7 +340,7 @@ const Chat: React.FC = () => {
         setSendMode(translated && translated !== trimmed ? "translated" : "original");
       } catch (error: any) {
         if (seq !== translateSeqRef.current) return;
-        setTranslationError(error?.response?.data?.error || error?.message || "Translation preview failed");
+        setTranslationError(error?.response?.data?.error || error?.message || t("chat.translation_preview_failed", { defaultValue: "Translation preview failed" }));
         setTranslatedDraft("");
         setSendMode("original");
       } finally {
@@ -370,40 +373,40 @@ const Chat: React.FC = () => {
   const togglePin = useCallback(async (id: string, pinned: boolean) => {
     try {
       await api.post(`/user/chat/conversations/${encodeURIComponent(id)}/pin`, { pinned });
-      message.success("操作成功");
+      message.success(t("chat.action_success", { defaultValue: "Operation successful" }));
       fetchConversations();
     } catch {
-      message.error("操作失败");
+      message.error(t("chat.action_failed", { defaultValue: "Operation failed" }));
     }
-  }, [fetchConversations]);
+  }, [fetchConversations, t]);
 
   const toggleBan = useCallback(async (id: string, banned: boolean) => {
     try {
       await api.post(`/user/chat/conversations/${encodeURIComponent(id)}/ban`, { banned });
-      message.success("操作成功");
+      message.success(t("chat.action_success", { defaultValue: "Operation successful" }));
       fetchConversations();
     } catch {
-      message.error("操作失败");
+      message.error(t("chat.action_failed", { defaultValue: "Operation failed" }));
     }
-  }, [fetchConversations]);
+  }, [fetchConversations, t]);
 
   const deleteChat = useCallback(async (id: string) => {
     try {
       await api.post(`/user/chat/conversations/${encodeURIComponent(id)}/delete`, { deleted: true });
-      message.success("已删除");
+      message.success(t("chat.deleted", { defaultValue: "Deleted" }));
       if (selectedChat?.id === id) setSelectedChat(null);
       fetchConversations();
     } catch {
-      message.error("删除失败");
+      message.error(t("chat.delete_failed", { defaultValue: "Delete failed" }));
     }
-  }, [fetchConversations, selectedChat?.id]);
+  }, [fetchConversations, selectedChat?.id, t]);
 
   const saveTenantSettings = useCallback(() => {
     writeTenantScope({ tenantId: tenantId.trim(), tenantNumber: tenantNumber.trim() });
-    message.success("设置已保存");
+    message.success(t("chat.settings_saved", { defaultValue: "Settings saved" }));
     setSettingsOpen(false);
     fetchConversations();
-  }, [fetchConversations, tenantId, tenantNumber]);
+  }, [fetchConversations, t, tenantId, tenantNumber]);
 
   const saveRemark = useCallback(() => {
     if (!selectedChat) return;
@@ -418,8 +421,8 @@ const Chat: React.FC = () => {
     setRemarkStore(nextStore);
     saveRemarkStore(nextStore);
     setRemarkOpen(false);
-    message.success("备注已保存");
-  }, [remarkDraft, remarkStore, selectedChat]);
+    message.success(t("chat.remark_saved", { defaultValue: "Remark saved" }));
+  }, [remarkDraft, remarkStore, selectedChat, t]);
 
   const handleSendMessage = useCallback(async () => {
     if (!selectedChat) return;
@@ -445,20 +448,20 @@ const Chat: React.FC = () => {
       window.setTimeout(scrollToBottom, 60);
     } catch (error) {
       console.error(error);
-      message.error("发送消息失败");
+      message.error(t("chat.send_message_failed", { defaultValue: "Send message failed" }));
     } finally {
       setSending(false);
     }
-  }, [clearTranslationState, draft, scrollToBottom, selectedChat, sendMode, translateEnabled, translatedDraft]);
+  }, [clearTranslationState, draft, scrollToBottom, selectedChat, sendMode, translateEnabled, translatedDraft, t]);
 
   const contextMenuItems = useCallback((chat: ChatItem) => [
-    { key: "pin", label: chat.pinned ? "取消置顶" : "置顶", onClick: () => togglePin(chat.id, !chat.pinned) },
-    { key: "ban", label: chat.banned ? "解除封禁" : "封禁", onClick: () => toggleBan(chat.id, !chat.banned), danger: !chat.banned },
-    { key: "remark", label: "编辑备注", onClick: () => { setSelectedChat(chat); setRemarkOpen(true); } },
-    { key: "read", label: "标记已读", onClick: () => markRead(chat.id).then(fetchConversations) },
+    { key: "pin", label: chat.pinned ? t("chat.unpin", { defaultValue: "Unpin" }) : t("chat.pin", { defaultValue: "Pin" }), onClick: () => togglePin(chat.id, !chat.pinned) },
+    { key: "ban", label: chat.banned ? t("chat.unblock", { defaultValue: "Unblock" }) : t("chat.block", { defaultValue: "Block" }), onClick: () => toggleBan(chat.id, !chat.banned), danger: !chat.banned },
+    { key: "remark", label: t("chat.edit_remark", { defaultValue: "Edit remark" }), onClick: () => { setSelectedChat(chat); setRemarkOpen(true); } },
+    { key: "read", label: t("chat.mark_read", { defaultValue: "Mark read" }), onClick: () => markRead(chat.id).then(fetchConversations) },
     { type: "divider" as const },
-    { key: "delete", label: "删除会话", danger: true, onClick: () => deleteChat(chat.id) },
-  ], [deleteChat, fetchConversations, markRead, toggleBan, togglePin]);
+    { key: "delete", label: t("chat.delete_conversation", { defaultValue: "Delete conversation" }), danger: true, onClick: () => deleteChat(chat.id) },
+  ], [deleteChat, fetchConversations, markRead, t, toggleBan, togglePin]);
 
   const handleSelectConversation = async (chat: ChatItem) => {
     setSelectedChat(chat);
@@ -472,16 +475,16 @@ const Chat: React.FC = () => {
     <div className="cm-page" style={{ padding: 16 }}>
       <div className="cm-page-header">
         <div>
-          <Text className="cm-kpi-eyebrow">Message Management</Text>
-          <Title level={2} className="cm-page-title cm-brand-title">Conversation Center</Title>
-          <Text className="cm-page-subtitle">Remarks, translation assist and live reply handling now sit inside one operator-facing workspace with fewer dead ends.</Text>
+          <Text className="cm-kpi-eyebrow">{t("chat.page_eyebrow", { defaultValue: "Message Management" })}</Text>
+          <Title level={2} className="cm-page-title cm-brand-title">{t("chat.page_title", { defaultValue: "Conversation Center" })}</Title>
+          <Text className="cm-page-subtitle">{t("chat.page_subtitle", { defaultValue: "Remarks, translation assist and live reply handling now sit inside one operator-facing workspace with fewer dead ends." })}</Text>
         </div>
-        <Button icon={<ReloadOutlined />} onClick={fetchConversations}>{t("common.refresh", { defaultValue: "刷新" })}</Button>
+        <Button icon={<ReloadOutlined />} onClick={fetchConversations}>{t("common.refresh", { defaultValue: "Refresh" })}</Button>
       </div>
 
       <div className="cm-hero-band">
         <div className="cm-hero-panel">
-          <div className="cm-kpi-eyebrow">Conversation Command</div>
+          <div className="cm-kpi-eyebrow">{t("chat.conversation_command", { defaultValue: "Conversation Command" })}</div>
           <Title level={3} className="cm-page-title" style={{ marginTop: 8 }}>
             {conversationFocus.title}
           </Title>
@@ -492,8 +495,8 @@ const Chat: React.FC = () => {
             <Button type="primary" className="cm-primary-button" onClick={conversationFocus.onClick}>
               {conversationFocus.action}
             </Button>
-            <Button onClick={() => navigate("/admin/dashboard")}>Open dashboard</Button>
-            <Button onClick={() => setRemarkOpen(true)} disabled={!selectedChat}>Edit remark</Button>
+            <Button onClick={() => navigate("/admin/dashboard")}>{t("chat.open_dashboard", { defaultValue: "Open dashboard" })}</Button>
+            <Button onClick={() => setRemarkOpen(true)} disabled={!selectedChat}>{t("chat.edit_remark", { defaultValue: "Edit remark" })}</Button>
           </div>
           <div className="cm-hero-metrics">
             {chatStats.map((item) => (
@@ -507,31 +510,31 @@ const Chat: React.FC = () => {
         </div>
 
         <div className="cm-hero-panel">
-          <div className="cm-kpi-eyebrow">Queue Guidance</div>
+          <div className="cm-kpi-eyebrow">{t("chat.queue_guidance", { defaultValue: "Queue Guidance" })}</div>
           <div className="cm-signal-list" style={{ marginTop: 16 }}>
             <div className="cm-signal-item">
               <div>
-                <strong>Search before switching tabs</strong>
-                <span>Use phone, remark, company and tags as the primary retrieval path for active operator work.</span>
+                <strong>{t("chat.guidance_search_title", { defaultValue: "Search before switching tabs" })}</strong>
+                <span>{t("chat.guidance_search_copy", { defaultValue: "Use phone, remark, company and tags as the primary retrieval path for active operator work." })}</span>
               </div>
-              <Button size="small" onClick={() => setStatusTab("all")}>Show all</Button>
+              <Button size="small" onClick={() => setStatusTab("all")}>{t("chat.show_all", { defaultValue: "Show all" })}</Button>
             </div>
             <div className="cm-signal-item">
               <div>
-                <strong>Keep translation optional, not mandatory</strong>
-                <span>Operators should see the translation preview as support for reply quality, not as the only path to send.</span>
+                <strong>{t("chat.guidance_translation_title", { defaultValue: "Keep translation optional, not mandatory" })}</strong>
+                <span>{t("chat.guidance_translation_copy", { defaultValue: "Operators should see the translation preview as support for reply quality, not as the only path to send." })}</span>
               </div>
               <Button size="small" onClick={() => setTranslateEnabled((prev) => !prev)}>
-                {translateEnabled ? "Disable" : "Enable"}
+                {translateEnabled ? t("chat.disable", { defaultValue: "Disable" }) : t("chat.enable", { defaultValue: "Enable" })}
               </Button>
             </div>
             <div className="cm-signal-item">
               <div>
-                <strong>Selected thread health</strong>
-                <span>{selectedChat ? `${selectedDisplayName} is currently marked as ${selectedConversationHealth}.` : "Select a live thread to inspect message history and reply status."}</span>
+                <strong>{t("chat.selected_thread_health", { defaultValue: "Selected thread health" })}</strong>
+                <span>{selectedChat ? t("chat.selected_thread_health_copy", { defaultValue: "{{name}} is currently marked as {{status}}.", name: selectedDisplayName, status: selectedConversationHealthLabel }) : t("chat.select_thread_prompt", { defaultValue: "Select a live thread to inspect message history and reply status." })}</span>
               </div>
               <Button size="small" onClick={() => selectedChat && void handleSelectConversation(selectedChat)} disabled={!selectedChat}>
-                Refresh thread
+                {t("chat.refresh_thread", { defaultValue: "Refresh thread" })}
               </Button>
             </div>
           </div>
@@ -541,18 +544,18 @@ const Chat: React.FC = () => {
       <div className="cm-chat-shell">
         <div className="cm-chat-sidebar" style={{ padding: 14 }}>
           <div style={{ marginBottom: 16 }}>
-            <Text className="cm-kpi-eyebrow">Conversations</Text>
-            <Title level={4} style={{ margin: "6px 0 4px", color: "#231815" }}>Queue & Filters</Title>
-            <Text style={{ color: "#6f5750" }}>Search phone, remark, company or tags to reach a contact faster.</Text>
+            <Text className="cm-kpi-eyebrow">{t("chat.conversations", { defaultValue: "Conversations" })}</Text>
+            <Title level={4} style={{ margin: "6px 0 4px", color: "var(--cm-text-primary)" }}>{t("chat.queue_filters", { defaultValue: "Queue & Filters" })}</Title>
+            <Text style={{ color: "var(--cm-text-secondary)" }}>{t("chat.queue_filters_copy", { defaultValue: "Search phone, remark, company or tags to reach a contact faster." })}</Text>
           </div>
-          <Input placeholder="搜索号码 / 备注 / 公司" prefix={<SearchOutlined />} value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} allowClear style={{ marginBottom: 12 }} />
+          <Input placeholder={t("chat.search_placeholder", { defaultValue: "Search phone / remark / company" })} prefix={<SearchOutlined />} value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} allowClear style={{ marginBottom: 12 }} />
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 14 }}>
             {[
-              { value: "all", label: "全部" },
-              { value: "normal", label: "正常" },
-              { value: "paused", label: "冷却" },
-              { value: "busy", label: "忙碌" },
-              { value: "banned", label: "封禁" },
+              { value: "all", label: t("chat.filter_all", { defaultValue: "All" }) },
+              { value: "normal", label: t("chat.filter_normal", { defaultValue: "Normal" }) },
+              { value: "paused", label: t("chat.filter_paused", { defaultValue: "Cooldown" }) },
+              { value: "busy", label: t("chat.filter_busy", { defaultValue: "Busy" }) },
+              { value: "banned", label: t("chat.filter_banned", { defaultValue: "Restricted" }) },
             ].map((option) => (
               <Button key={option.value} size="small" type={statusTab === option.value ? "primary" : "default"} className={statusTab === option.value ? "cm-primary-button" : undefined} onClick={() => setStatusTab(option.value as typeof statusTab)}>{option.label}</Button>
             ))}
@@ -564,11 +567,11 @@ const Chat: React.FC = () => {
             <div className="cm-empty-state">
               <div className="cm-empty-hero">
                 <div className="cm-empty-badge"><MessageOutlined /></div>
-                <Title level={4} style={{ color: "#231815", marginBottom: 8 }}>No Conversations Yet</Title>
-                <Text style={{ color: "#6f5750" }}>Configure tenant routing or create the first task to start filling this queue.</Text>
+                <Title level={4} style={{ color: "var(--cm-text-primary)", marginBottom: 8 }}>{t("chat.empty_title", { defaultValue: "No Conversations Yet" })}</Title>
+                <Text style={{ color: "var(--cm-text-secondary)" }}>{t("chat.empty_copy", { defaultValue: "Configure tenant routing or create the first task to start filling this queue." })}</Text>
                 <Space style={{ marginTop: 16 }}>
-                  <Button type="primary" className="cm-primary-button" icon={<PlusOutlined />} onClick={() => navigate("/admin/dashboard")}>Create First Task</Button>
-                  <Button icon={<SettingOutlined />} onClick={() => setSettingsOpen(true)}>Settings</Button>
+                  <Button type="primary" className="cm-primary-button" icon={<PlusOutlined />} onClick={() => navigate("/admin/dashboard")}>{t("chat.create_first_task", { defaultValue: "Create First Task" })}</Button>
+                  <Button icon={<SettingOutlined />} onClick={() => setSettingsOpen(true)}>{t("common.settings", { defaultValue: "Settings" })}</Button>
                 </Space>
               </div>
             </div>
@@ -579,16 +582,17 @@ const Chat: React.FC = () => {
               renderItem={(chat) => {
                 const remark = remarkStore[chat.id] ?? emptyRemark;
                 const displayName = remark.displayName || chat.name || formatPhoneNumber(chat.phone);
-                const notePreview = remark.notes || chat.lastMessage || "暂无消息";
+                const notePreview = remark.notes || chat.lastMessage || t("chat.no_messages_preview", { defaultValue: "No messages yet" });
                 const statusKind = getAccountStatusKind(chat.status);
-                const statusTone: Record<string, string> = { normal: "#52c41a", paused: "#faad14", busy: "#3f69ff", banned: "#f5222d" };
+                const statusTone: Record<string, string> = { normal: "green", paused: "gold", busy: "blue", banned: "red" };
+                const statusLabel = t(`status.account.${statusKind}`, { defaultValue: statusKind });
                 const active = selectedChat?.id === chat.id;
                 return (
                   <Dropdown key={chat.id} trigger={["contextMenu"]} menu={{ items: contextMenuItems(chat) }}>
-                    <List.Item onClick={() => void handleSelectConversation(chat)} style={{ background: active ? "rgba(139, 0, 0, 0.16)" : "transparent", borderRadius: 16, border: active ? "1px solid rgba(178, 34, 34, 0.34)" : "1px solid transparent", marginBottom: 8, padding: "10px 12px", cursor: "pointer" }}>
+                    <List.Item onClick={() => void handleSelectConversation(chat)} style={{ background: active ? "rgba(85, 97, 108, 0.10)" : "transparent", borderRadius: 16, border: active ? "1px solid rgba(85, 97, 108, 0.22)" : "1px solid transparent", marginBottom: 8, padding: "10px 12px", cursor: "pointer" }}>
                       <List.Item.Meta
                         avatar={<Badge dot={Boolean(chat.unreadCount)} offset={[-4, 4]}><Avatar style={{ backgroundColor: token.colorPrimary }}>{displayName?.[0]?.toUpperCase() ?? "?"}</Avatar></Badge>}
-                        title={<Space wrap><Text strong style={{ color: "#231815" }}>{displayName}</Text>{remark.company ? <Tag color="blue" style={{ borderRadius: 999 }}>{remark.company}</Tag> : null}<Tag color={statusTone[statusKind]} style={{ borderRadius: 999, marginLeft: "auto" }}>{statusKind}</Tag></Space>}
+                        title={<Space wrap><Text strong style={{ color: "var(--cm-text-primary)" }}>{displayName}</Text>{remark.company ? <Tag color="blue" style={{ borderRadius: 999 }}>{remark.company}</Tag> : null}<Tag color={statusTone[statusKind]} style={{ borderRadius: 999, marginLeft: "auto" }}>{statusLabel}</Tag></Space>}
                         description={<div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}><Text type="secondary" ellipsis style={{ maxWidth: 180 }}>{notePreview}</Text><Text type="secondary">{chat.time ?? ""}</Text></div>}
                       />
                     </List.Item>
@@ -602,13 +606,13 @@ const Chat: React.FC = () => {
         <div className="cm-chat-pane" style={{ display: "flex", flexDirection: "column", minHeight: 0 }}>
           <div style={{ padding: "14px 14px 0", display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
             <div>
-              <Text className="cm-kpi-eyebrow">Live Thread</Text>
-              <Title level={4} style={{ margin: "6px 0 4px", color: "#231815" }}>{selectedChat ? selectedDisplayName : "Conversation Workspace"}</Title>
-              <Text style={{ color: "#6f5750" }}>{selectedChat ? selectedRemark.notes || formatPhoneNumber(selectedChat.phone) : "Select a conversation to review messages, notes and translation preview."}</Text>
+              <Text className="cm-kpi-eyebrow">{t("chat.live_thread", { defaultValue: "Live Thread" })}</Text>
+              <Title level={4} style={{ margin: "6px 0 4px", color: "var(--cm-text-primary)" }}>{selectedChat ? selectedDisplayName : t("chat.workspace_title", { defaultValue: "Conversation Workspace" })}</Title>
+              <Text style={{ color: "var(--cm-text-secondary)" }}>{selectedChat ? selectedRemark.notes || formatPhoneNumber(selectedChat.phone) : t("chat.workspace_copy", { defaultValue: "Select a conversation to review messages, notes and translation preview." })}</Text>
             </div>
             <Space wrap>
-              <Button icon={<EditOutlined />} onClick={() => setRemarkOpen(true)} disabled={!selectedChat}>备注</Button>
-              <Button icon={<SettingOutlined />} onClick={() => setSettingsOpen(true)}>Settings</Button>
+              <Button icon={<EditOutlined />} onClick={() => setRemarkOpen(true)} disabled={!selectedChat}>{t("chat.remark", { defaultValue: "Remark" })}</Button>
+              <Button icon={<SettingOutlined />} onClick={() => setSettingsOpen(true)}>{t("common.settings", { defaultValue: "Settings" })}</Button>
             </Space>
           </div>
 
@@ -616,17 +620,17 @@ const Chat: React.FC = () => {
             {loadingMsgs ? (
               <Spin />
             ) : !selectedChat ? (
-              <div className="cm-empty-state"><div className="cm-empty-hero"><div className="cm-empty-badge"><ThunderboltOutlined /></div><Title level={3} style={{ color: "#231815", marginBottom: 8 }}>Conversation workspace is standing by</Title><Text style={{ color: "#6f5750" }}>Choose a live thread from the left to review message history, add a commercial note and prepare the next response.</Text><Space style={{ marginTop: 16 }}><Button type="primary" className="cm-primary-button" onClick={() => setStatusTab("normal")}>Focus active queue</Button><Button onClick={() => setSettingsOpen(true)}>Workspace settings</Button></Space></div></div>
+              <div className="cm-empty-state"><div className="cm-empty-hero"><div className="cm-empty-badge"><ThunderboltOutlined /></div><Title level={3} style={{ color: "var(--cm-text-primary)", marginBottom: 8 }}>{t("chat.workspace_standby_title", { defaultValue: "Conversation workspace is standing by" })}</Title><Text style={{ color: "var(--cm-text-secondary)" }}>{t("chat.workspace_standby_copy", { defaultValue: "Choose a live thread from the left to review message history, add a commercial note and prepare the next response." })}</Text><Space style={{ marginTop: 16 }}><Button type="primary" className="cm-primary-button" onClick={() => setStatusTab("normal")}>{t("chat.focus_active_queue", { defaultValue: "Focus active queue" })}</Button><Button onClick={() => setSettingsOpen(true)}>{t("chat.workspace_settings", { defaultValue: "Workspace settings" })}</Button></Space></div></div>
             ) : messages.length === 0 ? (
-              <div className="cm-empty-state"><div className="cm-empty-hero"><div className="cm-empty-badge"><MessageOutlined /></div><Title level={4} style={{ color: "#231815", marginBottom: 8 }}>Thread is connected but still empty</Title><Text style={{ color: "#6f5750" }}>Use this space to store context first, then send the opening reply with translation support if required.</Text><Space style={{ marginTop: 16 }}><Button type="primary" className="cm-primary-button" onClick={() => setRemarkOpen(true)}>Add commercial note</Button><Button onClick={() => document.querySelector('textarea')?.focus()}>Draft first reply</Button></Space></div></div>
+              <div className="cm-empty-state"><div className="cm-empty-hero"><div className="cm-empty-badge"><MessageOutlined /></div><Title level={4} style={{ color: "var(--cm-text-primary)", marginBottom: 8 }}>{t("chat.thread_empty_title", { defaultValue: "Thread is connected but still empty" })}</Title><Text style={{ color: "var(--cm-text-secondary)" }}>{t("chat.thread_empty_copy", { defaultValue: "Use this space to store context first, then send the opening reply with translation support if required." })}</Text><Space style={{ marginTop: 16 }}><Button type="primary" className="cm-primary-button" onClick={() => setRemarkOpen(true)}>{t("chat.add_commercial_note", { defaultValue: "Add commercial note" })}</Button><Button onClick={() => document.querySelector('textarea')?.focus()}>{t("chat.draft_first_reply", { defaultValue: "Draft first reply" })}</Button></Space></div></div>
             ) : (
               messages.map((msg) => {
                 const isMine = msg.direction === "outbound";
                 return (
                   <div key={msg.id} style={{ display: "flex", justifyContent: isMine ? "flex-end" : "flex-start", marginBottom: 12 }}>
-                    <div style={{ maxWidth: "72%", padding: "10px 14px", borderRadius: 16, background: isMine ? "linear-gradient(135deg, #8B0000, #B22222)" : "rgba(255,255,255,0.98)", color: isMine ? "#fff" : "#231815", border: isMine ? "none" : "1px solid rgba(234, 222, 217, 0.9)" }}>
+                    <div style={{ maxWidth: "72%", padding: "10px 14px", borderRadius: 16, background: isMine ? "linear-gradient(135deg, var(--cm-brand-color), var(--cm-brand-color-strong))" : "var(--cm-surface)", color: isMine ? "#fff" : "var(--cm-text-primary)", border: isMine ? "none" : "1px solid var(--cm-border)" }}>
                       <div>{msg.content}</div>
-                      <div style={{ fontSize: 10, textAlign: "right", marginTop: 4, color: isMine ? "#eed6d6" : token.colorTextSecondary }}>{formatTime(msg.created_at)} · {formatMessageStatus(msg.status, msg.direction, t)}</div>
+                      <div style={{ fontSize: 10, textAlign: "right", marginTop: 4, color: isMine ? "rgba(255,255,255,0.72)" : "var(--cm-text-tertiary)" }}>{formatTime(msg.created_at)} · {formatMessageStatus(msg.status, msg.direction, t)}</div>
                     </div>
                   </div>
                 );
@@ -637,31 +641,31 @@ const Chat: React.FC = () => {
           <div style={{ padding: "0 14px 14px" }}>
             <div className="cm-section-card" style={{ padding: 12 }}>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 8 }}>
-                <Button size="small" type={translateEnabled ? "primary" : "default"} className={translateEnabled ? "cm-primary-button" : undefined} icon={<TranslationOutlined />} onClick={() => { setTranslateEnabled((prev) => !prev); if (translateEnabled) clearTranslationState(); }}>{translateEnabled ? "实时翻译已开启" : "开启实时翻译"}</Button>
-                <Select size="small" value={translateTarget} onChange={(value) => setTranslateTarget(value)} style={{ width: 140 }} disabled={!translateEnabled} options={[{ value: "en", label: "翻译成英文" }, { value: "zh", label: "翻译成中文" }]} />
+                <Button size="small" type={translateEnabled ? "primary" : "default"} className={translateEnabled ? "cm-primary-button" : undefined} icon={<TranslationOutlined />} onClick={() => { setTranslateEnabled((prev) => !prev); if (translateEnabled) clearTranslationState(); }}>{translateEnabled ? t("chat.translation_on", { defaultValue: "Translation enabled" }) : t("chat.translation_off", { defaultValue: "Enable translation" })}</Button>
+                <Select size="small" value={translateTarget} onChange={(value) => setTranslateTarget(value)} style={{ width: 140 }} disabled={!translateEnabled} options={[{ value: "en", label: t("chat.translate_to_en", { defaultValue: "Translate to English" }) }, { value: "zh", label: t("chat.translate_to_zh", { defaultValue: "Translate to Chinese" }) }]} />
                 {translateEnabled ? (
                   <>
-                    <Button size="small" type={sendMode === "original" ? "primary" : "default"} onClick={() => setSendMode("original")}>发送原文</Button>
-                    <Button size="small" type={sendMode === "translated" ? "primary" : "default"} onClick={() => setSendMode("translated")} disabled={!translatedDraft}>发送译文</Button>
+                    <Button size="small" type={sendMode === "original" ? "primary" : "default"} onClick={() => setSendMode("original")}>{t("chat.send_original", { defaultValue: "Send original" })}</Button>
+                    <Button size="small" type={sendMode === "translated" ? "primary" : "default"} onClick={() => setSendMode("translated")} disabled={!translatedDraft}>{t("chat.send_translation", { defaultValue: "Send translation" })}</Button>
                   </>
                 ) : null}
               </div>
 
-              <TextArea placeholder="输入消息，Enter 发送，Shift + Enter 换行" autoSize={{ minRows: 2, maxRows: 5 }} value={draft} onChange={(event) => setDraft(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); void handleSendMessage(); } }} disabled={sending || !selectedChat} />
+              <TextArea placeholder={t("chat.message_placeholder", { defaultValue: "Type a message, Enter to send, Shift + Enter for newline" })} autoSize={{ minRows: 2, maxRows: 5 }} value={draft} onChange={(event) => setDraft(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); void handleSendMessage(); } }} disabled={sending || !selectedChat} />
 
               {translateEnabled ? (
-                <div style={{ marginTop: 10, padding: 10, borderRadius: 12, border: `1px solid ${token.colorBorder}`, background: "rgba(255,255,255,0.96)" }}>
+                <div style={{ marginTop: 10, padding: 10, borderRadius: 12, border: `1px solid ${token.colorBorder}`, background: "var(--cm-surface-elevated)" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
-                    <Text type="secondary">{translating ? "翻译中..." : translationError ? translationError : translatedDraft ? `检测语言: ${detectedLanguage || "auto"}` : "输入两字以上后自动生成译文预览"}</Text>
-                    {translatedDraft ? <Tag color="blue" style={{ borderRadius: 999 }}>{sendMode === "translated" ? "当前发送译文" : "当前发送原文"}</Tag> : null}
+                    <Text type="secondary">{translating ? t("chat.translating", { defaultValue: "Translating..." }) : translationError ? translationError : translatedDraft ? t("chat.detected_language", { defaultValue: "Detected language: {{lang}}", lang: detectedLanguage || "auto" }) : t("chat.translation_hint", { defaultValue: "Enter two or more characters to generate a preview" })}</Text>
+                    {translatedDraft ? <Tag color="blue" style={{ borderRadius: 999 }}>{sendMode === "translated" ? t("chat.current_send_translation", { defaultValue: "Sending translation" }) : t("chat.current_send_original", { defaultValue: "Sending original" })}</Tag> : null}
                   </div>
-                  {translatedDraft ? <div style={{ marginTop: 8, whiteSpace: "pre-wrap", color: "#231815" }}>{translatedDraft}</div> : null}
+                  {translatedDraft ? <div style={{ marginTop: 8, whiteSpace: "pre-wrap", color: "var(--cm-text-primary)" }}>{translatedDraft}</div> : null}
                 </div>
               ) : null}
 
               <div style={{ textAlign: "right", marginTop: 10 }}>
                 <Button type="primary" className="cm-primary-button" icon={<SendOutlined />} loading={sending} onClick={() => void handleSendMessage()} disabled={!draft.trim() || sending || !selectedChat}>
-                  {translateEnabled && sendMode === "translated" && translatedDraft ? "发送译文" : "发送消息"}
+                  {translateEnabled && sendMode === "translated" && translatedDraft ? t("chat.send_translation_button", { defaultValue: "Send translation" }) : t("chat.send_message_button", { defaultValue: "Send message" })}
                 </Button>
               </div>
             </div>
@@ -669,30 +673,30 @@ const Chat: React.FC = () => {
         </div>
       </div>
 
-      <Drawer title="会话设置" placement="right" open={settingsOpen} onClose={() => setSettingsOpen(false)} width={340}>
+      <Drawer title={t("chat.settings_title", { defaultValue: "Conversation settings" })} placement="right" open={settingsOpen} onClose={() => setSettingsOpen(false)} width={340}>
         <Space direction="vertical" style={{ width: "100%" }}>
-          <Text strong>租户信息</Text>
-          <Input addonBefore="租户ID" value={tenantId} onChange={(event) => setTenantId(event.target.value)} placeholder="Enter your Tenant ID..." />
-          <Input addonBefore="租户号" value={tenantNumber} onChange={(event) => setTenantNumber(event.target.value)} placeholder="Enter your Tenant Number..." />
-          <Button type="primary" className="cm-primary-button" onClick={saveTenantSettings}>保存设置</Button>
+          <Text strong>{t("chat.tenant_info", { defaultValue: "Tenant information" })}</Text>
+          <Input addonBefore={t("chat.tenant_id", { defaultValue: "Tenant ID" })} value={tenantId} onChange={(event) => setTenantId(event.target.value)} placeholder={t("chat.tenant_id_placeholder", { defaultValue: "Enter your Tenant ID..." })} />
+          <Input addonBefore={t("chat.tenant_number", { defaultValue: "Tenant number" })} value={tenantNumber} onChange={(event) => setTenantNumber(event.target.value)} placeholder={t("chat.tenant_number_placeholder", { defaultValue: "Enter your Tenant Number..." })} />
+          <Button type="primary" className="cm-primary-button" onClick={saveTenantSettings}>{t("common.save", { defaultValue: "Save" })}</Button>
         </Space>
       </Drawer>
 
-      <Drawer title={selectedChat ? `${selectedDisplayName} 的备注` : "联系人备注"} placement="right" open={remarkOpen} onClose={() => setRemarkOpen(false)} width={380}>
+      <Drawer title={selectedChat ? t("chat.remark_for", { defaultValue: "{{name}}'s remark", name: selectedDisplayName }) : t("chat.contact_remark", { defaultValue: "Contact remark" })} placement="right" open={remarkOpen} onClose={() => setRemarkOpen(false)} width={380}>
         {selectedChat ? (
           <Form layout="vertical">
-            <Form.Item label="显示备注名"><Input value={remarkDraft.displayName} onChange={(event) => setRemarkDraft((prev) => ({ ...prev, displayName: event.target.value }))} placeholder="例如：纽约客户 / 渠道 A" /></Form.Item>
-            <Form.Item label="公司 / 来源"><Input value={remarkDraft.company} onChange={(event) => setRemarkDraft((prev) => ({ ...prev, company: event.target.value }))} placeholder="例如：Agency West" /></Form.Item>
-            <Form.Item label="标签"><Select mode="tags" value={remarkDraft.tags} onChange={(value) => setRemarkDraft((prev) => ({ ...prev, tags: value }))} tokenSeparators={[","]} placeholder="输入后回车" /></Form.Item>
-            <Form.Item label="备注内容"><TextArea autoSize={{ minRows: 5, maxRows: 10 }} value={remarkDraft.notes} onChange={(event) => setRemarkDraft((prev) => ({ ...prev, notes: event.target.value }))} placeholder="记录偏好、状态、禁忌词或后续跟进要求" /></Form.Item>
-            <Text type="secondary">{selectedRemark.updatedAt ? `上次更新：${new Date(selectedRemark.updatedAt).toLocaleString()}` : "还没有保存过备注"}</Text>
+            <Form.Item label={t("chat.remark_name", { defaultValue: "Display name" })}><Input value={remarkDraft.displayName} onChange={(event) => setRemarkDraft((prev) => ({ ...prev, displayName: event.target.value }))} placeholder={t("chat.remark_name_placeholder", { defaultValue: "e.g. New York client / channel A" })} /></Form.Item>
+            <Form.Item label={t("chat.remark_company", { defaultValue: "Company / source" })}><Input value={remarkDraft.company} onChange={(event) => setRemarkDraft((prev) => ({ ...prev, company: event.target.value }))} placeholder={t("chat.remark_company_placeholder", { defaultValue: "e.g. Agency West" })} /></Form.Item>
+            <Form.Item label={t("chat.remark_tags", { defaultValue: "Tags" })}><Select mode="tags" value={remarkDraft.tags} onChange={(value) => setRemarkDraft((prev) => ({ ...prev, tags: value }))} tokenSeparators={[","]} placeholder={t("chat.remark_tags_placeholder", { defaultValue: "Press Enter after typing" })} /></Form.Item>
+            <Form.Item label={t("chat.remark_notes", { defaultValue: "Notes" })}><TextArea autoSize={{ minRows: 5, maxRows: 10 }} value={remarkDraft.notes} onChange={(event) => setRemarkDraft((prev) => ({ ...prev, notes: event.target.value }))} placeholder={t("chat.remark_notes_placeholder", { defaultValue: "Record preferences, status, blocked words or follow-up requirements" })} /></Form.Item>
+            <Text type="secondary">{selectedRemark.updatedAt ? t("chat.remark_updated_at", { defaultValue: "Last updated: {{time}}", time: new Date(selectedRemark.updatedAt).toLocaleString() }) : t("chat.remark_empty", { defaultValue: "No remark saved yet" })}</Text>
             <div style={{ marginTop: 16, display: "flex", gap: 10 }}>
-              <Button onClick={() => setRemarkOpen(false)}>取消</Button>
-              <Button type="primary" className="cm-primary-button" onClick={saveRemark}>保存备注</Button>
+              <Button onClick={() => setRemarkOpen(false)}>{t("common.cancel", { defaultValue: "Cancel" })}</Button>
+              <Button type="primary" className="cm-primary-button" onClick={saveRemark}>{t("chat.save_remark", { defaultValue: "Save remark" })}</Button>
             </div>
           </Form>
         ) : (
-          <Text type="secondary">先在左侧选择一个对话，再编辑备注。</Text>
+          <Text type="secondary">{t("chat.remark_hint", { defaultValue: "Select a conversation on the left before editing remarks." })}</Text>
         )}
       </Drawer>
     </div>
