@@ -15,7 +15,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { i18n } = useTranslation();
   const [theme, setTheme] = useState<Theme>(() => {
-    return (localStorage.getItem('theme') as Theme) || 'high-contrast';
+    return (localStorage.getItem('theme') as Theme) || 'light';
   });
   const [brandColor, setBrandColor] = useState<string>(() => {
     const saved = localStorage.getItem('brandColor');

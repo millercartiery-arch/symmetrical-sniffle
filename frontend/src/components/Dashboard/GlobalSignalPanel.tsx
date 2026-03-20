@@ -132,20 +132,53 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
     )
   );
 
+  const executionPressure = Math.max(
+    0,
+    (data.runningTasks ?? 0) - ((data.onlineAccounts ?? 0) * 2 || 0)
+  );
+  const focusTone =
+    (data.todayFailed ?? 0) > 0
+      ? {
+          title: "Delivery issues require attention",
+          copy: "One or more sends failed recently. Review failed tasks before opening new throughput.",
+          cta: "Review failed tasks",
+          target: "/admin/tasks?status=failed",
+        }
+      : (data.deadAccounts ?? 0) > 0
+        ? {
+            title: "Inventory recovery should come first",
+            copy: "Locked or dead accounts are reducing usable capacity. Clean inventory before scaling campaigns.",
+            cta: "Inspect locked inventory",
+            target: "/admin/accounts?status=Dead",
+          }
+        : executionPressure > 0
+          ? {
+              title: "Capacity is close to saturation",
+              copy: "Running work is high compared with available inventory. Rebalance proxies and ready accounts before adding more load.",
+              cta: "Open proxy routing",
+              target: "/admin/accounts?tab=proxy-pool",
+            }
+          : {
+              title: "System is clear for outbound work",
+              copy: "Routing health is stable and there are no active delivery alarms. You can safely move into execution and conversation handling.",
+              cta: "Open conversation center",
+              target: "/admin/conversations",
+            };
+
   const accountCards = useMemo(
     () => [
       {
         key: "accounts",
         title: t("dashboard.account.total", { defaultValue: "Total Accounts" }),
         value: data.totalAccounts ?? 0,
-        meta: `${data.onlineAccounts ?? 0} active routing nodes`,
+        meta: `${data.onlineAccounts ?? 0} accounts available for active routing`,
         icon: <UsergroupAddOutlined style={{ color: "#f6ece7", fontSize: 18 }} />,
       },
       {
         key: "online",
         title: t("dashboard.account.online", { defaultValue: "Online Accounts" }),
         value: data.onlineAccounts ?? 0,
-        meta: `${onlineRatio}% of total inventory`,
+        meta: `${onlineRatio}% of inventory is currently available`,
         trend: getDeltaLabel(data.onlineAccounts ?? 0, previousSnapshot?.onlineAccounts),
         progress: (
           <Progress
@@ -161,7 +194,7 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
         key: "todaySent",
         title: t("dashboard.message.todaySent", { defaultValue: "Today Sent" }),
         value: data.todaySent ?? 0,
-        meta: getDeltaLabel(data.todaySent ?? 0, previousSnapshot?.todaySent),
+        meta: "Outbound baseline for today's operator activity",
         sparkline: buildSparkline(history.map((item) => item.todaySent), "#3f69ff"),
         icon: <RiseOutlined style={{ color: "#3f69ff", fontSize: 18 }} />,
       },
@@ -169,18 +202,9 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
         key: "todayFailed",
         title: t("dashboard.message.todayFailed", { defaultValue: "Today Failed" }),
         value: data.todayFailed ?? 0,
-        meta: data.todayFailed ? "Requires immediate review" : "No active delivery failures",
+        meta: data.todayFailed ? "Failures are active and should be reviewed now" : "No active delivery alarms",
         className: getLatencyTone(data.todayFailed ?? 0, data.deadAccounts ?? 0),
         onClick: () => navigate("/admin/tasks?status=failed"),
-        icon: <CloseCircleOutlined style={{ color: "#c0392b", fontSize: 18 }} />,
-      },
-      {
-        key: "dead",
-        title: t("dashboard.account.dead", { defaultValue: "Dead / Locked" }),
-        value: data.deadAccounts ?? 0,
-        meta: data.deadAccounts ? "Click to isolate affected inventory" : "Inventory lock rate is under control",
-        className: getLatencyTone(data.todayFailed ?? 0, data.deadAccounts ?? 0),
-        onClick: () => navigate("/admin/accounts?status=Dead"),
         icon: <CloseCircleOutlined style={{ color: "#c0392b", fontSize: 18 }} />,
       },
     ],
@@ -195,7 +219,6 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
       navigate,
       onlineRatio,
       previousSnapshot?.onlineAccounts,
-      previousSnapshot?.todaySent,
     ]
   );
 
@@ -234,7 +257,7 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
             Command Dashboard
           </Title>
           <Text className="cm-page-subtitle">
-            Rebuilt around high-contrast monitoring: critical metrics are surfaced first, abnormal states are visually amplified, and routing health is always visible.
+            Run the operation from signals, not raw tables. This view surfaces what needs action, what is stable and where capacity is slipping.
           </Text>
         </div>
         <Space wrap>
@@ -246,6 +269,71 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
             {t("common.refresh", { defaultValue: "刷新" })}
           </Button>
         </Space>
+      </div>
+
+      <div className="cm-hero-band">
+        <div className="cm-hero-panel">
+          <Text className="cm-kpi-eyebrow">Today&apos;s Focus</Text>
+          <Title level={3} style={{ color: "#f7ece8", margin: "8px 0 8px" }}>
+            {focusTone.title}
+          </Title>
+          <Text style={{ color: "#c8b2ac", lineHeight: 1.7 }}>
+            {focusTone.copy}
+          </Text>
+          <div className="cm-hero-metrics">
+            <div className="cm-mini-stat">
+              <div className="cm-kpi-eyebrow">Ready Capacity</div>
+              <strong>{data.onlineAccounts ?? 0}</strong>
+              <span>Accounts ready for live routing</span>
+            </div>
+            <div className="cm-mini-stat">
+              <div className="cm-kpi-eyebrow">Running Load</div>
+              <strong>{data.runningTasks ?? 0}</strong>
+              <span>Tasks currently consuming throughput</span>
+            </div>
+            <div className="cm-mini-stat">
+              <div className="cm-kpi-eyebrow">Risk Inventory</div>
+              <strong>{(data.deadAccounts ?? 0) + (data.cooldownAccounts ?? 0)}</strong>
+              <span>Locked and cooling accounts combined</span>
+            </div>
+          </div>
+          <div className="cm-priority-actions">
+            <Button type="primary" className="cm-primary-button" onClick={() => navigate(focusTone.target)}>
+              {focusTone.cta}
+            </Button>
+            <Button onClick={() => navigate("/admin/accounts")}>Open inventory</Button>
+          </div>
+        </div>
+
+        <div className="cm-hero-panel">
+          <Text className="cm-kpi-eyebrow">Operator Brief</Text>
+          <Title level={4} style={{ color: "#f7ece8", margin: "8px 0 14px" }}>
+            Business Readout
+          </Title>
+          <div className="cm-signal-list">
+            <div className="cm-signal-item">
+              <div>
+                <strong>Inventory Coverage</strong>
+                <span>Percent of total accounts available right now</span>
+              </div>
+              <Tag color={onlineRatio >= 40 ? "green" : "red"}>{onlineRatio}%</Tag>
+            </div>
+            <div className="cm-signal-item">
+              <div>
+                <strong>Execution Quality</strong>
+                <span>Completion rate across active task flow</span>
+              </div>
+              <Tag color={completionRate >= 80 ? "green" : "orange"}>{completionRate}%</Tag>
+            </div>
+            <div className="cm-signal-item">
+              <div>
+                <strong>Failure Pressure</strong>
+                <span>Tasks that need review before scaling</span>
+              </div>
+              <Tag color={(data.todayFailed ?? 0) > 0 ? "red" : "green"}>{data.todayFailed ?? 0}</Tag>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="cm-kpi-grid" style={{ marginBottom: 18 }}>
@@ -281,6 +369,29 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
         ))}
       </div>
 
+      <div className="cm-priority-grid">
+        <div className="cm-priority-card">
+          <Text className="cm-kpi-eyebrow">Recovery</Text>
+          <h3>Stabilize the route base</h3>
+          <p>Review locked inventory, cooldown pressure and routing quality before adding new outbound volume.</p>
+          <div className="cm-priority-actions">
+            <Button onClick={() => navigate("/admin/accounts?status=Dead")}>Locked inventory</Button>
+            <Button onClick={() => navigate("/admin/accounts?tab=proxy-pool")}>Proxy routing</Button>
+          </div>
+        </div>
+        <div className="cm-priority-card">
+          <Text className="cm-kpi-eyebrow">Execution</Text>
+          <h3>Keep operators in motion</h3>
+          <p>Move from exceptions into live work by opening the threads that need replies or by reviewing running tasks.</p>
+          <div className="cm-priority-actions">
+            <Button type="primary" className="cm-primary-button" onClick={() => navigate("/admin/conversations")}>
+              Open conversation center
+            </Button>
+            <Button onClick={() => navigate("/admin/tasks")}>Review task flow</Button>
+          </div>
+        </div>
+      </div>
+
       <Row gutter={[16, 16]}>
         <Col xs={24} xl={15}>
           <div className="cm-section-card" style={{ padding: 20 }}>
@@ -312,7 +423,7 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
                         {completionRate}%
                       </Title>
                       <Text style={{ color: "#b9a19a" }}>
-                        Completion is derived from active task success versus failure counts.
+                        Success quality across active throughput.
                       </Text>
                     </div>
                   </div>
@@ -323,13 +434,13 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
                   <Text className="cm-kpi-eyebrow">Immediate Actions</Text>
                   <Space direction="vertical" size={12} style={{ width: "100%", marginTop: 18 }}>
                     <Button block onClick={() => navigate("/admin/accounts?status=Dead")}>
-                      Review locked inventory
+                      Recover locked inventory
                     </Button>
                     <Button block onClick={() => navigate("/admin/conversations")}>
-                      Open conversation center
+                      Prioritize live conversations
                     </Button>
                     <Button block type="primary" className="cm-primary-button" onClick={() => navigate("/admin/accounts?tab=proxy-pool")}>
-                      Check proxy routing
+                      Validate proxy routing
                     </Button>
                   </Space>
                 </div>
@@ -343,24 +454,33 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
             <Title level={4} className="cm-page-title" style={{ marginTop: 8 }}>
               Operational Signals
             </Title>
-            <Space direction="vertical" size={14} style={{ width: "100%", marginTop: 14 }}>
-              <div className="cm-health-pill" style={{ justifyContent: "space-between", width: "100%" }}>
-                <span>Cooldown Accounts</span>
-                <strong>{data.cooldownAccounts ?? 0}</strong>
+            <div className="cm-signal-list" style={{ marginTop: 14 }}>
+              <div className="cm-signal-item">
+                <div>
+                  <strong>Cooldown Accounts</strong>
+                  <span>Accounts temporarily unavailable for new work</span>
+                </div>
+                <Tag color="orange">{data.cooldownAccounts ?? 0}</Tag>
               </div>
-              <div className="cm-health-pill" style={{ justifyContent: "space-between", width: "100%" }}>
-                <span>Running Tasks</span>
-                <strong>{data.runningTasks ?? 0}</strong>
+              <div className="cm-signal-item">
+                <div>
+                  <strong>Running Tasks</strong>
+                  <span>Current task workload across the system</span>
+                </div>
+                <Tag color="blue">{data.runningTasks ?? 0}</Tag>
               </div>
-              <div className="cm-health-pill" style={{ justifyContent: "space-between", width: "100%" }}>
-                <span>Last Update</span>
-                <strong style={{ fontSize: 12 }}>
+              <div className="cm-signal-item">
+                <div>
+                  <strong>Last Update</strong>
+                  <span>Most recent backend stats refresh</span>
+                </div>
+                <Tag>
                   {data.system?.lastUpdate
                     ? new Date(data.system.lastUpdate).toLocaleTimeString()
                     : "--"}
-                </strong>
+                </Tag>
               </div>
-            </Space>
+            </div>
           </div>
         </Col>
       </Row>

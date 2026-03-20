@@ -208,6 +208,37 @@ const Chat: React.FC = () => {
     [conversations, remarkStore, t]
   );
 
+  const conversationFocus = useMemo(() => {
+    const unreadSignals = conversations.reduce((sum, item) => sum + (item.unreadCount ?? 0), 0);
+    const restricted = conversations.filter((item) => item.banned).length;
+    if (unreadSignals > 0) {
+      return {
+        title: "Operator replies need attention",
+        copy: "Unread signals are active in the queue. Review high-intent threads before creating more outbound work.",
+        action: "Review queue",
+        onClick: () => setStatusTab("normal"),
+      };
+    }
+    if (restricted > 0) {
+      return {
+        title: "Restricted contacts are shaping the queue",
+        copy: "Some threads are blocked or flagged. Keep the workspace clean by isolating restricted contacts from live operators.",
+        action: "Filter restricted",
+        onClick: () => setStatusTab("banned"),
+      };
+    }
+    return {
+      title: "Conversation desk is clear for execution",
+      copy: "No urgent chat alarms are visible. This is the right state for agents to triage new replies, apply remarks and prepare translated responses.",
+      action: "Open settings",
+      onClick: () => setSettingsOpen(true),
+    };
+  }, [conversations]);
+
+  const selectedConversationHealth = selectedChat
+    ? getAccountStatusKind(selectedChat.status)
+    : "normal";
+
   const scrollToBottom = useCallback(() => {
     const element = msgListRef.current;
     if (element) element.scrollTop = element.scrollHeight;
@@ -443,19 +474,68 @@ const Chat: React.FC = () => {
         <div>
           <Text className="cm-kpi-eyebrow">Message Management</Text>
           <Title level={2} className="cm-page-title cm-brand-title">Conversation Center</Title>
-          <Text className="cm-page-subtitle">备注窗体、翻译流程和消息工作区已经合并成一套更顺手的会话操作面板。</Text>
+          <Text className="cm-page-subtitle">Remarks, translation assist and live reply handling now sit inside one operator-facing workspace with fewer dead ends.</Text>
         </div>
         <Button icon={<ReloadOutlined />} onClick={fetchConversations}>{t("common.refresh", { defaultValue: "刷新" })}</Button>
       </div>
 
-      <div className="cm-kpi-grid" style={{ marginBottom: 18 }}>
-        {chatStats.map((item) => (
-          <div key={item.label} className="cm-kpi-card" style={{ minHeight: 140 }}>
-            <div className="cm-kpi-eyebrow">{item.label}</div>
-            <strong className="cm-kpi-value">{item.value}</strong>
-            <div className="cm-kpi-meta" style={{ marginTop: 12 }}>{item.meta}</div>
+      <div className="cm-hero-band">
+        <div className="cm-hero-panel">
+          <div className="cm-kpi-eyebrow">Conversation Command</div>
+          <Title level={3} className="cm-page-title" style={{ marginTop: 8 }}>
+            {conversationFocus.title}
+          </Title>
+          <Text className="cm-page-subtitle" style={{ display: "block", marginTop: 8 }}>
+            {conversationFocus.copy}
+          </Text>
+          <div className="cm-priority-actions">
+            <Button type="primary" className="cm-primary-button" onClick={conversationFocus.onClick}>
+              {conversationFocus.action}
+            </Button>
+            <Button onClick={() => navigate("/admin/dashboard")}>Open dashboard</Button>
+            <Button onClick={() => setRemarkOpen(true)} disabled={!selectedChat}>Edit remark</Button>
           </div>
-        ))}
+          <div className="cm-hero-metrics">
+            {chatStats.map((item) => (
+              <div key={item.label} className="cm-mini-stat">
+                <div className="cm-kpi-eyebrow">{item.label}</div>
+                <strong>{item.value}</strong>
+                <span>{item.meta}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="cm-hero-panel">
+          <div className="cm-kpi-eyebrow">Queue Guidance</div>
+          <div className="cm-signal-list" style={{ marginTop: 16 }}>
+            <div className="cm-signal-item">
+              <div>
+                <strong>Search before switching tabs</strong>
+                <span>Use phone, remark, company and tags as the primary retrieval path for active operator work.</span>
+              </div>
+              <Button size="small" onClick={() => setStatusTab("all")}>Show all</Button>
+            </div>
+            <div className="cm-signal-item">
+              <div>
+                <strong>Keep translation optional, not mandatory</strong>
+                <span>Operators should see the translation preview as support for reply quality, not as the only path to send.</span>
+              </div>
+              <Button size="small" onClick={() => setTranslateEnabled((prev) => !prev)}>
+                {translateEnabled ? "Disable" : "Enable"}
+              </Button>
+            </div>
+            <div className="cm-signal-item">
+              <div>
+                <strong>Selected thread health</strong>
+                <span>{selectedChat ? `${selectedDisplayName} is currently marked as ${selectedConversationHealth}.` : "Select a live thread to inspect message history and reply status."}</span>
+              </div>
+              <Button size="small" onClick={() => selectedChat && void handleSelectConversation(selectedChat)} disabled={!selectedChat}>
+                Refresh thread
+              </Button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="cm-chat-shell">
@@ -536,9 +616,9 @@ const Chat: React.FC = () => {
             {loadingMsgs ? (
               <Spin />
             ) : !selectedChat ? (
-              <div className="cm-empty-state"><div className="cm-empty-hero"><div className="cm-empty-badge"><ThunderboltOutlined /></div><Title level={3} style={{ color: "#f7ece8", marginBottom: 8 }}>Conversation space is ready</Title><Text style={{ color: "#b9a19a" }}>Pick a thread to inspect messages, save a counterpart remark and translate replies with more control.</Text></div></div>
+              <div className="cm-empty-state"><div className="cm-empty-hero"><div className="cm-empty-badge"><ThunderboltOutlined /></div><Title level={3} style={{ color: "#f7ece8", marginBottom: 8 }}>Conversation workspace is standing by</Title><Text style={{ color: "#b9a19a" }}>Choose a live thread from the left to review message history, add a commercial note and prepare the next response.</Text><Space style={{ marginTop: 16 }}><Button type="primary" className="cm-primary-button" onClick={() => setStatusTab("normal")}>Focus active queue</Button><Button onClick={() => setSettingsOpen(true)}>Workspace settings</Button></Space></div></div>
             ) : messages.length === 0 ? (
-              <div className="cm-empty-state"><div className="cm-empty-hero"><div className="cm-empty-badge"><MessageOutlined /></div><Title level={4} style={{ color: "#f7ece8", marginBottom: 8 }}>No Messages Yet</Title><Text style={{ color: "#b9a19a" }}>This thread is connected but still empty. Save notes first or send the opening message now.</Text></div></div>
+              <div className="cm-empty-state"><div className="cm-empty-hero"><div className="cm-empty-badge"><MessageOutlined /></div><Title level={4} style={{ color: "#f7ece8", marginBottom: 8 }}>Thread is connected but still empty</Title><Text style={{ color: "#b9a19a" }}>Use this space to store context first, then send the opening reply with translation support if required.</Text><Space style={{ marginTop: 16 }}><Button type="primary" className="cm-primary-button" onClick={() => setRemarkOpen(true)}>Add commercial note</Button><Button onClick={() => document.querySelector('textarea')?.focus()}>Draft first reply</Button></Space></div></div>
             ) : (
               messages.map((msg) => {
                 const isMine = msg.direction === "outbound";

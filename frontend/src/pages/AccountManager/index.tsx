@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Layout, Tabs, message, Button } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
@@ -298,6 +298,36 @@ const AccountManager: React.FC = () => {
   const tWithDefault = (key: string, opts?: { defaultValue?: string }) =>
     (opts?.defaultValue ? t(key, opts) : t(key)) as string;
 
+  const inventoryStats = useMemo(() => {
+    const total = Number(accPagination.total ?? accounts.length ?? 0);
+    const ready = accounts.filter((item) => String(item.status).toLowerCase() === 'ready').length;
+    const cooldown = accounts.filter((item) => String(item.status).toLowerCase() === 'cooldown').length;
+    const tnReady = accounts.filter((item) => Number(item.tn_ready) > 0).length;
+    return { total, ready, cooldown, tnReady };
+  }, [accPagination.total, accounts]);
+
+  const inventoryFocus =
+    inventoryStats.tnReady === 0
+      ? {
+          title: 'Protocol routing is not ready',
+          copy: 'No active TN-ready inventory is visible on the current slice. Validate imported accounts and proxy bindings before opening new outbound volume.',
+          action: 'Review proxy pool',
+          onClick: () => setActiveTab('proxy-pool'),
+        }
+      : inventoryStats.cooldown > inventoryStats.ready
+        ? {
+            title: 'Recovery should come before scale',
+            copy: 'Cooldown inventory is larger than the ready pool. Operators should clear unstable accounts before pushing more conversations into queue.',
+            action: 'Review account inventory',
+            onClick: () => setActiveTab('accounts'),
+          }
+        : {
+            title: 'Inventory is usable for controlled execution',
+            copy: 'Ready accounts and TN protocol coverage are visible. This is the right time to refresh assets, export clean slices and move only validated inventory into live routing.',
+            action: 'Export clean inventory',
+            onClick: () => openModal('exportFields'),
+          };
+
   return (
     <Content className="cm-page" style={{ padding: 20 }}>
       <div className="cm-page-header">
@@ -308,6 +338,74 @@ const AccountManager: React.FC = () => {
           </h1>
           <div className="cm-page-subtitle">
             Resource inventory, sub-account activation and proxy orchestration now share one operational surface with faster scanning and clearer anomaly emphasis.
+          </div>
+        </div>
+      </div>
+
+      <div className="cm-hero-band">
+        <div className="cm-hero-panel">
+          <div className="cm-kpi-eyebrow">Inventory Command</div>
+          <h2 className="cm-page-title" style={{ fontSize: 28, marginTop: 8 }}>
+            {inventoryFocus.title}
+          </h2>
+          <div className="cm-page-subtitle" style={{ marginTop: 8 }}>
+            {inventoryFocus.copy}
+          </div>
+          <div className="cm-priority-actions">
+            <Button type="primary" className="cm-primary-button" onClick={inventoryFocus.onClick}>
+              {inventoryFocus.action}
+            </Button>
+            <Button onClick={() => setActiveTab('accounts')}>Inspect inventory</Button>
+            <Button onClick={() => setActiveTab('sub-accounts')}>Open sub-accounts</Button>
+          </div>
+          <div className="cm-hero-metrics">
+            <div className="cm-mini-stat">
+              <div className="cm-kpi-eyebrow">Visible Inventory</div>
+              <strong>{inventoryStats.total}</strong>
+              <span>Accounts inside the current operational window</span>
+            </div>
+            <div className="cm-mini-stat">
+              <div className="cm-kpi-eyebrow">Ready Pool</div>
+              <strong>{inventoryStats.ready}</strong>
+              <span>Accounts currently available for controlled work</span>
+            </div>
+            <div className="cm-mini-stat">
+              <div className="cm-kpi-eyebrow">Cooldown Pressure</div>
+              <strong>{inventoryStats.cooldown}</strong>
+              <span>Inventory temporarily blocked by cooldown or recovery</span>
+            </div>
+            <div className="cm-mini-stat">
+              <div className="cm-kpi-eyebrow">TN Protocol Ready</div>
+              <strong>{inventoryStats.tnReady}</strong>
+              <span>Assets with protocol-level readiness on the current slice</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="cm-hero-panel">
+          <div className="cm-kpi-eyebrow">Operator Guidance</div>
+          <div className="cm-signal-list" style={{ marginTop: 16 }}>
+            <div className="cm-signal-item">
+              <div>
+                <strong>Refresh before taking action</strong>
+                <span>Always reload inventory before exporting, binding proxies or activating sub-accounts.</span>
+              </div>
+              <Button size="small" onClick={fetchAccounts}>Refresh</Button>
+            </div>
+            <div className="cm-signal-item">
+              <div>
+                <strong>Separate clean inventory from unstable assets</strong>
+                <span>Use status filters to isolate ready inventory from cooldown and dead accounts before batch actions.</span>
+              </div>
+              <Button size="small" onClick={() => setAccountStatusFilter('Ready')}>Show ready</Button>
+            </div>
+            <div className="cm-signal-item">
+              <div>
+                <strong>Move routing work into the proxy surface</strong>
+                <span>Proxy health determines delivery consistency. Treat it as a primary operating area, not a secondary settings page.</span>
+              </div>
+              <Button size="small" onClick={() => setActiveTab('proxy-pool')}>Open proxy pool</Button>
+            </div>
           </div>
         </div>
       </div>

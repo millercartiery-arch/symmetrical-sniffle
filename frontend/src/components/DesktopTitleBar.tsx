@@ -14,7 +14,7 @@ const isTauri = typeof window !== "undefined" && "__TAURI__" in window;
 
 /**
  * DesktopTitleBar Props
- *   - title: 需要在标题栏显示的文字，默认 “Millermiller”
+ *   - title: 需要在标题栏显示的文字，默认 “Cartier&Miller”
  *   - brandColor: 若不想使用 ThemeContext 的颜色，可直接传入
  */
 interface DesktopTitleBarProps {
@@ -28,7 +28,7 @@ interface DesktopTitleBarProps {
  * 让样式文件保持干净，不必每次都在 JSX 中写 `style`.
  */
 const DesktopTitleBar: React.FC<DesktopTitleBarProps> = ({
-  title = "Millermiller",
+  title = "Cartier&Miller",
   brandColor,
 }) => {
   const { brandColor: themeBrandColor } = useTheme();

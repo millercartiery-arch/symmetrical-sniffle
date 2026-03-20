@@ -185,7 +185,7 @@ const AdminLayout: React.FC = () => {
             {!isSiderCollapsed && (
               <div style={{ textAlign: 'left' }}>
                 <div className="cm-brand-title" style={{ color: '#f6ece7', fontSize: 14, fontWeight: 700 }}>
-                  Millermiller
+                  Cartier&Miller
                 </div>
                 <Text style={{ color: '#b9a19a', fontSize: 11 }}>
                   {t('shell.control_center', { defaultValue: 'Control Center' })}
@@ -222,7 +222,7 @@ const AdminLayout: React.FC = () => {
         <Header style={headerStyle} className="cm-header">
           <div>
             <Text strong className="cm-brand-title" style={{ fontSize: isNarrow ? 16 : 18, color: '#f6ece7' }}>
-              Millermiller
+              Cartier&Miller
             </Text>
             <div>
               <Text style={{ color: '#b9a19a', fontSize: 12 }}>

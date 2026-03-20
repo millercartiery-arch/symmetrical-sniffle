@@ -247,6 +247,113 @@ a {
   text-align: left;
 }
 
+.cm-hero-band {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.85fr);
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.cm-hero-panel,
+.cm-priority-card {
+  border-radius: 22px;
+  border: 1px solid var(--cm-border);
+  background:
+    radial-gradient(circle at top right, rgba(178, 34, 34, 0.12), transparent 28%),
+    linear-gradient(180deg, rgba(26, 18, 18, 0.98), rgba(12, 12, 12, 0.98));
+  box-shadow: var(--cm-shadow);
+}
+
+.cm-hero-panel {
+  padding: 22px;
+}
+
+.cm-hero-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.cm-mini-stat {
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(178, 34, 34, 0.14);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.cm-mini-stat strong {
+  display: block;
+  margin-top: 8px;
+  color: var(--cm-white);
+  font-size: 28px;
+  line-height: 1;
+}
+
+.cm-mini-stat span {
+  display: block;
+  margin-top: 8px;
+  color: var(--cm-text-muted);
+  font-size: 12px;
+}
+
+.cm-priority-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.cm-priority-card {
+  padding: 18px;
+}
+
+.cm-priority-card h3 {
+  margin: 10px 0 6px;
+  color: var(--cm-white);
+  font-size: 22px;
+}
+
+.cm-priority-card p {
+  margin: 0;
+  color: var(--cm-text-muted);
+  line-height: 1.6;
+}
+
+.cm-priority-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.cm-signal-list {
+  display: grid;
+  gap: 10px;
+}
+
+.cm-signal-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 52px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(178, 34, 34, 0.16);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.cm-signal-item strong {
+  color: var(--cm-white);
+  font-size: 15px;
+}
+
+.cm-signal-item span {
+  color: var(--cm-text-muted);
+  font-size: 12px;
+}
+
 .cm-pill-tag {
   display: inline-flex;
   align-items: center;
@@ -382,6 +489,7 @@ a {
 }
 
 @media (max-width: 992px) {
+  .cm-hero-band,
   .cm-chat-shell,
   .cm-privacy-grid,
   .cm-form-grid {
