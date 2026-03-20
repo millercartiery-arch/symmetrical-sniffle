@@ -234,7 +234,7 @@ const AdminLayout: React.FC = () => {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-            <div className="cm-health-pill" style={{ marginRight: 4 }}>
+            <div className="cm-health-pill" style={{ marginRight: 4, padding: '6px 12px', fontSize: 12, opacity: 0.92 }}>
               <RiseOutlined style={{ color: '#3f69ff' }} />
               <span>{t('shell.proxy_status_stable', { defaultValue: 'Proxy Status Stable' })}</span>
             </div>

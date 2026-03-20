@@ -225,7 +225,7 @@ a {
   margin-bottom: 12px;
   border-radius: 16px;
   background: var(--cm-brand-color-soft);
-  border: 1px solid rgba(85, 97, 108, 0.16);
+  border: 1px solid rgba(138, 90, 83, 0.16);
   color: var(--cm-brand-color);
   font-size: 22px;
 }
@@ -274,7 +274,7 @@ a {
 .cm-mini-stat {
   padding: 10px 12px;
   border-radius: 12px;
-  border: 1px solid rgba(85, 97, 108, 0.12);
+  border: 1px solid rgba(138, 90, 83, 0.12);
   background: var(--cm-surface);
 }
 
@@ -336,7 +336,7 @@ a {
   min-height: 40px;
   padding: 9px 10px;
   border-radius: 11px;
-  border: 1px solid rgba(85, 97, 108, 0.12);
+  border: 1px solid rgba(138, 90, 83, 0.12);
   background: var(--cm-surface);
 }
 
@@ -391,7 +391,7 @@ a {
 }
 
 .cm-table-shell .ant-table-thead > tr > th {
-  background: rgba(85, 97, 108, 0.06) !important;
+  background: rgba(138, 90, 83, 0.06) !important;
   color: var(--cm-text-primary) !important;
   border-bottom-color: var(--cm-border) !important;
 }
@@ -403,7 +403,7 @@ a {
 }
 
 .cm-table-shell .ant-table-tbody > tr:hover > td {
-  background: rgba(85, 97, 108, 0.04) !important;
+  background: rgba(138, 90, 83, 0.04) !important;
 }
 
 .cm-form-grid {
@@ -438,7 +438,7 @@ a {
   width: 64px;
   height: 6px;
   border-radius: 999px;
-  background: rgba(85, 97, 108, 0.16);
+  background: rgba(138, 90, 83, 0.16);
   margin: 0 auto 18px;
 }
 
@@ -451,7 +451,7 @@ a {
 .cm-privacy-panel {
   padding: 20px;
   border-radius: 20px;
-  border: 1px solid rgba(85, 97, 108, 0.12);
+  border: 1px solid rgba(138, 90, 83, 0.12);
   background: var(--cm-surface);
 }
 
@@ -467,16 +467,16 @@ a {
 
 .cm-privacy-scroll::-webkit-scrollbar-thumb {
   border-radius: 999px;
-  background: rgba(85, 97, 108, 0.34);
+  background: rgba(138, 90, 83, 0.34);
 }
 
 @keyframes cm-pulse {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(85, 97, 108, 0.24);
+    box-shadow: 0 0 0 0 rgba(138, 90, 83, 0.24);
   }
   50% {
-    box-shadow: 0 0 0 10px rgba(85, 97, 108, 0);
+  box-shadow: 0 0 0 10px rgba(138, 90, 83, 0);
   }
 }
 
@@ -496,3 +496,5 @@ a {
     border-radius: 18px;
   }
 }
+
+
