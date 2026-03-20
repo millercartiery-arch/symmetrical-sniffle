@@ -19,8 +19,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   });
   const [brandColor, setBrandColor] = useState<string>(() => {
     const saved = localStorage.getItem('brandColor');
-    if (!saved || saved === '#1890ff' || saved === '#0052D9' || saved === '#10a37f') {
-      return '#8B0000';
+    if (!saved || saved === '#1890ff' || saved === '#0052D9' || saved === '#10a37f' || saved === '#8B0000') {
+      return '#55616c';
     }
     return saved;
   });
@@ -32,12 +32,26 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   useEffect(() => {
     document.documentElement.style.setProperty('--brand-color', brandColor);
+    document.documentElement.style.setProperty('--cm-brand-color', brandColor);
     localStorage.setItem('brandColor', brandColor);
   }, [brandColor]);
 
   useEffect(() => {
-    document.documentElement.setAttribute('lang', i18n.language);
-    document.documentElement.setAttribute('dir', i18n.dir());
+    const language = i18n.resolvedLanguage || i18n.language || 'en-US';
+    document.documentElement.setAttribute('lang', language);
+    document.documentElement.setAttribute('dir', i18n.dir(language));
+  }, [i18n, i18n.language, i18n.resolvedLanguage]);
+
+  useEffect(() => {
+    const syncLanguage = (language: string) => {
+      document.documentElement.setAttribute('lang', language);
+      document.documentElement.setAttribute('dir', i18n.dir(language));
+    };
+
+    i18n.on('languageChanged', syncLanguage);
+    return () => {
+      i18n.off('languageChanged', syncLanguage);
+    };
   }, [i18n]);
 
   return (

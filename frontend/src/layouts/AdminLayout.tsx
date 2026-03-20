@@ -104,7 +104,7 @@ const AdminLayout: React.FC = () => {
   };
 
   const headerStyle: React.CSSProperties = {
-    background: 'rgba(255, 255, 255, 0.9)',
+    background: 'var(--cm-surface)',
     borderBottom: `1px solid ${token.colorBorderSecondary}`,
     padding: isNarrow ? '10px 12px' : '0 24px',
     display: 'flex',
@@ -118,7 +118,7 @@ const AdminLayout: React.FC = () => {
 
   const contentStyle: React.CSSProperties = {
     margin: 13,
-    background: 'rgba(255, 255, 255, 0.9)',
+    background: 'var(--cm-surface)',
     borderRadius: token.borderRadiusLG,
     minHeight: 400,
     overflow: 'auto',
@@ -135,11 +135,11 @@ const AdminLayout: React.FC = () => {
         width={siderWidth}
         theme="dark"
         className="cm-sidebar"
-        style={{
-          background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 241, 238, 1))',
+          style={{
+          background: 'linear-gradient(180deg, var(--cm-surface), var(--cm-surface-soft))',
           borderRight: `1px solid ${token.colorBorderSecondary}`,
           paddingTop: isNarrow ? 12 : 16,
-          boxShadow: '1px 0 24px rgba(0, 0, 0, 0.18)',
+          boxShadow: '1px 0 24px rgba(0, 0, 0, 0.12)',
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
@@ -161,8 +161,8 @@ const AdminLayout: React.FC = () => {
                 gap: 12,
                 padding: isSiderCollapsed ? 0 : '10px 14px',
                 borderRadius: 18,
-                border: '1px solid rgba(178, 34, 34, 0.14)',
-                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(255, 238, 238, 0.72))',
+                border: '1px solid rgba(85, 97, 108, 0.14)',
+                background: 'linear-gradient(135deg, var(--cm-surface), var(--cm-surface-elevated))',
               }}
             >
             <div
@@ -170,24 +170,24 @@ const AdminLayout: React.FC = () => {
                 width: isNarrow ? 34 : 38,
                 height: isNarrow ? 34 : 38,
                 borderRadius: 18,
-                background: 'linear-gradient(135deg, #8B0000, #B22222)',
+                background: 'linear-gradient(135deg, #55616c, #70808b)',
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: '#fff',
                 fontWeight: 'bold',
                 fontSize: isNarrow ? 12 : 13,
-                boxShadow: '0 12px 24px rgba(139, 0, 0, 0.32)',
+                boxShadow: '0 12px 24px rgba(31, 26, 24, 0.18)',
               }}
             >
               CM
             </div>
             {!isSiderCollapsed && (
               <div style={{ textAlign: 'left' }}>
-                <div className="cm-brand-title" style={{ color: '#231815', fontSize: 14, fontWeight: 700 }}>
-                  Cartier&Miller
+                <div className="cm-brand-title" style={{ color: 'var(--cm-text-primary)', fontSize: 14, fontWeight: 700 }}>
+                  {t('brand.name', { defaultValue: 'Cartier&Miller' })}
                 </div>
-                <Text style={{ color: '#6f5750', fontSize: 11 }}>
+                <Text style={{ color: 'var(--cm-text-secondary)', fontSize: 11 }}>
                   {t('shell.control_center', { defaultValue: 'Control Center' })}
                 </Text>
               </div>
@@ -221,11 +221,11 @@ const AdminLayout: React.FC = () => {
         {/* Header */}
         <Header style={headerStyle} className="cm-header">
           <div>
-            <Text strong className="cm-brand-title" style={{ fontSize: isNarrow ? 16 : 18, color: '#231815' }}>
-              Cartier&Miller
+            <Text strong className="cm-brand-title" style={{ fontSize: isNarrow ? 16 : 18, color: 'var(--cm-text-primary)' }}>
+              {t('brand.name', { defaultValue: 'Cartier&Miller' })}
             </Text>
             <div>
-              <Text style={{ color: '#6f5750', fontSize: 12 }}>
+              <Text style={{ color: 'var(--cm-text-secondary)', fontSize: 12 }}>
                 {t('shell.subtitle', {
                   defaultValue: 'Secure operations dashboard for accounts, chat routing and proxy orchestration.',
                 })}
@@ -250,7 +250,7 @@ const AdminLayout: React.FC = () => {
               <Button
                 type="text"
                 icon={<GlobalOutlined />}
-                style={{ color: '#6f5750' }}
+                style={{ color: 'var(--cm-text-secondary)' }}
                 aria-label={t('common.language') ?? '语言切换'}
               >
                 {i18n.language === 'zh-CN' ? '中文' : 'English'}
@@ -298,7 +298,7 @@ const AdminLayout: React.FC = () => {
                 <Avatar
                   style={{
                     backgroundColor: token.colorPrimary,
-                    boxShadow: '0 12px 24px rgba(139, 0, 0, 0.24)',
+                    boxShadow: '0 12px 24px rgba(31, 26, 24, 0.18)',
                   }}
                   icon={<UserOutlined />}
                 />

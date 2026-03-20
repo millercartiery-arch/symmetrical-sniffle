@@ -4,7 +4,6 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import 'antd/dist/reset.css';
 import './styles/global.css';
-import i18n from './i18n';
 import './styles/theme.css';
 import './components/DesktopTitleBar.css';
 import { ThemeProvider } from './context/ThemeContext';
@@ -29,15 +28,6 @@ async function initApp() {
       renderApp();
     }
   }, SAFETY_RENDER_MS);
-
-  try {
-    const initResult = (i18n as { init?: () => Promise<void> }).init?.();
-    if (initResult && typeof initResult.then === 'function') {
-      await initResult;
-    }
-  } catch (e) {
-    console.warn('[App] i18n init:', e);
-  }
 
   if (isTauri) {
     console.log('[App] 🖥️ 在 Tauri 环境中运行');

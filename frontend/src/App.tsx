@@ -53,28 +53,29 @@ const App = () => {
         ? antTheme.darkAlgorithm
         : antTheme.defaultAlgorithm,
     token: {
-      colorPrimary: brandColor || '#8B0000',
-      colorInfo: '#3f69ff',
-      colorSuccess: '#16a34a',
-      colorWarning: '#d97706',
-      colorError: '#b22222',
-      colorLink: brandColor || '#8B0000',
-      colorBgBase: theme === 'high-contrast' ? '#070707' : theme === 'dark' ? '#131313' : '#f8f2f0',
-      colorBgLayout: theme === 'high-contrast' ? '#0a0a0a' : theme === 'dark' ? '#111111' : '#f3ebe8',
-      colorBgContainer: theme === 'high-contrast' ? '#151515' : theme === 'dark' ? '#181818' : '#ffffff',
-      colorBorder: theme === 'high-contrast' ? '#352020' : theme === 'dark' ? '#2d2d2d' : '#e6d9d5',
-      colorBorderSecondary: theme === 'high-contrast' ? '#2a1a1a' : theme === 'dark' ? '#262626' : '#efe3df',
-      colorText: theme === 'high-contrast' ? '#f6ece7' : theme === 'dark' ? '#ececec' : '#221918',
-      colorTextSecondary: theme === 'high-contrast' ? '#c5aea8' : theme === 'dark' ? '#b3b3b3' : '#6f5750',
-      colorTextTertiary: theme === 'high-contrast' ? '#8d7570' : undefined,
-      borderRadius: 16,
-      borderRadiusLG: 24,
+      colorPrimary: brandColor || '#55616c',
+      colorInfo: '#476d8a',
+      colorSuccess: '#1f8a56',
+      colorWarning: '#b37a2a',
+      colorError: '#b24b41',
+      colorLink: brandColor || '#55616c',
+      colorBgBase: theme === 'high-contrast' ? '#07090b' : theme === 'dark' ? '#0d1014' : '#f5f1ec',
+      colorBgLayout: theme === 'high-contrast' ? '#090b0d' : theme === 'dark' ? '#11161b' : '#f1ece7',
+      colorBgContainer: theme === 'high-contrast' ? '#14181c' : theme === 'dark' ? '#171d22' : '#ffffff',
+      colorBorder: theme === 'high-contrast' ? '#273038' : theme === 'dark' ? '#2a333b' : '#e0d6cf',
+      colorBorderSecondary: theme === 'high-contrast' ? '#1f2830' : theme === 'dark' ? '#242d34' : '#ebe1db',
+      colorText: theme === 'high-contrast' ? '#ffffff' : theme === 'dark' ? '#f1ece8' : '#221c1a',
+      colorTextSecondary: theme === 'high-contrast' ? '#c6d0d8' : theme === 'dark' ? '#b7b0ab' : '#675b56',
+      colorTextTertiary: theme === 'high-contrast' ? '#98a3ad' : '#8b7e77',
+      borderRadius: 14,
+      borderRadiusLG: 22,
       fontFamily: "'IBM Plex Sans', 'Segoe UI', sans-serif",
     },
   }), [theme, brandColor]);
 
   const showDesktopUI = isLoggedIn;
-  const antdLocale = i18n.language === 'zh-CN' || i18n.language.startsWith('zh') ? zhCN : enUS;
+  const resolvedLanguage = i18n.resolvedLanguage || i18n.language || 'en-US';
+  const antdLocale = resolvedLanguage === 'zh-CN' || resolvedLanguage.startsWith('zh') ? zhCN : enUS;
 
   const Loader = (
     <Spin

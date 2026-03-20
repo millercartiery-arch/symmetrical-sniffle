@@ -3,6 +3,7 @@
    ----------------------------------------------------------------------- */
 import React, { memo, useCallback, useEffect } from "react";
 import { MinusOutlined, CloseOutlined } from "@ant-design/icons";
+import { useTranslation } from "react-i18next";
 import { useTheme } from "../context/ThemeContext";
 import "./DesktopTitleBar.css";
 
@@ -28,13 +29,15 @@ interface DesktopTitleBarProps {
  * 让样式文件保持干净，不必每次都在 JSX 中写 `style`.
  */
 const DesktopTitleBar: React.FC<DesktopTitleBarProps> = ({
-  title = "Cartier&Miller",
+  title,
   brandColor,
 }) => {
+  const { t } = useTranslation();
   const { brandColor: themeBrandColor } = useTheme();
 
   // ---------- 颜色（优先级：prop > context > 默认） ----------
-  const finalColor = brandColor ?? themeBrandColor ?? "#8B0000";
+  const finalColor = brandColor ?? themeBrandColor ?? "#55616c";
+  const finalTitle = title ?? t('brand.name', { defaultValue: 'Cartier&Miller' });
 
   // ---------- 按钮事件（动态加载 Tauri API，仅在 Tauri 环境执行，浏览器不加载） ----------
   const minimize = useCallback(async () => {
@@ -100,7 +103,7 @@ const DesktopTitleBar: React.FC<DesktopTitleBarProps> = ({
         onDoubleClick={toggleMaximize}
       >
         {/* 文字直接放在拖拽区域，这样双击文字也能触发 */}
-        {title}
+        {finalTitle}
       </div>
 
       {/* ---- 控制按钮 ---- */}
@@ -109,8 +112,8 @@ const DesktopTitleBar: React.FC<DesktopTitleBarProps> = ({
           type="button"
           className="desktop-titlebar__btn"
           onClick={minimize}
-          aria-label="Minimize"
-          title="Minimize (Ctrl+M)"
+          aria-label={t('desktop.minimize', { defaultValue: 'Minimize' })}
+          title={`${t('desktop.minimize', { defaultValue: 'Minimize' })} (Ctrl+M)`}
         >
           <MinusOutlined />
         </button>
@@ -119,8 +122,8 @@ const DesktopTitleBar: React.FC<DesktopTitleBarProps> = ({
           type="button"
           className="desktop-titlebar__btn desktop-titlebar__btn--close"
           onClick={close}
-          aria-label="Close"
-          title="Close (Alt+F4)"
+          aria-label={t('desktop.close', { defaultValue: 'Close' })}
+          title={`${t('desktop.close', { defaultValue: 'Close' })} (Alt+F4)`}
         >
           <CloseOutlined />
         </button>

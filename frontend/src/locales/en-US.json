@@ -43,6 +43,9 @@
     "confirm_action": "Confirm action",
     "cancel_action": "Cancel action"
   },
+  "brand": {
+    "name": "Cartier&Miller"
+  },
   "privacy": {
     "modal_title": "Privacy Settings",
     "welcome_title": "Privacy & Data",
@@ -53,7 +56,11 @@
     "decline": "Decline",
     "policy": "Privacy Policy",
     "children_policy": "Children Privacy Policy",
-    "do_not_sell": "Do Not Sell My Info"
+    "do_not_sell": "Do Not Sell My Info",
+    "alert_title": "Consent Clause",
+    "alert_body": "By selecting Agree & Continue, you acknowledge that you have reviewed the Global Privacy Policy and Terms of Service for specialized sandbox processing and automation compliance.",
+    "children_note": "Children's privacy details remain available in:",
+    "section": "Section"
   },
   "menu": {
     "dashboard": "Dashboard",
@@ -504,6 +511,41 @@
     "unauthorized": "Unauthorized",
     "forbidden": "Forbidden",
     "permission_denied": "Permission denied"
+  },
+  "desktop": {
+    "minimize": "Minimize",
+    "close": "Close"
+  },
+  "login": {
+    "hero_title": "Cartier&Miller Control Access",
+    "hero_copy": "Unified access to accounts, conversations, proxy routing and task orchestration. High-risk states are surfaced first and key links stay under one control surface.",
+    "secure_operator_access": "Secure Operator Access",
+    "routing_health": "Routing Health",
+    "routing_health_desc": "Proxy health, failed tasks and locked accounts in one monitor.",
+    "session_stability": "Session Stability",
+    "session_stability_desc": "Credentials, sessions and automation actions stay consistent.",
+    "operator_clarity": "Operator Clarity",
+    "operator_clarity_desc": "Primary actions and alerts use stronger hierarchy and feedback.",
+    "operator_sign_in": "Operator Sign In",
+    "sign_in_title": "Sign in to control center",
+    "username_placeholder": "Enter your operator username",
+    "password_placeholder": "Enter your password",
+    "hide_password": "Hide password",
+    "show_password": "Show password",
+    "hide_short": "Hide",
+    "show_short": "Show",
+    "captcha_label": "Captcha Verification",
+    "captcha_placeholder": "Enter captcha",
+    "refresh_captcha": "Refresh captcha",
+    "refresh_captcha_short": "Refresh captcha",
+    "remember_password": "Remember password",
+    "logging_in": "Logging in...",
+    "enter_control_center": "Enter Control Center",
+    "switch_to_contrast": "Switch to contrast mode",
+    "switch_to_light": "Switch to light mode",
+    "contrast": "Contrast",
+    "light": "Light",
+    "footnote": "Signing in confirms awareness of the latest privacy and service agreement update."
   },
   "validation": {
     "required": "{{field}} is required",

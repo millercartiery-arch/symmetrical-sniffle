@@ -13,7 +13,7 @@ const createCaptcha = () =>
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const { theme, setTheme } = useTheme();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -25,6 +25,12 @@ const Login: React.FC = () => {
   const [captcha, setCaptcha] = useState(() => createCaptcha());
 
   const isZh = i18n.language === 'zh-CN' || i18n.language.startsWith('zh');
+  const titleCopy = t('login.hero_title', { defaultValue: isZh ? 'Cartier&Miller 控制入口' : 'Cartier&Miller Control Access' });
+  const subtitleCopy = t('login.hero_copy', {
+    defaultValue: isZh
+      ? '统一进入账户、消息、代理和任务调度中心。高风险状态会被优先突出，关键链路保持在同一套控制面板内。'
+      : 'Unified access to accounts, conversations, proxy routing and task orchestration. High-risk states are surfaced first and key links stay under one control surface.'
+  });
   const canSubmit = useMemo(
     () => Boolean(username.trim() && password.trim() && captchaInput.trim()) && !loading,
     [username, password, captchaInput, loading]
@@ -111,39 +117,39 @@ const Login: React.FC = () => {
           type="button"
           className="ctrlBtn"
           onClick={toggleTheme}
-          title={theme === 'light' ? (isZh ? '切换到高对比' : 'Switch to contrast mode') : (isZh ? '切换到浅色' : 'Switch to light mode')}
+          title={theme === 'light'
+            ? t('login.switch_to_contrast', { defaultValue: isZh ? '切换到高对比' : 'Switch to contrast mode' })
+            : t('login.switch_to_light', { defaultValue: isZh ? '切换到浅色' : 'Switch to light mode' })}
         >
-          {theme === 'light' ? 'Contrast' : 'Light'}
+          {theme === 'light' ? t('login.contrast', { defaultValue: 'Contrast' }) : t('login.light', { defaultValue: 'Light' })}
         </button>
       </div>
 
       <div className="cm-login-layout">
         <section className="cm-login-hero">
           <div className="cm-login-brand-mark">
-            <img src="/favicon.png" alt="Cartier & Miller" />
+            <img src="/favicon.png" alt={t('brand.name', { defaultValue: 'Cartier&Miller' })} />
           </div>
-          <div className="cm-kpi-eyebrow">Secure Operator Access</div>
+          <div className="cm-kpi-eyebrow">{t('login.secure_operator_access', { defaultValue: 'Secure Operator Access' })}</div>
           <h1 className="cm-login-title cm-brand-title">
-            {isZh ? 'Cartier&Miller 控制入口' : 'Cartier&Miller Control Access'}
+            {titleCopy}
           </h1>
           <p className="cm-login-copy">
-            {isZh
-              ? '统一进入账户、消息、代理和任务调度中心。高风险状态会被优先突出，关键链路保持在同一套控制面板内。'
-              : 'Unified access to accounts, conversations, proxy routing and task orchestration. High-risk states are surfaced first and key links stay under one control surface.'}
+            {subtitleCopy}
           </p>
 
           <div className="cm-feature-grid">
             <div className="cm-feature-card">
-              <strong>{isZh ? 'Routing Health' : 'Routing Health'}</strong>
-              <span>{isZh ? '代理链路、失败任务和异常账户统一监控。' : 'Proxy health, failed tasks and locked accounts in one monitor.'}</span>
+              <strong>{t('login.routing_health', { defaultValue: 'Routing Health' })}</strong>
+              <span>{t('login.routing_health_desc', { defaultValue: isZh ? '代理链路、失败任务和异常账户统一监控。' : 'Proxy health, failed tasks and locked accounts in one monitor.' })}</span>
             </div>
             <div className="cm-feature-card">
-              <strong>{isZh ? 'Session Stability' : 'Session Stability'}</strong>
-              <span>{isZh ? '凭证、会话与自动化动作保持连续。' : 'Credentials, sessions and automation actions stay consistent.'}</span>
+              <strong>{t('login.session_stability', { defaultValue: 'Session Stability' })}</strong>
+              <span>{t('login.session_stability_desc', { defaultValue: isZh ? '凭证、会话与自动化动作保持连续。' : 'Credentials, sessions and automation actions stay consistent.' })}</span>
             </div>
             <div className="cm-feature-card">
-              <strong>{isZh ? 'Operator Clarity' : 'Operator Clarity'}</strong>
-              <span>{isZh ? '所有关键入口都以更强层级和反馈呈现。' : 'Primary actions and alerts use stronger hierarchy and feedback.'}</span>
+              <strong>{t('login.operator_clarity', { defaultValue: 'Operator Clarity' })}</strong>
+              <span>{t('login.operator_clarity_desc', { defaultValue: isZh ? '所有关键入口都以更强层级和反馈呈现。' : 'Primary actions and alerts use stronger hierarchy and feedback.' })}</span>
             </div>
           </div>
         </section>
@@ -151,11 +157,11 @@ const Login: React.FC = () => {
         <section className="loginCard">
           <div className="cm-login-card-top">
             <div className="cm-login-card-logo">
-              <img src="/favicon.png" alt="CM logo" />
+              <img src="/favicon.png" alt={t('brand.name', { defaultValue: 'Cartier&Miller' })} />
             </div>
             <div>
-              <div className="cm-kpi-eyebrow">{isZh ? 'Operator Sign In' : 'Operator Sign In'}</div>
-              <div className="title">{isZh ? '登录控制台' : 'Sign in to control center'}</div>
+              <div className="cm-kpi-eyebrow">{t('login.operator_sign_in', { defaultValue: 'Operator Sign In' })}</div>
+              <div className="title">{t('login.sign_in_title', { defaultValue: isZh ? '登录控制台' : 'Sign in to control center' })}</div>
             </div>
           </div>
 
@@ -163,13 +169,13 @@ const Login: React.FC = () => {
 
           <div className="inputGroup">
             <label htmlFor="login-username" className="fieldLabel">
-              {isZh ? '账号' : 'Username'}
+              {t('auth.username')}
             </label>
             <input
               id="login-username"
               name="username"
               className="input"
-              placeholder={isZh ? '输入管理员账号' : 'Enter your operator username'}
+              placeholder={t('login.username_placeholder', { defaultValue: isZh ? '输入管理员账号' : 'Enter your operator username' })}
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
@@ -179,14 +185,14 @@ const Login: React.FC = () => {
 
           <div className="inputGroup">
             <label htmlFor="login-password" className="fieldLabel">
-              {isZh ? '密码' : 'Password'}
+              {t('auth.password')}
             </label>
             <input
               id="login-password"
               name="password"
               className="input"
               type={showPassword ? 'text' : 'password'}
-              placeholder={isZh ? '输入登录密码' : 'Enter your password'}
+              placeholder={t('login.password_placeholder', { defaultValue: isZh ? '输入登录密码' : 'Enter your password' })}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
@@ -196,22 +202,22 @@ const Login: React.FC = () => {
               type="button"
               className="eye"
               onClick={() => setShowPassword((value) => !value)}
-              aria-label={showPassword ? (isZh ? '隐藏密码' : 'Hide password') : (isZh ? '显示密码' : 'Show password')}
+              aria-label={showPassword ? t('login.hide_password', { defaultValue: isZh ? '隐藏密码' : 'Hide password' }) : t('login.show_password', { defaultValue: isZh ? '显示密码' : 'Show password' })}
             >
-              {showPassword ? 'Hide' : 'Show'}
+              {showPassword ? t('login.hide_short', { defaultValue: 'Hide' }) : t('login.show_short', { defaultValue: 'Show' })}
             </button>
           </div>
 
           <div className="inputGroup">
             <label htmlFor="login-captcha" className="fieldLabel">
-              {isZh ? '验证码校验' : 'Captcha Verification'}
+              {t('login.captcha_label', { defaultValue: isZh ? '验证码校验' : 'Captcha Verification' })}
             </label>
             <div className="captchaRow">
               <input
                 id="login-captcha"
                 name="captcha"
                 className="captchaInput"
-                placeholder={isZh ? '输入验证码' : 'Enter captcha'}
+                placeholder={t('login.captcha_placeholder', { defaultValue: isZh ? '输入验证码' : 'Enter captcha' })}
                 value={captchaInput}
                 onChange={(e) => setCaptchaInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
@@ -221,8 +227,8 @@ const Login: React.FC = () => {
                 type="button"
                 className="captchaBox"
                 onClick={refreshCaptcha}
-                title={isZh ? '点击刷新验证码' : 'Click to refresh captcha'}
-                aria-label={isZh ? '刷新验证码' : 'Refresh captcha'}
+                title={t('login.refresh_captcha', { defaultValue: isZh ? '点击刷新验证码' : 'Click to refresh captcha' })}
+                aria-label={t('login.refresh_captcha', { defaultValue: isZh ? '刷新验证码' : 'Refresh captcha' })}
               >
                 {captcha}
               </button>
@@ -238,26 +244,28 @@ const Login: React.FC = () => {
                 checked={rememberPassword}
                 onChange={(e) => setRememberPassword(e.target.checked)}
               />{' '}
-              {isZh ? '记住密码' : 'Remember password'}
+              {t('login.remember_password', { defaultValue: isZh ? '记住密码' : 'Remember password' })}
             </label>
             <button type="button" className="linkBtn" onClick={refreshCaptcha}>
-              {isZh ? '换一张验证码' : 'Refresh captcha'}
+              {t('login.refresh_captcha_short', { defaultValue: isZh ? '换一张验证码' : 'Refresh captcha' })}
             </button>
           </div>
 
           <button
-            type="button"
-            className="loginBtn"
-            disabled={!canSubmit}
-            onClick={handleLogin}
-          >
-            {loading ? (isZh ? '登录中...' : 'Logging in...') : (isZh ? '进入控制台' : 'Enter Control Center')}
+          type="button"
+          className="loginBtn"
+          disabled={!canSubmit}
+          onClick={handleLogin}
+        >
+            {loading ? t('login.logging_in', { defaultValue: isZh ? '登录中...' : 'Logging in...' }) : t('login.enter_control_center', { defaultValue: isZh ? '进入控制台' : 'Enter Control Center' })}
           </button>
 
           <div className="cm-login-footnote">
-            {isZh
-              ? '登录即表示你已知悉当前隐私与服务协议更新。'
-              : 'Signing in confirms awareness of the latest privacy and service agreement update.'}
+            {t('login.footnote', {
+              defaultValue: isZh
+                ? '登录即表示你已知悉当前隐私与服务协议更新。'
+                : 'Signing in confirms awareness of the latest privacy and service agreement update.'
+            })}
           </div>
         </section>
       </div>

@@ -43,6 +43,9 @@
     "confirm_action": "确认操作",
     "cancel_action": "取消操作"
   },
+  "brand": {
+    "name": "Cartier&Miller"
+  },
   "privacy": {
     "modal_title": "隐私设置",
     "welcome_title": "隐私与数据",
@@ -53,7 +56,11 @@
     "decline": "拒绝",
     "policy": "隐私政策",
     "children_policy": "儿童隐私政策",
-    "do_not_sell": "不要出售我的信息"
+    "do_not_sell": "不要出售我的信息",
+    "alert_title": "同意条款",
+    "alert_body": "选择“接受并继续”即表示你已查看全局隐私政策与服务条款，并同意用于专用沙箱处理与自动化合规。",
+    "children_note": "儿童隐私详情可在以下页面查看：",
+    "section": "章节"
   },
   "menu": {
     "dashboard": "账户概览",
@@ -504,6 +511,41 @@
     "unauthorized": "未授权",
     "forbidden": "禁止访问",
     "permission_denied": "权限不足"
+  },
+  "desktop": {
+    "minimize": "最小化",
+    "close": "关闭"
+  },
+  "login": {
+    "hero_title": "Cartier&Miller 控制入口",
+    "hero_copy": "统一进入账户、消息、代理和任务调度中心。高风险状态会被优先突出，关键链路保持在同一套控制面板内。",
+    "secure_operator_access": "安全操作入口",
+    "routing_health": "路由健康",
+    "routing_health_desc": "代理链路、失败任务和异常账户统一监控。",
+    "session_stability": "会话稳定性",
+    "session_stability_desc": "凭证、会话与自动化动作保持连续。",
+    "operator_clarity": "操作清晰度",
+    "operator_clarity_desc": "所有关键入口都以更强层级和反馈呈现。",
+    "operator_sign_in": "操作员登录",
+    "sign_in_title": "登录控制台",
+    "username_placeholder": "输入管理员账号",
+    "password_placeholder": "输入登录密码",
+    "hide_password": "隐藏密码",
+    "show_password": "显示密码",
+    "hide_short": "隐藏",
+    "show_short": "显示",
+    "captcha_label": "验证码校验",
+    "captcha_placeholder": "输入验证码",
+    "refresh_captcha": "刷新验证码",
+    "refresh_captcha_short": "换一张验证码",
+    "remember_password": "记住密码",
+    "logging_in": "登录中...",
+    "enter_control_center": "进入控制台",
+    "switch_to_contrast": "切换到高对比",
+    "switch_to_light": "切换到浅色",
+    "contrast": "对比",
+    "light": "浅色",
+    "footnote": "登录即表示你已知悉当前隐私与服务协议更新。"
   },
   "validation": {
     "required": "{{field}} 不能为空",

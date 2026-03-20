@@ -8,14 +8,30 @@ i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
+    supportedLngs: ['en-US', 'zh-CN'],
+    load: 'languageOnly',
+    cleanCode: true,
+    lowerCaseLng: false,
+    fallbackLng: 'en-US',
+    nonExplicitSupportedLngs: true,
     resources: {
       'en-US': { translation: enUS },
       'zh-CN': { translation: zhCN }
     },
-    fallbackLng: 'en-US',
+    detection: {
+      order: ['localStorage', 'navigator', 'htmlTag'],
+      lookupLocalStorage: 'i18nextLng',
+      caches: ['localStorage']
+    },
+    react: {
+      useSuspense: false
+    },
     interpolation: {
       escapeValue: false
-    }
+    },
+    returnNull: false,
+    returnEmptyString: false,
+    pluralSeparator: '_'
   });
 
 export default i18n;

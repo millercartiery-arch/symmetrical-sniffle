@@ -5,6 +5,7 @@ import {
   LinkOutlined,
   SafetyCertificateOutlined,
 } from "@ant-design/icons";
+import { useTranslation } from "react-i18next";
 import api from "../api";
 
 const { Paragraph, Text, Title, Link } = Typography;
@@ -65,6 +66,7 @@ const getPrivacyCookie = (): "accepted" | "rejected" | null => {
 
 const PrivacyModal: React.FC = () => {
   const [visible, setVisible] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (typeof document === "undefined" || getPrivacyCookie()) return;
@@ -77,9 +79,9 @@ const PrivacyModal: React.FC = () => {
       await api.post("/privacy/status", { status });
     } catch (error) {
       console.error("[Privacy] post decision failed:", error);
-      message.error("Unable to record your privacy preference. Please try again.");
+      message.error(t('privacy.post_error', { defaultValue: 'Unable to record your privacy preference. Please try again.' }));
     }
-  }, []);
+  }, [t]);
 
   const handleDecision = useCallback(
     async (status: "accepted" | "rejected") => {
@@ -105,7 +107,7 @@ const PrivacyModal: React.FC = () => {
       rootClassName="cm-privacy-sheet"
       styles={{
         body: { padding: 0 },
-        mask: { backdropFilter: "blur(10px)", background: "rgba(6, 3, 3, 0.55)" },
+        mask: { backdropFilter: "blur(10px)", background: "rgba(10, 12, 15, 0.55)" },
       }}
     >
       <div className="cm-privacy-shell">
@@ -118,13 +120,12 @@ const PrivacyModal: React.FC = () => {
                   <SafetyCertificateOutlined />
                 </div>
                 <div>
-                  <Text className="cm-kpi-eyebrow">TextNow Compliance Privacy Notice</Text>
-                  <Title level={3} style={{ margin: "4px 0 6px", color: "#f7ece8" }}>
-                    Data Privacy & Service Agreement Update
+                  <Text className="cm-kpi-eyebrow">{t('privacy.modal_title')}</Text>
+                  <Title level={3} style={{ margin: "4px 0 6px", color: "var(--cm-text-primary)" }}>
+                    {t('privacy.welcome_title')}
                   </Title>
-                  <Text style={{ color: "#c5aea8", lineHeight: 1.7 }}>
-                    To provide a stable and secure TextNow service integration on Cartier & Miller,
-                    we have updated our data processing and network optimization controls.
+                  <Text style={{ color: "var(--cm-text-secondary)", lineHeight: 1.7 }}>
+                    {t('privacy.commitment')}
                   </Text>
                 </div>
               </div>
@@ -135,11 +136,14 @@ const PrivacyModal: React.FC = () => {
                 style={{
                   marginBottom: 18,
                   borderRadius: 16,
-                  background: "rgba(63, 105, 255, 0.08)",
-                  borderColor: "rgba(63, 105, 255, 0.24)",
+                  background: "rgba(71, 109, 138, 0.08)",
+                  borderColor: "rgba(71, 109, 138, 0.24)",
                 }}
-                message="Consent Clause"
-                description="By selecting Agree & Continue, you acknowledge that you have reviewed the Global Privacy Policy and Terms of Service for specialized sandbox processing and automation compliance."
+                message={t('privacy.alert_title', { defaultValue: 'Consent Clause' })}
+                description={t('privacy.alert_body', {
+                  defaultValue:
+                    'By selecting Agree & Continue, you acknowledge that you have reviewed the Global Privacy Policy and Terms of Service for specialized sandbox processing and automation compliance.',
+                })}
               />
 
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -152,7 +156,7 @@ const PrivacyModal: React.FC = () => {
                   onClick={() => handleDecision("accepted")}
                   style={{ height: 52, borderRadius: 14, fontWeight: 700 }}
                 >
-                  Agree & Continue
+                  {t('privacy.accept')}
                 </Button>
                 <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                   <Button
@@ -164,13 +168,13 @@ const PrivacyModal: React.FC = () => {
                       minWidth: 180,
                       height: 44,
                       borderRadius: 14,
-                      borderColor: "rgba(234, 234, 234, 0.16)",
-                      background: "rgba(255,255,255,0.02)",
-                      color: "#f5e9e5",
+                      borderColor: "rgba(85, 97, 108, 0.16)",
+                      background: "rgba(255,255,255,0.78)",
+                      color: "var(--cm-text-primary)",
                     }}
                     icon={<LinkOutlined />}
                   >
-                    View Privacy Policy
+                    {t('privacy.policy')}
                   </Button>
                   <Button
                     block
@@ -180,18 +184,18 @@ const PrivacyModal: React.FC = () => {
                       minWidth: 180,
                       height: 44,
                       borderRadius: 14,
-                      borderColor: "rgba(178, 34, 34, 0.22)",
-                      background: "rgba(178, 34, 34, 0.08)",
-                      color: "#efc7c7",
+                      borderColor: "rgba(85, 97, 108, 0.16)",
+                      background: "rgba(85, 97, 108, 0.06)",
+                      color: "var(--cm-text-primary)",
                     }}
                   >
-                    Do Not Sell My Info
+                    {t('privacy.do_not_sell')}
                   </Button>
                 </div>
-                <Paragraph style={{ margin: 0, color: "#8d7570", fontSize: 12 }}>
-                  Children&apos;s privacy details remain available in{" "}
+                <Paragraph style={{ margin: 0, color: "var(--cm-text-secondary)", fontSize: 12 }}>
+                  {t('privacy.children_note', { defaultValue: "Children's privacy details remain available in" })}{" "}
                   <Link href="/children-privacy" target="_blank">
-                    the Under 13 Policy
+                    {t('privacy.children_policy')}
                   </Link>
                   .
                 </Paragraph>
@@ -201,11 +205,11 @@ const PrivacyModal: React.FC = () => {
             <div className="cm-privacy-panel cm-privacy-scroll">
               {complianceSections.map((section, index) => (
                 <div key={section.title} style={{ marginBottom: index === complianceSections.length - 1 ? 0 : 18 }}>
-                  <Text className="cm-kpi-eyebrow">Section {index + 1}</Text>
-                  <Title level={5} style={{ color: "#f7ece8", margin: "6px 0 10px" }}>
+                  <Text className="cm-kpi-eyebrow">{t('privacy.section', { defaultValue: 'Section' })} {index + 1}</Text>
+                  <Title level={5} style={{ color: "var(--cm-text-primary)", margin: "6px 0 10px" }}>
                     {section.title}
                   </Title>
-                  <ul style={{ paddingLeft: 18, color: "#c5aea8", lineHeight: 1.8 }}>
+                  <ul style={{ paddingLeft: 18, color: "var(--cm-text-secondary)", lineHeight: 1.8 }}>
                     {section.bullets.map((bullet) => (
                       <li key={bullet} style={{ marginBottom: 8 }}>
                         {bullet}
