@@ -153,7 +153,20 @@
     "normal": "Normal",
     "busy": "Busy",
     "offline": "Offline",
-    "online": "Online"
+    "online": "Online",
+    "loading_all_ids": "Loading all IDs...",
+    "selected_all_records": "Selected all {{count}} records",
+    "select_all_failed": "Select all failed",
+    "select_export_field_required": "Select at least one export field",
+    "loading_full_export_data": "Loading full data for export...",
+    "export_current_page_only": "Unable to load the full dataset. Exporting the current page only.",
+    "export_completed": "Export completed: {{filename}} ({{count}} records)",
+    "sent_daily_max": "Sent/Daily Max",
+    "total_sent_recv": "Total Sent/Recv",
+    "cooldown_status": "Cooldown Status",
+    "cooldown_remaining": "{{h}}h {{m}}m {{s}}s remaining",
+    "locked_by_other_user": "This account is currently being edited by {{user}} (TC-17)",
+    "lock_failed_generic": "Unable to lock account"
   },
   "task": {
     "target_phone": "Target Phone",
@@ -258,6 +271,18 @@
     "time": "Time",
     "status": "Status",
     "delivered": "Delivered",
+    "sending": "Sending",
+    "received_status": "Received",
+    "fetch_conversations_failed": "Failed to load conversations",
+    "fetch_messages_failed": "Failed to load messages",
+    "total_conversations": "Total Conversations",
+    "total_conversations_meta": "Live routed threads",
+    "unread_signals": "Unread Signals",
+    "unread_signals_meta": "Requires operator attention",
+    "restricted_threads": "Restricted Threads",
+    "restricted_threads_meta": "Blocked or flagged contacts",
+    "remarked_contacts": "Remarked Contacts",
+    "remarked_contacts_meta": "Contacts with saved notes",
     "read": "Read",
     "failed": "Failed",
     "pending": "Pending",
@@ -437,6 +462,12 @@
       "error": "Error",
       "unknown": "Unknown"
     }
+  },
+  "shell": {
+    "control_center": "Control Center",
+    "system_health": "System Health 98%",
+    "subtitle": "Secure operations dashboard for accounts, chat routing and proxy orchestration.",
+    "proxy_status_stable": "Proxy Status Stable"
   },
   "auth": {
     "login": "Login",

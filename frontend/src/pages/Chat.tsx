@@ -83,15 +83,19 @@ const getAccountStatusKind = (status: string | undefined): "normal" | "paused" |
   return "banned";
 };
 
-const formatMessageStatus = (status: string | undefined, direction: "inbound" | "outbound") => {
+const formatMessageStatus = (
+  status: string | undefined,
+  direction: "inbound" | "outbound",
+  t: (key: string, options?: any) => string
+) => {
   const next = String(status ?? "").trim();
   if (!next) return "-";
   const lower = next.toLowerCase();
-  if (direction === "inbound") return lower === "received" ? "已接收" : next;
-  if (lower === "sent") return "已送达";
-  if (lower === "pending" || lower === "sending") return "发送中";
-  if (lower === "failed") return "发送失败";
-  if (/delivered|成功|sent/i.test(next)) return "已送达";
+  if (direction === "inbound") return lower === "received" ? t("chat.received_status", { defaultValue: "Received" }) : next;
+  if (lower === "sent") return t("chat.delivered", { defaultValue: "Delivered" });
+  if (lower === "pending" || lower === "sending") return t("chat.sending", { defaultValue: "Sending" });
+  if (lower === "failed") return t("chat.send_failed", { defaultValue: "Send failed" });
+  if (/delivered|成功|sent/i.test(next)) return t("chat.delivered", { defaultValue: "Delivered" });
   return next;
 };
 
@@ -180,12 +184,28 @@ const Chat: React.FC = () => {
 
   const chatStats = useMemo(
     () => [
-      { label: "Total Conversations", value: conversations.length, meta: "Live routed threads" },
-      { label: "Unread Signals", value: conversations.reduce((sum, item) => sum + (item.unreadCount ?? 0), 0), meta: "Requires operator attention" },
-      { label: "Restricted Threads", value: conversations.filter((item) => item.banned).length, meta: "Blocked or flagged contacts" },
-      { label: "Remarked Contacts", value: Object.keys(remarkStore).length, meta: "Contacts with saved notes" },
+      {
+        label: t("chat.total_conversations", { defaultValue: "Total Conversations" }),
+        value: conversations.length,
+        meta: t("chat.total_conversations_meta", { defaultValue: "Live routed threads" }),
+      },
+      {
+        label: t("chat.unread_signals", { defaultValue: "Unread Signals" }),
+        value: conversations.reduce((sum, item) => sum + (item.unreadCount ?? 0), 0),
+        meta: t("chat.unread_signals_meta", { defaultValue: "Requires operator attention" }),
+      },
+      {
+        label: t("chat.restricted_threads", { defaultValue: "Restricted Threads" }),
+        value: conversations.filter((item) => item.banned).length,
+        meta: t("chat.restricted_threads_meta", { defaultValue: "Blocked or flagged contacts" }),
+      },
+      {
+        label: t("chat.remarked_contacts", { defaultValue: "Remarked Contacts" }),
+        value: Object.keys(remarkStore).length,
+        meta: t("chat.remarked_contacts_meta", { defaultValue: "Contacts with saved notes" }),
+      },
     ],
-    [conversations, remarkStore]
+    [conversations, remarkStore, t]
   );
 
   const scrollToBottom = useCallback(() => {
@@ -224,7 +244,7 @@ const Chat: React.FC = () => {
       );
     } catch (error) {
       console.error(error);
-      message.error(t("common.fetch_error", { defaultValue: "获取会话列表失败" }));
+      message.error(t("chat.fetch_conversations_failed", { defaultValue: "Failed to load conversations" }));
     } finally {
       setLoadingConvs(false);
     }
@@ -240,7 +260,7 @@ const Chat: React.FC = () => {
         window.setTimeout(scrollToBottom, 100);
       } catch (error) {
         console.error(error);
-        message.error(t("common.fetch_error", { defaultValue: "获取消息失败" }));
+        message.error(t("chat.fetch_messages_failed", { defaultValue: "Failed to load messages" }));
       } finally {
         setLoadingMsgs(false);
       }
@@ -526,7 +546,7 @@ const Chat: React.FC = () => {
                   <div key={msg.id} style={{ display: "flex", justifyContent: isMine ? "flex-end" : "flex-start", marginBottom: 12 }}>
                     <div style={{ maxWidth: "72%", padding: "10px 14px", borderRadius: 16, background: isMine ? "linear-gradient(135deg, #8B0000, #B22222)" : "rgba(255,255,255,0.04)", color: isMine ? "#fff" : "#f4e8e4", border: isMine ? "none" : "1px solid rgba(255,255,255,0.06)" }}>
                       <div>{msg.content}</div>
-                      <div style={{ fontSize: 10, textAlign: "right", marginTop: 4, color: isMine ? "#eed6d6" : token.colorTextSecondary }}>{formatTime(msg.created_at)} · {formatMessageStatus(msg.status, msg.direction)}</div>
+                      <div style={{ fontSize: 10, textAlign: "right", marginTop: 4, color: isMine ? "#eed6d6" : token.colorTextSecondary }}>{formatTime(msg.created_at)} · {formatMessageStatus(msg.status, msg.direction, t)}</div>
                     </div>
                   </div>
                 );

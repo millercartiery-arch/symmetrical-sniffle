@@ -124,7 +124,7 @@ const AccountManager: React.FC = () => {
   const closeModal = (name: keyof typeof modals) => setModals((prev) => ({ ...prev, [name]: false }));
 
   const selectAllAcrossPages = async () => {
-    const hide = message.loading('正在获取全量 ID...', 0);
+    const hide = message.loading(t('accounts.loading_all_ids', { defaultValue: 'Loading all IDs...' }), 0);
     try {
       const res: any = await api.get('/accounts/ids', {
         params: {
@@ -134,10 +134,15 @@ const AccountManager: React.FC = () => {
       });
       if (res && Array.isArray(res.ids)) {
         setSelectedKeys(res.ids);
-        message.success(`已全选 ${res.ids.length} 条记录`);
+        message.success(
+          t('accounts.selected_all_records', {
+            defaultValue: 'Selected all {{count}} records',
+            count: res.ids.length,
+          })
+        );
       }
     } catch (err) {
-      message.error('全选失败');
+      message.error(t('accounts.select_all_failed', { defaultValue: 'Select all failed' }));
     } finally {
       hide();
     }
@@ -145,13 +150,13 @@ const AccountManager: React.FC = () => {
 
   const exportWithSelectedFields = async () => {
     if (selectedExportFields.length === 0) {
-      message.warning('请至少选择一个导出字段');
+      message.warning(t('accounts.select_export_field_required', { defaultValue: 'Select at least one export field' }));
       return;
     }
     let dataToExport = accounts;
     const total = (accPagination.total as number) ?? 0;
     if (total > accounts.length) {
-      const hide = message.loading('正在获取全量数据以供导出...', 0);
+      const hide = message.loading(t('accounts.loading_full_export_data', { defaultValue: 'Loading full data for export...' }), 0);
       try {
         const res: any = await api.get('/accounts', {
           params: {
@@ -163,7 +168,11 @@ const AccountManager: React.FC = () => {
         });
         dataToExport = Array.isArray(res?.items) ? res.items : accounts;
       } catch (err) {
-        message.warning('无法获取全量数据，将仅导出当前页面数据');
+        message.warning(
+          t('accounts.export_current_page_only', {
+            defaultValue: 'Unable to load the full dataset. Exporting the current page only.',
+          })
+        );
       } finally {
         hide();
       }
@@ -199,7 +208,13 @@ const AccountManager: React.FC = () => {
     a.click();
     URL.revokeObjectURL(url);
     closeModal('exportFields');
-    message.success(`导出完成：${filename} (共 ${picked.length} 条)`);
+    message.success(
+      t('accounts.export_completed', {
+        defaultValue: 'Export completed: {{filename}} ({{count}} records)',
+        filename,
+        count: picked.length,
+      })
+    );
     api.post('/audit/log', {
       action: 'EXPORT',
       details: { filename, count: picked.length, fields: selectedExportFields, format: exportFormat },
@@ -210,19 +225,19 @@ const AccountManager: React.FC = () => {
     { title: 'ID', dataIndex: 'id', width: 80, className: 'text-xs opacity-60' },
     { title: t('accounts.phone'), dataIndex: 'phone', render: (val: string) => <span className="font-mono">{val}</span> },
     {
-      title: 'Sent/Daily Max',
+      title: t('accounts.sent_daily_max', { defaultValue: 'Sent/Daily Max' }),
       render: (_: any, rec: any) => (
         <span className="font-mono">{rec.today_sent || 0} / {rec.daily_limit || 25}</span>
       ),
     },
     {
-      title: 'Total Sent/Recv',
+      title: t('accounts.total_sent_recv', { defaultValue: 'Total Sent/Recv' }),
       render: (_: any, rec: any) => (
         <span className="font-mono">{rec.sent_count || 0} / {rec.received_count || 0}</span>
       ),
     },
     {
-      title: 'Cooldown Status',
+      title: t('accounts.cooldown_status', { defaultValue: 'Cooldown Status' }),
       dataIndex: 'status',
       render: (status: string, rec: any) => {
         if (status === 'Cooldown' && rec.cooldown_end) {
@@ -233,7 +248,16 @@ const AccountManager: React.FC = () => {
             const h = Math.floor(diff / 3600000);
             const m = Math.floor((diff % 3600000) / 60000);
             const s = Math.floor((diff % 60000) / 1000);
-            return <span style={{ color: '#fa8c16' }}>{h}h {m}m {s}s remaining</span>;
+            return (
+              <span style={{ color: '#fa8c16' }}>
+                {t('accounts.cooldown_remaining', {
+                  defaultValue: '{{h}}h {{m}}m {{s}}s remaining',
+                  h,
+                  m,
+                  s,
+                })}
+              </span>
+            );
           }
         }
         return <StatusTag type="account" status={status} />;
@@ -255,9 +279,14 @@ const AccountManager: React.FC = () => {
               openModal('accountConfig');
             } catch (err: any) {
               if (err.response?.status === 409) {
-                message.error(`该账号正在被 ${err.response.data.user} 编辑中 (TC-17)`);
+                message.error(
+                  t('accounts.locked_by_other_user', {
+                    defaultValue: 'This account is currently being edited by {{user}} (TC-17)',
+                    user: err.response.data.user,
+                  })
+                );
               } else {
-                message.error('无法锁定账号');
+                message.error(t('accounts.lock_failed_generic', { defaultValue: 'Unable to lock account' }));
               }
             }
           }}

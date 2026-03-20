@@ -185,10 +185,10 @@ const AdminLayout: React.FC = () => {
             {!isSiderCollapsed && (
               <div style={{ textAlign: 'left' }}>
                 <div className="cm-brand-title" style={{ color: '#f6ece7', fontSize: 14, fontWeight: 700 }}>
-                  Cartier&Miller
+                  Millermiller
                 </div>
                 <Text style={{ color: '#b9a19a', fontSize: 11 }}>
-                  Control Center
+                  {t('shell.control_center', { defaultValue: 'Control Center' })}
                 </Text>
               </div>
             )}
@@ -210,7 +210,7 @@ const AdminLayout: React.FC = () => {
           <div style={{ marginTop: 'auto', padding: 16 }}>
             <div className="cm-health-pill">
               <HeartFilled style={{ color: '#16a34a' }} />
-              <span>System Health 98%</span>
+              <span>{t('shell.system_health', { defaultValue: 'System Health 98%' })}</span>
             </div>
           </div>
         )}
@@ -222,11 +222,13 @@ const AdminLayout: React.FC = () => {
         <Header style={headerStyle} className="cm-header">
           <div>
             <Text strong className="cm-brand-title" style={{ fontSize: isNarrow ? 16 : 18, color: '#f6ece7' }}>
-              Cartier&Miller
+              Millermiller
             </Text>
             <div>
               <Text style={{ color: '#b9a19a', fontSize: 12 }}>
-                Secure operations dashboard for accounts, chat routing and proxy orchestration.
+                {t('shell.subtitle', {
+                  defaultValue: 'Secure operations dashboard for accounts, chat routing and proxy orchestration.',
+                })}
               </Text>
             </div>
           </div>
@@ -234,7 +236,7 @@ const AdminLayout: React.FC = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
             <div className="cm-health-pill" style={{ marginRight: 4 }}>
               <RiseOutlined style={{ color: '#3f69ff' }} />
-              <span>Proxy Status Stable</span>
+              <span>{t('shell.proxy_status_stable', { defaultValue: 'Proxy Status Stable' })}</span>
             </div>
             {/* 语言切换 */}
             <Dropdown

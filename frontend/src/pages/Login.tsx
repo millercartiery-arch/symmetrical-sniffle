@@ -120,11 +120,11 @@ const Login: React.FC = () => {
       <div className="cm-login-layout">
         <section className="cm-login-hero">
           <div className="cm-login-brand-mark">
-            <img src="/favicon.png" alt="Cartier & Miller" />
+            <img src="/favicon.png" alt="Millermiller" />
           </div>
           <div className="cm-kpi-eyebrow">Secure Operator Access</div>
           <h1 className="cm-login-title cm-brand-title">
-            {isZh ? 'Cartier&Miller 控制入口' : 'Cartier&Miller Control Access'}
+            {isZh ? 'Millermiller 控制入口' : 'Millermiller Control Access'}
           </h1>
           <p className="cm-login-copy">
             {isZh

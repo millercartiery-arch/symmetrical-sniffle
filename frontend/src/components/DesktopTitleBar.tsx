@@ -14,7 +14,7 @@ const isTauri = typeof window !== "undefined" && "__TAURI__" in window;
 
 /**
  * DesktopTitleBar Props
- *   - title: 需要在标题栏显示的文字，默认 “Cartier&Miller”
+ *   - title: 需要在标题栏显示的文字，默认 “Millermiller”
  *   - brandColor: 若不想使用 ThemeContext 的颜色，可直接传入
  */
 interface DesktopTitleBarProps {
@@ -28,13 +28,13 @@ interface DesktopTitleBarProps {
  * 让样式文件保持干净，不必每次都在 JSX 中写 `style`.
  */
 const DesktopTitleBar: React.FC<DesktopTitleBarProps> = ({
-  title = "Cartier&Miller",
+  title = "Millermiller",
   brandColor,
 }) => {
   const { brandColor: themeBrandColor } = useTheme();
 
   // ---------- 颜色（优先级：prop > context > 默认） ----------
-  const finalColor = brandColor ?? themeBrandColor ?? "#10a37f";
+  const finalColor = brandColor ?? themeBrandColor ?? "#8B0000";
 
   // ---------- 按钮事件（动态加载 Tauri API，仅在 Tauri 环境执行，浏览器不加载） ----------
   const minimize = useCallback(async () => {

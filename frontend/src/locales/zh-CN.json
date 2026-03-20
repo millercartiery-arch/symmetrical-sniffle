@@ -153,7 +153,20 @@
     "normal": "正常",
     "busy": "忙碌中",
     "offline": "离线",
-    "online": "在线"
+    "online": "在线",
+    "loading_all_ids": "正在获取全量 ID...",
+    "selected_all_records": "已全选 {{count}} 条记录",
+    "select_all_failed": "全选失败",
+    "select_export_field_required": "请至少选择一个导出字段",
+    "loading_full_export_data": "正在获取全量数据以供导出...",
+    "export_current_page_only": "无法获取全量数据，将仅导出当前页面数据",
+    "export_completed": "导出完成：{{filename}} (共 {{count}} 条)",
+    "sent_daily_max": "今日发送/日上限",
+    "total_sent_recv": "累计发送/接收",
+    "cooldown_status": "冷却状态",
+    "cooldown_remaining": "剩余 {{h}}h {{m}}m {{s}}s",
+    "locked_by_other_user": "该账号正在被 {{user}} 编辑中 (TC-17)",
+    "lock_failed_generic": "无法锁定账号"
   },
   "task": {
     "target_phone": "目标号码",
@@ -258,6 +271,18 @@
     "time": "时间",
     "status": "状态",
     "delivered": "已送达",
+    "sending": "发送中",
+    "received_status": "已接收",
+    "fetch_conversations_failed": "获取会话列表失败",
+    "fetch_messages_failed": "获取消息失败",
+    "total_conversations": "总会话数",
+    "total_conversations_meta": "正在路由的活跃线程",
+    "unread_signals": "未读信号",
+    "unread_signals_meta": "需要操作员优先处理",
+    "restricted_threads": "受限会话",
+    "restricted_threads_meta": "已屏蔽或被标记的联系人",
+    "remarked_contacts": "已备注联系人",
+    "remarked_contacts_meta": "已保存备注的联系人",
     "read": "已读",
     "failed": "失败",
     "pending": "待发送",
@@ -437,6 +462,12 @@
       "error": "错误",
       "unknown": "未知"
     }
+  },
+  "shell": {
+    "control_center": "控制中心",
+    "system_health": "系统健康 98%",
+    "subtitle": "账户、消息路由和代理调度的安全运营面板。",
+    "proxy_status_stable": "代理状态稳定"
   },
   "auth": {
     "login": "登录",
