@@ -83,7 +83,7 @@ function getEntropyDelay(baseMs: number, varianceMs: number): number {
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-async function updateMessageTask(taskId: number, fields: Record<string, string | number | null | undefined>) {
+async function updateMessageTask(taskId: number, fields: Record<string, string | number | Date | null | undefined>) {
   const entries = Object.entries(fields).filter(([, value]) => value !== undefined);
   if (!entries.length) return;
 
@@ -471,6 +471,7 @@ const worker = new Worker('tn-send', async (job: Job) => {
       status: 'Processing',
       error_msg: null,
       account_id: sub_account_id ? null : accountId,
+      locked_at: new Date(),
     });
     pubRedis.publish('task:update', JSON.stringify({
       taskId,

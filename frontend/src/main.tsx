@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
+import { i18nReady } from './i18n';
 import 'antd/dist/reset.css';
 import './styles/global.css';
 import './styles/theme.css';
@@ -39,6 +40,12 @@ async function initApp() {
     }
   } else {
     console.log('[App] 🌐 在浏览器环境中运行');
+  }
+
+  try {
+    await i18nReady;
+  } catch (err) {
+    console.error('[App] i18n 初始化失败:', err);
   }
 
   clearTimeout(safety);
@@ -88,14 +95,42 @@ initApp().catch(err => {
     didRender = true;
     const root = document.getElementById('root');
     if (root) {
-      root.innerHTML =
-        '<div style="padding:24px;font-family:sans-serif;max-width:560px;margin:40px auto;">' +
-        '<p style="color:#c00;font-weight:600;">应用加载失败</p>' +
-        '<pre style="background:#f5f5f5;padding:12px;overflow:auto;font-size:12px;">' +
-        (err instanceof Error ? err.message : String(err)) + '</pre>' +
-        '<p style="color:#475569;">请打开开发者工具 (F12) 查看 Console 报错。</p>' +
-        '<button onclick="location.reload()" style="padding:8px 16px;cursor:pointer;margin-top:8px;">重新加载</button></div>';
+      root.textContent = '';
       root.style.display = 'block';
+      root.style.minHeight = '100vh';
+      root.style.padding = '24px';
+      root.style.fontFamily = 'sans-serif';
+
+      const wrap = document.createElement('div');
+      wrap.style.maxWidth = '560px';
+      wrap.style.margin = '40px auto';
+
+      const title = document.createElement('p');
+      title.textContent = '应用加载失败';
+      title.style.color = '#c00';
+      title.style.fontWeight = '600';
+
+      const pre = document.createElement('pre');
+      pre.textContent = err instanceof Error ? err.message : String(err);
+      pre.style.background = '#f5f5f5';
+      pre.style.padding = '12px';
+      pre.style.overflow = 'auto';
+      pre.style.fontSize = '12px';
+
+      const hint = document.createElement('p');
+      hint.textContent = '请打开开发者工具 (F12) 查看 Console 报错。';
+      hint.style.color = '#475569';
+
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = '重新加载';
+      button.style.padding = '8px 16px';
+      button.style.cursor = 'pointer';
+      button.style.marginTop = '8px';
+      button.addEventListener('click', () => window.location.reload());
+
+      wrap.append(title, pre, hint, button);
+      root.append(wrap);
     }
   }
 });

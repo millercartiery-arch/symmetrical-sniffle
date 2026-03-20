@@ -42,7 +42,7 @@ const useLogout = (navigate: ReturnType<typeof useNavigate>) => {
   const { t } = useTranslation();
   return useCallback(() => {
     clearAuth();
-    message.info(t('common.logout_success') ?? '已登出');
+    message.info(t('common.logout_success', { defaultValue: '已登出' }));
     // replace 防止在登录页后点后退仍能看到受保护页面
     navigate('/login', { replace: true });
   }, [navigate, t]);
@@ -247,14 +247,14 @@ const AdminLayout: React.FC = () => {
                 ],
               }}
             >
-              <Button
-                type="text"
-                icon={<GlobalOutlined />}
-                style={{ color: 'var(--cm-text-secondary)' }}
-                aria-label={t('common.language') ?? '语言切换'}
-              >
-                {i18n.language === 'zh-CN' ? '中文' : 'English'}
-              </Button>
+            <Button
+              type="text"
+              icon={<GlobalOutlined />}
+              style={{ color: 'var(--cm-text-secondary)' }}
+              aria-label={t('common.language', { defaultValue: '语言切换' })}
+            >
+              {i18n.language === 'zh-CN' ? '中文' : 'English'}
+            </Button>
             </Dropdown>
 
             {/* 创建任务按钮 */}
@@ -265,7 +265,9 @@ const AdminLayout: React.FC = () => {
               className="cm-primary-button"
               style={{ borderRadius: token.borderRadiusSM, fontWeight: 600 }}
             >
-              {isCompact ? t('tasks.create_short') ?? '创建' : t('tasks.create') ?? '创建任务'}
+              {isCompact
+                ? t('tasks.create_short', { defaultValue: '创建' })
+                : t('tasks.create', { defaultValue: '创建任务' })}
             </Button>
 
             {/* 个人中心 & 退出 */}
@@ -275,14 +277,14 @@ const AdminLayout: React.FC = () => {
                   {
                     key: 'profile',
                     icon: <UserOutlined />,
-                    label: t('common.profile') ?? '个人中心',
+                    label: t('common.profile', { defaultValue: '个人中心' }),
                     onClick: () => navigateTo('/admin/profile'),
                   },
                   { type: 'divider' },
                   {
                     key: 'logout',
                     icon: <LogoutOutlined />,
-                    label: t('common.logout') ?? '退出登录',
+                    label: t('common.logout', { defaultValue: '退出登录' }),
                     danger: true,
                     onClick: handleLogout,
                   },
@@ -293,7 +295,7 @@ const AdminLayout: React.FC = () => {
             >
               <div
                 style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-                aria-label={t('common.profile') ?? '个人中心'}
+                aria-label={t('common.profile', { defaultValue: '个人中心' })}
               >
                 <Avatar
                   style={{

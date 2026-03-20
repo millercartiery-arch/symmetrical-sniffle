@@ -120,12 +120,12 @@ const PrivacyModal: React.FC = () => {
                   <SafetyCertificateOutlined />
                 </div>
                 <div>
-                  <Text className="cm-kpi-eyebrow">{t('privacy.modal_title')}</Text>
+                  <Text className="cm-kpi-eyebrow">{t('privacy.modal_title', { defaultValue: 'Privacy Settings' })}</Text>
                   <Title level={3} style={{ margin: "4px 0 6px", color: "var(--cm-text-primary)" }}>
-                    {t('privacy.welcome_title')}
+                    {t('privacy.welcome_title', { defaultValue: 'Privacy & Data' })}
                   </Title>
                   <Text style={{ color: "var(--cm-text-secondary)", lineHeight: 1.7 }}>
-                    {t('privacy.commitment')}
+                    {t('privacy.commitment', { defaultValue: 'We are committed to protecting your privacy.' })}
                   </Text>
                 </div>
               </div>
@@ -156,7 +156,7 @@ const PrivacyModal: React.FC = () => {
                   onClick={() => handleDecision("accepted")}
                   style={{ height: 52, borderRadius: 14, fontWeight: 700 }}
                 >
-                  {t('privacy.accept')}
+                  {t('privacy.accept', { defaultValue: 'Accept' })}
                 </Button>
                 <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                   <Button
@@ -171,10 +171,10 @@ const PrivacyModal: React.FC = () => {
                       borderColor: "rgba(85, 97, 108, 0.16)",
                       background: "rgba(255,255,255,0.78)",
                       color: "var(--cm-text-primary)",
-                    }}
+                  }}
                     icon={<LinkOutlined />}
                   >
-                    {t('privacy.policy')}
+                    {t('privacy.policy', { defaultValue: 'Privacy Policy' })}
                   </Button>
                   <Button
                     block
@@ -187,15 +187,15 @@ const PrivacyModal: React.FC = () => {
                       borderColor: "rgba(85, 97, 108, 0.16)",
                       background: "rgba(85, 97, 108, 0.06)",
                       color: "var(--cm-text-primary)",
-                    }}
+                  }}
                   >
-                    {t('privacy.do_not_sell')}
+                    {t('privacy.do_not_sell', { defaultValue: 'Do Not Sell My Info' })}
                   </Button>
                 </div>
                 <Paragraph style={{ margin: 0, color: "var(--cm-text-secondary)", fontSize: 12 }}>
                   {t('privacy.children_note', { defaultValue: "Children's privacy details remain available in" })}{" "}
                   <Link href="/children-privacy" target="_blank">
-                    {t('privacy.children_policy')}
+                    {t('privacy.children_policy', { defaultValue: 'Children Privacy Policy' })}
                   </Link>
                   .
                 </Paragraph>

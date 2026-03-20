@@ -2,7 +2,7 @@ import "dotenv/config";
 import express from "express";
 import http from "http";
 import cors from "cors";
-import helmet from "helmet";
+import helmet, { type HelmetOptions } from "helmet";
 import accountRouter from "./routes/account.js";
 import cardCredentialRouter from "./routes/card-credential.js";
 import authRouter from "./routes/auth.js";
@@ -83,7 +83,34 @@ app.use(
     cb(null, corsOptions);
   })
 );
-app.use(helmet({ contentSecurityPolicy: false }));
+
+const helmetOptions: HelmetOptions =
+  NODE_ENV === "production"
+    ? {
+        contentSecurityPolicy: {
+          useDefaults: true,
+          directives: {
+            defaultSrc: ["'self'"],
+            baseUri: ["'self'"],
+            frameAncestors: ["'self'"],
+            formAction: ["'self'"],
+            objectSrc: ["'none'"],
+            scriptSrc: ["'self'"],
+            scriptSrcAttr: ["'none'"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+            styleSrcAttr: ["'unsafe-inline'"],
+            fontSrc: ["'self'", "data:", "https://fonts.gstatic.com"],
+            imgSrc: ["'self'", "data:", "blob:", "https:"],
+            connectSrc: ["'self'", "ws:", "wss:"],
+            workerSrc: ["'self'", "blob:"],
+            manifestSrc: ["'self'"],
+            mediaSrc: ["'self'", "data:", "blob:"],
+          },
+        },
+      }
+    : { contentSecurityPolicy: false };
+
+app.use(helmet(helmetOptions));
 app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(rateLimitMiddleware);

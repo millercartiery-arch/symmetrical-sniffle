@@ -60,7 +60,7 @@ const StatusTag: React.FC<StatusTagProps> = ({ status, type }) => {
   if (status === 'STOPPED_LIMIT' && type === 'number') {
     return (
       <Tag color="warning" icon={<ExclamationCircleOutlined />}>
-        {t('status.number.stopped_limit')}
+        {t('status.number.stopped_limit', { defaultValue: '已达上限' })}
       </Tag>
     );
   }
@@ -71,7 +71,7 @@ const StatusTag: React.FC<StatusTagProps> = ({ status, type }) => {
 
   return (
     <Tag color={statusConfig.color} icon={statusConfig.icon}>
-      {t(statusConfig.labelKey) || status}
+      {t(statusConfig.labelKey, { defaultValue: status })}
     </Tag>
   );
 };

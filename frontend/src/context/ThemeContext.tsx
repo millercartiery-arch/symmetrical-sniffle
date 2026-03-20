@@ -12,6 +12,15 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+const RTL_LANG_PREFIXES = ['ar', 'he', 'fa', 'ur', 'ps'];
+
+const resolveDirection = (language: string) => {
+  const normalized = language.toLowerCase();
+  return RTL_LANG_PREFIXES.some((prefix) => normalized === prefix || normalized.startsWith(`${prefix}-`))
+    ? 'rtl'
+    : 'ltr';
+};
+
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { i18n } = useTranslation();
   const [theme, setTheme] = useState<Theme>(() => {
@@ -39,13 +48,13 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   useEffect(() => {
     const language = i18n.resolvedLanguage || i18n.language || 'en-US';
     document.documentElement.setAttribute('lang', language);
-    document.documentElement.setAttribute('dir', i18n.dir(language));
+    document.documentElement.setAttribute('dir', resolveDirection(language));
   }, [i18n, i18n.language, i18n.resolvedLanguage]);
 
   useEffect(() => {
     const syncLanguage = (language: string) => {
       document.documentElement.setAttribute('lang', language);
-      document.documentElement.setAttribute('dir', i18n.dir(language));
+      document.documentElement.setAttribute('dir', resolveDirection(language));
     };
 
     i18n.on('languageChanged', syncLanguage);

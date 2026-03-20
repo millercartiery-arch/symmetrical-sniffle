@@ -38,6 +38,8 @@ const temporalCursorByCampaignMs = new Map<number, number>();
 
 const accountLockKey = (accountId: number | string) => `lock:account:${accountId}`;
 const subAccountLockKey = (subAccountId: number | string) => `lock:account:sub:${subAccountId}`;
+const workerAccountLockKey = (accountId: number | string) => `lock:worker:account:${accountId}`;
+const workerSubAccountLockKey = (subAccountId: number | string) => `lock:worker:sub_account:${subAccountId}`;
 const lockOwner = (taskId: number | string) => `scheduler:${process.pid}:task:${taskId}`;
 const parseAllowedAccountIds = (raw: unknown): number[] => {
   if (!raw) return [];
@@ -348,6 +350,16 @@ async function releaseRedisLock(key: string, owner: string) {
   await pubRedis.eval(LOCK_RELEASE_LUA, 1, key, owner);
 }
 
+async function isWorkerAccountLocked(accountId: number | string) {
+  const owner = await pubRedis.get(workerAccountLockKey(accountId));
+  return Boolean(owner);
+}
+
+async function isWorkerSubAccountLocked(subAccountId: number | string) {
+  const owner = await pubRedis.get(workerSubAccountLockKey(subAccountId));
+  return Boolean(owner);
+}
+
 async function acquireSubAccountRedisLock(subAccountId: number | string, owner: string) {
   const lockResult = await pubRedis.set(
     subAccountLockKey(subAccountId),
@@ -433,6 +445,7 @@ export async function dispatchPending() {
 
       let accountId = task.account_id;
       let subAccountId: number | string | null = task.sub_account_id || null;
+      let proxyUrl = '';
       const taskTenantId = Number(task.tenant_id || 1);
       const allowedAccountIds = parseAllowedAccountIds(task.campaign_tn_account_ids);
 
@@ -444,16 +457,26 @@ export async function dispatchPending() {
            WHERE s.tenant_id = ? AND s.status = 'ready' AND s.is_busy = 0 AND s.enabled = 1
              AND (s.card_key_id IS NULL OR k.status IN ('active', 'used'))
            ORDER BY s.weight DESC, s.id ASC
-           LIMIT 1 FOR UPDATE`,
+           LIMIT 10 FOR UPDATE`,
           [taskTenantId]
         );
-        if (subRows?.length) {
-          subAccountId = subRows[0].id;
+        for (const row of subRows || []) {
+          if (await isWorkerSubAccountLocked(row.id)) {
+            logger.warn(`Sub-account ${row.id} is already locked by worker, skip task=${task.id}`);
+            continue;
+          }
+          const candidateProxy = await resolveProxyUrlForSubAccount(conn, row.id);
+          if (!candidateProxy) {
+            logger.warn(`No proxy for sub_account=${row.id}, skip task=${task.id}`);
+            continue;
+          }
+          subAccountId = row.id;
+          proxyUrl = candidateProxy;
+          break;
         }
       }
 
-      let proxyUrl = '';
-      if (subAccountId) {
+      if (subAccountId && !proxyUrl) {
         proxyUrl = await resolveProxyUrlForSubAccount(conn, subAccountId);
         if (!proxyUrl) {
           logger.warn(`No proxy for sub_account=${subAccountId}, skip task=${task.id}`);
@@ -473,14 +496,33 @@ export async function dispatchPending() {
             accountSql += ` AND id IN (${allowedAccountIds.map(() => '?').join(',')})`;
             accountParams.push(...allowedAccountIds);
           }
-          accountSql += ` ORDER BY last_used_at ASC LIMIT 1 FOR UPDATE`;
+          accountSql += ` ORDER BY last_used_at ASC LIMIT 10 FOR UPDATE`;
           const [accounts] = await conn.query(accountSql, accountParams) as any[];
 
           if (accounts.length === 0) {
             logger.warn(`No available accounts for task ${task.id}, tenant=${taskTenantId}, allowed=${allowedAccountIds.join(',') || 'ALL'}`);
             continue;
           }
-          accountId = accounts[0].id;
+          let picked = false;
+          for (const candidate of accounts) {
+            if (await isWorkerAccountLocked(candidate.id)) {
+              logger.warn(`Account ${candidate.id} is already locked by worker, skip task=${task.id}`);
+              continue;
+            }
+            const candidateProxy = await resolveProxyUrlForAccount(conn, candidate.id);
+            if (!candidateProxy) {
+              logger.warn(`No proxy binding for account=${candidate.id}, skip task=${task.id}`);
+              continue;
+            }
+            accountId = candidate.id;
+            proxyUrl = candidateProxy;
+            picked = true;
+            break;
+          }
+          if (!picked) {
+            logger.warn(`No unlocked account found for task ${task.id}, tenant=${taskTenantId}, allowed=${allowedAccountIds.join(',') || 'ALL'}`);
+            continue;
+          }
         } else {
           let assignedSql = `SELECT id FROM accounts
                WHERE id = ? AND status = 'Ready' AND tenant_id = ?`;
@@ -495,11 +537,10 @@ export async function dispatchPending() {
             logger.warn(`Assigned account ${accountId} for task ${task.id} is not ready/available in tenant=${taskTenantId}`);
             continue;
           }
-        }
-        proxyUrl = await resolveProxyUrlForAccount(conn, accountId);
-        if (!proxyUrl) {
-          logger.warn(`No proxy binding for account=${accountId}, skip task=${task.id}`);
-          continue;
+          if (await isWorkerAccountLocked(accountId)) {
+            logger.warn(`Assigned account ${accountId} is already locked by worker, skip task=${task.id}`);
+            continue;
+          }
         }
       }
 
@@ -618,4 +659,3 @@ export async function dispatchPending() {
 
 // If run directly via worker-entry.ts, it will be called there.
 // No need for require.main === module check in ESM
-

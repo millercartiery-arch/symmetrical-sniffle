@@ -4,7 +4,7 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 import enUS from './locales/en-US.json';
 import zhCN from './locales/zh-CN.json';
 
-i18n
+export const i18nReady = i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({

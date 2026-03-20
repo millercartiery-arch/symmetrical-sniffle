@@ -169,7 +169,7 @@ const Login: React.FC = () => {
 
           <div className="inputGroup">
             <label htmlFor="login-username" className="fieldLabel">
-              {t('auth.username')}
+              {t('auth.username', { defaultValue: isZh ? '用户名' : 'Username' })}
             </label>
             <input
               id="login-username"
@@ -185,7 +185,7 @@ const Login: React.FC = () => {
 
           <div className="inputGroup">
             <label htmlFor="login-password" className="fieldLabel">
-              {t('auth.password')}
+              {t('auth.password', { defaultValue: isZh ? '密码' : 'Password' })}
             </label>
             <input
               id="login-password"
