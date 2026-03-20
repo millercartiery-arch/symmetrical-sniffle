@@ -5,36 +5,36 @@
 
 ## Updated At
 
-- 2026-03-20 07:52:33 +07:00
+- 2026-03-20 14:02:50 +07:00
 
 ## Repo Status
 
-- Repository has no commits yet.
+- Repository has commit history.
 - Branch: master
-- Staged files: 7132
-- Unstaged files: 2
+- Staged files: 0
+- Unstaged files: 1
 - Untracked files: 3
 
 ## Recent Source Changes
 
-- scripts/write-handoff.ps1 | 2026-03-20 07:38:31 +07:00
-- docs/CURRENT_STATUS.md | 2026-03-20 07:37:54 +07:00
-- package.json | 2026-03-20 07:33:56 +07:00
-- docs/NEXT_SESSION_BRIEF.md | 2026-03-20 07:33:56 +07:00
-- README.md | 2026-03-20 07:33:56 +07:00
-- frontend/src/main.tsx | 2026-03-20 04:07:39 +07:00
-- docs/工作日记-2026-03-19.md | 2026-03-19 14:19:03 +07:00
-- build-desktop-to-desktop.ps1 | 2026-03-19 14:19:03 +07:00
-- build-account-importer-extension.ps1 | 2026-03-19 14:18:00 +07:00
-- src-tauri/Cargo.toml | 2026-03-19 14:14:15 +07:00
+- docs/工作日记-2026-03-20.md | 2026-03-20 14:02:33 +07:00
+- scripts/package-local-import-tool.ps1 | 2026-03-20 14:01:58 +07:00
+- frontend/data/tn_accounts_full_example.json | 2026-03-20 14:01:02 +07:00
+- docs/NEXT_SESSION_BRIEF.md | 2026-03-20 14:00:23 +07:00
+- .gitignore | 2026-03-20 13:45:42 +07:00
+- frontend/src/pages/Settings.tsx | 2026-03-20 11:26:23 +07:00
+- backend/scripts/reset_stuck_tasks_and_locks.sql | 2026-03-20 11:17:45 +07:00
+- backend/scripts/migrate_scheduler_locking_hotfix.sql | 2026-03-20 11:17:45 +07:00
+- docs/域名通但无UI排查.md | 2026-03-20 11:17:45 +07:00
+- docs/部署清单.md | 2026-03-20 11:17:45 +07:00
 
 ## Recent Docs
 
-- docs/CURRENT_STATUS.md | 2026-03-20 07:37:54 +07:00
-- docs/NEXT_SESSION_BRIEF.md | 2026-03-20 07:33:56 +07:00
-- docs/工作日记-2026-03-19.md | 2026-03-19 14:19:03 +07:00
-- docs/域名通但无UI排查.md | 2026-03-19 13:13:53 +07:00
-- docs/部署清单.md | 2026-03-19 13:13:53 +07:00
+- docs/工作日记-2026-03-20.md | 2026-03-20 14:02:33 +07:00
+- docs/NEXT_SESSION_BRIEF.md | 2026-03-20 14:00:23 +07:00
+- docs/域名通但无UI排查.md | 2026-03-20 11:17:45 +07:00
+- docs/部署清单.md | 2026-03-20 11:17:45 +07:00
+- docs/DEPLOY-RUNBOOK.md | 2026-03-20 11:17:45 +07:00
 
 ## Next Session Prompt
 
