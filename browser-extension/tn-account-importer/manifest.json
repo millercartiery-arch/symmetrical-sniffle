@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "TN 账户导入工具",
+  "version": "1.1.0",
+  "description": "直接连接本地主项目 API 的 TN 账号导入/导出浏览器扩展。",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "http://localhost:*/*",
+    "http://127.0.0.1:*/*",
+    "https://*/*",
+    "http://*/*"
+  ],
+  "action": {
+    "default_title": "TN 账户导入工具",
+    "default_popup": "popup.html"
+  }
+}

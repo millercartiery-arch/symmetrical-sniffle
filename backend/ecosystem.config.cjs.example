@@ -1,0 +1,27 @@
+/**
+ * PM2 进程配置示例（复制为 ecosystem.config.cjs 后按需修改）
+ * 用法（在 backend 目录或指定路径）：
+ *   pm2 start ecosystem.config.cjs
+ *   pm2 save && pm2 startup  # 开机自启
+ */
+module.exports = {
+  apps: [
+    {
+      name: 'massmail-api',
+      script: 'dist/index.js',
+      cwd: __dirname,
+      instances: 1,
+      exec_mode: 'fork',
+      env: {
+        NODE_ENV: 'production',
+      },
+      env_file: '.env',
+      error_file: 'logs/err.log',
+      out_file: 'logs/out.log',
+      merge_logs: true,
+      max_memory_restart: '800M',
+      autorestart: true,
+      watch: false,
+    },
+  ],
+};

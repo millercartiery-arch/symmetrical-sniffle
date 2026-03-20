@@ -1,0 +1,61 @@
+.desktop-titlebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 1200;
+  color: #ffffff;
+  background-color: var(--brand-color, #10a37f);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.12);
+}
+
+.desktop-titlebar__drag {
+  flex: 1;
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  user-select: none;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.desktop-titlebar__drag-hit {
+  position: absolute;
+  inset: 0;
+}
+
+.desktop-titlebar__controls {
+  display: flex;
+  align-items: stretch;
+  height: 100%;
+}
+
+.desktop-titlebar__btn {
+  width: 42px;
+  border: 0;
+  background: transparent;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.desktop-titlebar__btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.desktop-titlebar__btn--close:hover {
+  background: #e5484d;
+}
+
+body.tauri-desktop {
+  padding-top: 34px;
+}

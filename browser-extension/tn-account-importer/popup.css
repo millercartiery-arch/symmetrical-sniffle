@@ -1,0 +1,229 @@
+:root {
+  color-scheme: dark;
+  --bg: #130608;
+  --panel: rgba(42, 12, 16, 0.92);
+  --panel-strong: #2a1014;
+  --line: rgba(255, 255, 255, 0.1);
+  --text: #fff3f3;
+  --muted: #d5b9b9;
+  --accent: #b11226;
+  --accent-strong: #de3149;
+  --accent-soft: rgba(222, 49, 73, 0.16);
+  --success: #46c38d;
+  --warn: #f6b04a;
+  --idle: #8a6f71;
+  font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 420px;
+  background:
+    radial-gradient(circle at top, rgba(177, 18, 38, 0.3), transparent 38%),
+    linear-gradient(180deg, #22080c 0%, var(--bg) 100%);
+  color: var(--text);
+}
+
+.shell {
+  padding: 16px;
+}
+
+.hero {
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(177, 18, 38, 0.26), rgba(41, 12, 16, 0.95));
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.24);
+}
+
+.hero h1,
+.section-head h2,
+.note-card h3 {
+  margin: 0;
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #ffd3d8;
+}
+
+.hero-copy {
+  margin: 8px 0 0;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+.panel {
+  margin-bottom: 12px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--panel);
+  backdrop-filter: blur(8px);
+}
+
+.section-head,
+.inline-row,
+.button-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.section-head {
+  margin-bottom: 10px;
+}
+
+.field-label {
+  display: block;
+  margin: 12px 0 6px;
+  font-size: 12px;
+  color: #ffdfe2;
+}
+
+.input,
+.textarea {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  outline: none;
+}
+
+.input:focus,
+.textarea:focus {
+  border-color: rgba(222, 49, 73, 0.72);
+  box-shadow: 0 0 0 3px rgba(222, 49, 73, 0.14);
+}
+
+.file-input {
+  padding: 9px 10px;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 120px;
+  line-height: 1.45;
+}
+
+.button-row {
+  margin-top: 14px;
+}
+
+.button {
+  border: 0;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 120ms ease, opacity 120ms ease, background 120ms ease;
+}
+
+.button:hover {
+  transform: translateY(-1px);
+}
+
+.button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+  transform: none;
+}
+
+.primary {
+  color: white;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
+}
+
+.secondary {
+  color: white;
+  background: linear-gradient(135deg, #6a101b 0%, #9f2232 100%);
+}
+
+.ghost {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.hint,
+.meta {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.note-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.note-card {
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.note-card p {
+  margin: 8px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.status.idle {
+  color: #f3d9da;
+  background: rgba(138, 111, 113, 0.2);
+}
+
+.status.running {
+  color: #ffe3b7;
+  background: rgba(246, 176, 74, 0.16);
+}
+
+.status.success {
+  color: #d2ffe9;
+  background: rgba(70, 195, 141, 0.18);
+}
+
+.status.error {
+  color: #ffd8dc;
+  background: rgba(222, 49, 73, 0.18);
+}
+
+.result {
+  margin: 0;
+  min-height: 120px;
+  max-height: 220px;
+  overflow: auto;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--panel-strong);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: #ffe9eb;
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.45;
+}

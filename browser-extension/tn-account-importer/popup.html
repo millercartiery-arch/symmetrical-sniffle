@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TN 账户导入工具</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <p class="eyebrow">Cartier &amp; Miller</p>
+      <h1>TN 账户导入工具</h1>
+      <p class="hero-copy">直接连接本地主项目 API，导入 CSV/JSON，导出当前账户清单。</p>
+    </section>
+
+    <section class="panel">
+      <label class="field-label" for="apiOrigin">API 地址</label>
+      <div class="inline-row">
+        <input id="apiOrigin" class="input" type="url" value="http://localhost:3000" spellcheck="false">
+        <button id="pingBtn" class="button ghost" type="button">测试连接</button>
+      </div>
+      <p class="hint">默认连接本地主项目后端 `http://localhost:3000`。</p>
+    </section>
+
+    <section class="panel">
+      <div class="section-head">
+        <h2>导入</h2>
+        <span id="fileMeta" class="meta">未选择文件</span>
+      </div>
+      <label class="field-label" for="fileInput">CSV / JSON 文件</label>
+      <input id="fileInput" class="input file-input" type="file" accept=".csv,.json,.txt,application/json,text/csv">
+
+      <label class="field-label" for="rawInput">或粘贴内容</label>
+      <textarea id="rawInput" class="textarea" rows="8" placeholder='支持 JSON 数组 / {"items":[...]} / CSV 表头格式'></textarea>
+
+      <div class="note-grid">
+        <article class="note-card">
+          <h3>简版字段</h3>
+          <p>`username,password,deviceId,accountId`</p>
+        </article>
+        <article class="note-card">
+          <h3>富字段</h3>
+          <p>`phone,username,token,clientId,signature` 为核心字段，`password` 可留空走默认值。</p>
+        </article>
+      </div>
+
+      <div class="button-row">
+        <button id="previewBtn" class="button ghost" type="button">预检数据</button>
+        <button id="importBtn" class="button primary" type="button">开始导入</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-head">
+        <h2>导出</h2>
+        <span class="meta">CSV</span>
+      </div>
+      <label class="field-label" for="exportFields">导出字段</label>
+      <input id="exportFields" class="input" type="text" value="accountId,username,password,deviceId,remark,expireAt" spellcheck="false">
+
+      <label class="field-label" for="exportFilter">筛选关键词</label>
+      <input id="exportFilter" class="input" type="text" placeholder="按用户名 / 手机 / 邮箱筛选">
+
+      <div class="button-row">
+        <button id="exportBtn" class="button secondary" type="button">导出 CSV</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-head">
+        <h2>结果</h2>
+        <span id="statusBadge" class="status idle">待操作</span>
+      </div>
+      <pre id="result" class="result">等待执行。</pre>
+    </section>
+  </main>
+
+  <script src="lib/papaparse.min.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

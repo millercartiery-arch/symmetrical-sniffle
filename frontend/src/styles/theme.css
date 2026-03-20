@@ -1,0 +1,29 @@
+/* 主题变量，供 ThemeContext data-theme 使用 */
+:root {
+  --cm-red: #8b0000;
+  --cm-red-light: #b22222;
+  --cm-red-dark: #4a0000;
+  --cm-black: #0a0a0a;
+  --cm-surface: #151515;
+  --cm-surface-elevated: #1a1a1a;
+  --cm-surface-soft: #201313;
+  --cm-border: #2a1a1a;
+  --cm-border-strong: #4a2323;
+  --cm-white: #eaeaea;
+  --cm-text-muted: #b9a19a;
+  --cm-blue: #3f69ff;
+  --cm-green: #16a34a;
+  --cm-amber: #d97706;
+  --cm-danger: #c0392b;
+  --cm-shadow: 0 18px 48px rgba(0, 0, 0, 0.42);
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+}
+[data-theme='light'] {
+  color-scheme: light;
+}
+[data-theme='high-contrast'] {
+  color-scheme: dark;
+}

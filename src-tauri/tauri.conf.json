@@ -1,0 +1,80 @@
+{
+  "build": {
+    "beforeBuildCommand": "cd frontend && npm run build:tauri",
+    "beforeDevCommand": "cd ../backend && npm run dev",
+    "devPath": "http://localhost:8080",
+    "distDir": "../frontend/dist",
+    "withGlobalTauri": true
+  },
+  "package": {
+    "productName": "Cartier&Miller",
+    "version": "1.0.2"
+  },
+  "tauri": {
+    "allowlist": {
+      "all": true,
+      "process": {
+        "all": true
+      },
+      "http": {
+        "all": true,
+        "request": true
+      },
+      "fs": {
+        "all": false,
+        "readFile": true,
+        "writeFile": true
+      },
+      "dialog": {
+        "all": true,
+        "message": true
+      },
+      "shell": {
+        "all": false,
+        "open": true
+      },
+      "window": {
+        "all": true,
+        "close": true,
+        "hide": true,
+        "show": true
+      },
+      "notification": {
+        "all": true
+      }
+    },
+    "windows": [
+      {
+        "fullscreen": false,
+        "decorations": false,
+        "resizable": false,
+        "title": "Cartier&Miller",
+        "width": 1200,
+        "height": 800
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self' data: blob: filesystem:; connect-src 'self' ws: wss: http: https:; img-src 'self' data: blob: filesystem: http: https:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; media-src 'self' data: blob:;"
+    },
+    "bundle": {
+      "active": true,
+      "targets": "all",
+      "identifier": "com.tnmatrix.app",
+      "icon": [
+        "icons/32x32.png",
+        "icons/128x128.png",
+        "icons/128x128@2x.png",
+        "icons/icon.icns",
+        "icons/icon.ico"
+      ]
+    },
+    "updater": {
+      "active": true,
+      "dialog": false,
+      "endpoints": [
+        "https://hkd.llc/downloads/updates/latest.json"
+      ],
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEZGOTk5MkU4OTBBNTc2NQpSV1JsVndxSkxwbjVEMVZ3clFhYXUyd0NtS3NVdFNuYVJTMjR3MEl4MjRDOUVISHZsbHVsYUx6Vgo="
+    }
+  }
+}

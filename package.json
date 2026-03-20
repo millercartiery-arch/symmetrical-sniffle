@@ -1,0 +1,43 @@
+
+{
+  "name": "tn-matrix-root",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend",
+    "src-tauri"
+  ],
+  "scripts": {
+    "handoff:update": "powershell -ExecutionPolicy Bypass -File ./scripts/write-handoff.ps1",
+    "tauri": "tauri",
+    "desktop:dev": "npm run tauri dev",
+    "desktop:dev:full": "concurrently -n fe,desk \"npm run dev:frontend\" \"npm run desktop:dev\"",
+    "desktop:build": "npm run tauri build",
+    "desktop:build:nsis": "npm run tauri build -- --bundles nsis",
+    "extension:build:to-desktop": "powershell -ExecutionPolicy Bypass -File ./build-account-importer-extension.ps1",
+    "desktop:build:updater": "powershell -ExecutionPolicy Bypass -File ./build-updater-artifacts.ps1",
+    "desktop:publish:updater": "powershell -ExecutionPolicy Bypass -File ./publish-updater-to-server.ps1",
+    "desktop:push": "powershell -ExecutionPolicy Bypass -File ./push-updater-to-server.ps1",
+    "desktop:build:to-desktop": "powershell -ExecutionPolicy Bypass -File ./build-desktop-to-desktop.ps1",
+    "desktop:build:debug": "npm run tauri build -- --debug",
+    "desktop:ci": "npm run test:regression-gateway && npm run desktop:build",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "npm run dev --workspace=backend",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "clean": "node scripts/clean.js",
+    "clean:server": "bash scripts/clean-server.sh",
+    "clean:build": "npm run clean && npm run build",
+    "build": "npm run build --workspaces",
+    "build:backend": "npm run build --workspace=backend",
+    "build:frontend": "npm run build --workspace=frontend",
+    "start:prod": "npm run start:prod --workspace=backend",
+    "test:scheduler-components": "npm run test:scheduler-components --workspace=backend",
+    "test:subaccount": "npm run test:subaccount --workspace=backend",
+    "test:subaccount-distribution-smoke": "npm run test:subaccount-distribution-smoke --workspace=backend",
+    "test:regression-gateway": "npm run test:scheduler-components && npm run test:subaccount"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^1.5.0",
+    "concurrently": "^8.0.0"
+  }
+}

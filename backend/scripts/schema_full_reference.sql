@@ -1,0 +1,140 @@
+-- ============================================================
+-- 完整数据库结构参考（用于本地可视化连接 / 建库）
+-- 数据库名: massmail（或 .env 中 DB_NAME）
+-- 连接: host/port/user/password 见 .env
+-- ============================================================
+
+-- ------------------------------
+-- 1. users（后台用户/子账号）
+-- ------------------------------
+-- id              INT AUTO_INCREMENT PRIMARY KEY
+-- username        VARCHAR(255) NOT NULL UNIQUE
+-- password        VARCHAR(255) NOT NULL
+-- role            VARCHAR(50) DEFAULT 'user'
+-- created_at      DATETIME DEFAULT CURRENT_TIMESTAMP
+-- quota_limit     INT DEFAULT 10 NOT NULL
+-- api_key         VARCHAR(255) NULL
+-- updated_at      DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+-- tenant_id       INT DEFAULT 1 NOT NULL
+
+-- ------------------------------
+-- 2. accounts（TN 协议号 / 发信账号）
+-- ------------------------------
+-- id                          INT AUTO_INCREMENT PRIMARY KEY
+-- phone                       VARCHAR(255) UNIQUE
+-- email                       VARCHAR(255)
+-- username                    VARCHAR(255)
+-- password                    VARCHAR(255)
+-- status                      VARCHAR(50) DEFAULT 'Ready'
+-- system_type                 VARCHAR(50)
+-- proxy_url                   VARCHAR(500)
+-- tn_client_id                VARCHAR(255)
+-- tn_device_model             VARCHAR(255)
+-- tn_os_version               VARCHAR(255)
+-- tn_user_agent               TEXT
+-- tn_uuid                     VARCHAR(255)
+-- tn_vid                      VARCHAR(255)
+-- signature                   TEXT
+-- app_version                 VARCHAR(50)
+-- brand                       VARCHAR(50)
+-- language                    VARCHAR(50)
+-- fp                          TEXT
+-- tn_session_id               VARCHAR(255)
+-- tn_session_token_cipher     BLOB
+-- last_used_at                DATETIME
+-- locked_by                   VARCHAR(255)
+-- locked_at                   DATETIME
+-- created_at                  DATETIME DEFAULT CURRENT_TIMESTAMP
+-- updated_at                  DATETIME ON UPDATE CURRENT_TIMESTAMP
+-- consecutive_errors          INT NOT NULL DEFAULT 0
+-- error_msg                    TEXT
+-- tenant_id                   INT DEFAULT 1 NOT NULL
+
+-- ------------------------------
+-- 3. campaigns（活动/群发任务）
+-- ------------------------------
+-- id                  INT AUTO_INCREMENT PRIMARY KEY
+-- name                VARCHAR(255)
+-- content             TEXT
+-- media_url           MEDIUMTEXT NULL
+-- message_type        VARCHAR(20) NOT NULL DEFAULT 'text'
+-- direction_mode      VARCHAR(20) NOT NULL DEFAULT 'one_way'
+-- min_interval        INT NOT NULL DEFAULT 300
+-- max_interval        INT NOT NULL DEFAULT 480
+-- tn_account_ids      TEXT NULL
+-- total_targets       INT DEFAULT 0
+-- status              VARCHAR(50) DEFAULT 'Pending'
+-- created_at          DATETIME DEFAULT CURRENT_TIMESTAMP
+-- tenant_id           INT DEFAULT 1 NOT NULL
+
+-- ------------------------------
+-- 4. message_tasks（单条发信任务）
+-- 与 schema_full_create.sql 一致；已废弃字段 error_message、processed_at、completed_at 勿用
+-- ------------------------------
+-- id                  INT AUTO_INCREMENT PRIMARY KEY
+-- campaign_id         INT
+-- target_phone        VARCHAR(255)
+-- content             TEXT
+-- media_url           MEDIUMTEXT NULL
+-- message_type        VARCHAR(20) NOT NULL DEFAULT 'text'
+-- direction_mode      VARCHAR(20) NOT NULL DEFAULT 'one_way'
+-- status              VARCHAR(50) DEFAULT 'Pending'
+-- account_id          INT
+-- sub_account_id      BIGINT UNSIGNED NULL
+-- locked_at           TIMESTAMP NULL
+-- scheduled_at        TIMESTAMP NULL
+-- retry_at            DATETIME NULL
+-- error_msg           TEXT NULL
+-- error_code          VARCHAR(50)
+-- created_at          DATETIME DEFAULT CURRENT_TIMESTAMP
+-- updated_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+-- tenant_id           INT NOT NULL DEFAULT 1
+-- FK campaign_id -> campaigns(id), account_id -> accounts(id)
+
+-- ------------------------------
+-- 5. audit_logs（审计日志）
+-- ------------------------------
+-- id          INT AUTO_INCREMENT PRIMARY KEY
+-- user_id     VARCHAR(255)
+-- action      VARCHAR(255)
+-- details     TEXT
+-- created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
+-- tenant_id   INT DEFAULT 1 NOT NULL
+
+-- ------------------------------
+-- 6. proxies（代理池）
+-- ------------------------------
+-- id                    INT AUTO_INCREMENT PRIMARY KEY
+-- protocol              VARCHAR(16) NOT NULL DEFAULT 'http'
+-- host                  VARCHAR(255) NOT NULL
+-- port                  INT NOT NULL
+-- username              VARCHAR(255) NULL
+-- password              VARCHAR(255) NULL
+-- proxy_url_template    VARCHAR(1024) NULL
+-- provider              VARCHAR(128) NULL
+-- status                VARCHAR(50) NOT NULL DEFAULT 'Unknown'
+-- is_active             TINYINT(1) NOT NULL DEFAULT 1
+-- region                VARCHAR(128) NULL
+-- country               VARCHAR(128) NULL
+-- city                  VARCHAR(128) NULL
+-- last_checked_at       DATETIME NULL
+-- last_latency_ms       INT NULL
+-- last_alive            TINYINT(1) NULL
+-- created_at            DATETIME DEFAULT CURRENT_TIMESTAMP
+-- updated_at            DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+-- UNIQUE(protocol, host, port, username)
+
+-- （可选）tasks 表：仅当使用 init_status_system.sql 时存在；主业务用 message_tasks/campaigns。
+
+-- ------------------------------
+-- 7. account_proxy_bindings（账号-代理绑定）
+-- ------------------------------
+-- id          INT AUTO_INCREMENT PRIMARY KEY
+-- account_id  INT NOT NULL  -> accounts(id) ON DELETE CASCADE
+-- proxy_id    INT NOT NULL  -> proxies(id) ON DELETE CASCADE
+-- session_key VARCHAR(128) NOT NULL
+-- is_primary  TINYINT(1) NOT NULL DEFAULT 1
+-- is_active   TINYINT(1) NOT NULL DEFAULT 1
+-- created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
+-- updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+-- UNIQUE(account_id, proxy_id)
