@@ -224,7 +224,7 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
 
   if (loading) {
     return (
-      <div className="cm-page" style={{ padding: 24 }}>
+      <div className="cm-page" style={{ padding: 18 }}>
         <Skeleton active paragraph={{ rows: 6 }} />
       </div>
     );
@@ -232,7 +232,7 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
 
   if (error) {
     return (
-      <Card className="cm-page" style={{ padding: 12 }}>
+      <Card className="cm-page" style={{ padding: 10 }}>
         <Alert
           type="error"
           showIcon
@@ -249,7 +249,7 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
   }
 
   return (
-    <div className="cm-page" style={{ padding: 24 }}>
+    <div className="cm-page" style={{ padding: 18 }}>
       <div className="cm-page-header">
         <div>
           <Text className="cm-kpi-eyebrow">System Overview</Text>
@@ -336,7 +336,7 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
         </div>
       </div>
 
-      <div className="cm-kpi-grid" style={{ marginBottom: 18 }}>
+      <div className="cm-kpi-grid" style={{ marginBottom: 12 }}>
         {accountCards.map((card) => (
           <button
             key={card.key}
@@ -394,7 +394,7 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
 
       <Row gutter={[16, 16]}>
         <Col xs={24} xl={15}>
-          <div className="cm-section-card" style={{ padding: 20 }}>
+          <div className="cm-section-card" style={{ padding: 14 }}>
             <div className="cm-page-header" style={{ marginBottom: 12 }}>
               <div>
                 <Text className="cm-kpi-eyebrow">Execution Capacity</Text>
@@ -408,13 +408,13 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
             </div>
             <Row gutter={[16, 16]}>
               <Col xs={24} md={12}>
-                <div className="cm-glass-card" style={{ borderRadius: 20, padding: 18 }}>
+                <div className="cm-glass-card" style={{ borderRadius: 16, padding: 14 }}>
                   <Text className="cm-kpi-eyebrow">Completion Rate</Text>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, marginTop: 16 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginTop: 12 }}>
                     <Progress
                       type="circle"
                       percent={completionRate}
-                      width={118}
+                      width={88}
                       strokeColor={{ "0%": "#8B0000", "100%": "#B22222" }}
                       trailColor="rgba(255,255,255,0.08)"
                     />
@@ -430,9 +430,9 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
                 </div>
               </Col>
               <Col xs={24} md={12}>
-                <div className="cm-glass-card" style={{ borderRadius: 20, padding: 18, height: "100%" }}>
+                <div className="cm-glass-card" style={{ borderRadius: 16, padding: 14, height: "100%" }}>
                   <Text className="cm-kpi-eyebrow">Immediate Actions</Text>
-                  <Space direction="vertical" size={12} style={{ width: "100%", marginTop: 18 }}>
+                  <Space direction="vertical" size={10} style={{ width: "100%", marginTop: 12 }}>
                     <Button block onClick={() => navigate("/admin/accounts?status=Dead")}>
                       Recover locked inventory
                     </Button>
@@ -449,12 +449,12 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
           </div>
         </Col>
         <Col xs={24} xl={9}>
-          <div className="cm-section-card" style={{ padding: 20, height: "100%" }}>
+          <div className="cm-section-card" style={{ padding: 14, height: "100%" }}>
             <Text className="cm-kpi-eyebrow">Live Status</Text>
-            <Title level={4} className="cm-page-title" style={{ marginTop: 8 }}>
+            <Title level={4} className="cm-page-title" style={{ marginTop: 6 }}>
               Operational Signals
             </Title>
-            <div className="cm-signal-list" style={{ marginTop: 14 }}>
+            <div className="cm-signal-list" style={{ marginTop: 10 }}>
               <div className="cm-signal-item">
                 <div>
                   <strong>Cooldown Accounts</strong>

@@ -469,7 +469,7 @@ const Chat: React.FC = () => {
   };
 
   return (
-    <div className="cm-page" style={{ padding: 20 }}>
+    <div className="cm-page" style={{ padding: 16 }}>
       <div className="cm-page-header">
         <div>
           <Text className="cm-kpi-eyebrow">Message Management</Text>
@@ -539,11 +539,11 @@ const Chat: React.FC = () => {
       </div>
 
       <div className="cm-chat-shell">
-        <div className="cm-chat-sidebar" style={{ padding: 18 }}>
+        <div className="cm-chat-sidebar" style={{ padding: 14 }}>
           <div style={{ marginBottom: 16 }}>
             <Text className="cm-kpi-eyebrow">Conversations</Text>
-          <Title level={4} style={{ margin: "6px 0 4px", color: "#231815" }}>Queue & Filters</Title>
-          <Text style={{ color: "#6f5750" }}>Search phone, remark, company or tags to reach a contact faster.</Text>
+            <Title level={4} style={{ margin: "6px 0 4px", color: "#231815" }}>Queue & Filters</Title>
+            <Text style={{ color: "#6f5750" }}>Search phone, remark, company or tags to reach a contact faster.</Text>
           </div>
           <Input placeholder="搜索号码 / 备注 / 公司" prefix={<SearchOutlined />} value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} allowClear style={{ marginBottom: 12 }} />
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 14 }}>
@@ -600,7 +600,7 @@ const Chat: React.FC = () => {
         </div>
 
         <div className="cm-chat-pane" style={{ display: "flex", flexDirection: "column", minHeight: 0 }}>
-          <div style={{ padding: "18px 18px 0", display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+          <div style={{ padding: "14px 14px 0", display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
             <div>
               <Text className="cm-kpi-eyebrow">Live Thread</Text>
               <Title level={4} style={{ margin: "6px 0 4px", color: "#231815" }}>{selectedChat ? selectedDisplayName : "Conversation Workspace"}</Title>
@@ -612,7 +612,7 @@ const Chat: React.FC = () => {
             </Space>
           </div>
 
-            <div ref={msgListRef} style={{ flex: 1, overflowY: "auto", padding: 16, margin: 18, borderRadius: 18, background: "linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(249, 244, 241, 0.98))" }}>
+            <div ref={msgListRef} style={{ flex: 1, overflowY: "auto", padding: 12, margin: 14, borderRadius: 16, background: "linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(249, 244, 241, 0.98))" }}>
             {loadingMsgs ? (
               <Spin />
             ) : !selectedChat ? (
@@ -634,9 +634,9 @@ const Chat: React.FC = () => {
             )}
           </div>
 
-          <div style={{ padding: "0 18px 18px" }}>
-            <div className="cm-section-card" style={{ padding: 16 }}>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 10 }}>
+          <div style={{ padding: "0 14px 14px" }}>
+            <div className="cm-section-card" style={{ padding: 12 }}>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 8 }}>
                 <Button size="small" type={translateEnabled ? "primary" : "default"} className={translateEnabled ? "cm-primary-button" : undefined} icon={<TranslationOutlined />} onClick={() => { setTranslateEnabled((prev) => !prev); if (translateEnabled) clearTranslationState(); }}>{translateEnabled ? "实时翻译已开启" : "开启实时翻译"}</Button>
                 <Select size="small" value={translateTarget} onChange={(value) => setTranslateTarget(value)} style={{ width: 140 }} disabled={!translateEnabled} options={[{ value: "en", label: "翻译成英文" }, { value: "zh", label: "翻译成中文" }]} />
                 {translateEnabled ? (
@@ -650,7 +650,7 @@ const Chat: React.FC = () => {
               <TextArea placeholder="输入消息，Enter 发送，Shift + Enter 换行" autoSize={{ minRows: 2, maxRows: 5 }} value={draft} onChange={(event) => setDraft(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); void handleSendMessage(); } }} disabled={sending || !selectedChat} />
 
               {translateEnabled ? (
-                <div style={{ marginTop: 12, padding: 12, borderRadius: 14, border: `1px solid ${token.colorBorder}`, background: "rgba(255,255,255,0.96)" }}>
+                <div style={{ marginTop: 10, padding: 10, borderRadius: 12, border: `1px solid ${token.colorBorder}`, background: "rgba(255,255,255,0.96)" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
                     <Text type="secondary">{translating ? "翻译中..." : translationError ? translationError : translatedDraft ? `检测语言: ${detectedLanguage || "auto"}` : "输入两字以上后自动生成译文预览"}</Text>
                     {translatedDraft ? <Tag color="blue" style={{ borderRadius: 999 }}>{sendMode === "translated" ? "当前发送译文" : "当前发送原文"}</Tag> : null}
@@ -659,7 +659,7 @@ const Chat: React.FC = () => {
                 </div>
               ) : null}
 
-              <div style={{ textAlign: "right", marginTop: 12 }}>
+              <div style={{ textAlign: "right", marginTop: 10 }}>
                 <Button type="primary" className="cm-primary-button" icon={<SendOutlined />} loading={sending} onClick={() => void handleSendMessage()} disabled={!draft.trim() || sending || !selectedChat}>
                   {translateEnabled && sendMode === "translated" && translatedDraft ? "发送译文" : "发送消息"}
                 </Button>

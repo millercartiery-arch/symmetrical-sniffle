@@ -329,7 +329,7 @@ const AccountManager: React.FC = () => {
           };
 
   return (
-    <Content className="cm-page" style={{ padding: 20 }}>
+    <Content className="cm-page" style={{ padding: 16 }}>
       <div className="cm-page-header">
         <div>
           <div className="cm-kpi-eyebrow">Resource Management</div>
@@ -410,7 +410,7 @@ const AccountManager: React.FC = () => {
         </div>
       </div>
 
-      <div className="cm-feature-grid" style={{ marginBottom: 20 }}>
+      <div className="cm-feature-grid" style={{ marginBottom: 14 }}>
         <div className="cm-feature-card">
           <DatabaseOutlined style={{ fontSize: 18, color: '#8b0000' }} />
           <div style={{ color: '#231815', marginTop: 10, fontWeight: 600 }}>Sync TextNow Accounts</div>
