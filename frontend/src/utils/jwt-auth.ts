@@ -1,5 +1,7 @@
 // JWT 和 Token 管理工具
 
+import { type CanonicalRole, normalizeAppRole } from './access-control';
+
 export const JWT_TOKEN_KEY = 'jwt_token';
 export const USER_INFO_KEY = 'user_info';
 const PRIVACY_POPUP_SHOWN_KEY = 'privacyPopupShown';
@@ -10,7 +12,11 @@ const PRIVACY_POPUP_SHOWN_KEY = 'privacyPopupShown';
 export const setAuthToken = (token: string, userInfo?: { id: number; username: string; role: string; tenantId: number }) => {
   localStorage.setItem(JWT_TOKEN_KEY, token);
   if (userInfo) {
-    localStorage.setItem(USER_INFO_KEY, JSON.stringify(userInfo));
+    const normalizedRole = normalizeAppRole(userInfo.role);
+    localStorage.setItem(USER_INFO_KEY, JSON.stringify({
+      ...userInfo,
+      role: normalizedRole || userInfo.role,
+    }));
   }
 };
 
@@ -28,7 +34,9 @@ export const getUserInfo = () => {
   const stored = localStorage.getItem(USER_INFO_KEY);
   if (!stored) return null;
   try {
-    return JSON.parse(stored);
+    const parsed = JSON.parse(stored);
+    const normalizedRole = normalizeAppRole(parsed?.role);
+    return normalizedRole ? { ...parsed, role: normalizedRole } : parsed;
   } catch {
     return null;
   }
@@ -52,13 +60,13 @@ export const isAuthenticated = (): boolean => {
 /**
  * 获取当前用户角色（来自 user_info 或 JWT payload）
  */
-export const getUserRole = (): string | null => {
+export const getUserRole = (): CanonicalRole | null => {
   const userInfo = getUserInfo();
   if (userInfo?.role) return userInfo.role;
   const token = getAuthToken();
   if (!token) return null;
   const payload = parseJwtPayload(token);
-  return (payload?.role as string) ?? null;
+  return normalizeAppRole(payload?.role);
 };
 
 /**

@@ -1,19 +1,14 @@
 import React, { useEffect, useState, useMemo } from "react";
 import {
   Button,
-  Card,
-  Collapse,
   Form,
   Input,
   InputNumber,
   message,
   Modal,
   Popconfirm,
-  Row,
-  Col,
   Select,
   Space,
-  Statistic,
   Switch,
   Table,
   Tag,
@@ -24,10 +19,8 @@ import {
   CloudServerOutlined,
   DeleteOutlined,
   EditOutlined,
-  GlobalOutlined,
   PlusOutlined,
   ReloadOutlined,
-  SettingOutlined,
   SyncOutlined,
 } from "@ant-design/icons";
 import api from "../../../api";
@@ -66,20 +59,19 @@ type ProxyItem = {
 const PROTOCOLS = ["http", "https", "socks4", "socks5"];
 
 const getLatencyColor = (latency: number | null | undefined) => {
-  if (latency == null) return "#b9a19a";
+  if (latency == null) return "#8b95a7";
   if (latency < 800) return "#16a34a";
   if (latency <= 1500) return "#d97706";
-  return "#c0392b";
+  return "#c61f3a";
 };
 
 const ProxyPoolTab: React.FC = () => {
-  const { Paragraph, Text } = Typography;
+  const { Text } = Typography;
   const { t } = useTranslation();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [rows, setRows] = useState<ProxyItem[]>([]);
   const [total, setTotal] = useState(0);
-  const [proxyText, setProxyText] = useState("");
   const [fetcherApiUrl, setFetcherApiUrl] = useState("");
   const [fetcherInterval, setFetcherInterval] = useState(5);
   const [whitelistApiUrl, setWhitelistApiUrl] = useState("");
@@ -234,28 +226,6 @@ const ProxyPoolTab: React.FC = () => {
       loadProxies(page, pageSize, currentFilters());
     } catch {
       message.error(t("proxy.refresh_failed", { defaultValue: "IP 池刷新失败" }));
-    }
-  };
-
-  const addProxies = async () => {
-    const proxies = proxyText
-      .split(/\r?\n/)
-      .map((item) => item.trim())
-      .filter(Boolean);
-
-    if (!proxies.length) {
-      message.warning(t("proxy.import_required", { defaultValue: "请输入至少一条 IP 代理" }));
-      return;
-    }
-
-    try {
-      const res: any = await api.post("/proxies", { proxies });
-      message.success(res?.message || t("proxy.import_success", { defaultValue: "IP 导入成功" }));
-      setProxyText("");
-      await loadProxies(1, pageSize, currentFilters());
-      await loadStatus(true);
-    } catch {
-      message.error(t("proxy.import_failed", { defaultValue: "IP 导入失败" }));
     }
   };
 
@@ -494,17 +464,49 @@ const ProxyPoolTab: React.FC = () => {
     },
   ], [t]);
 
+  const proxySummary = [
+    {
+      key: "total",
+      label: t("proxy.total_proxy", { defaultValue: "总代理数" }),
+      value: statusSummary?.total ?? 0,
+      meta: t("proxy.total_label", { defaultValue: "共 {{count}} 条", count: total ?? rows.length }),
+      tone: "cooldown",
+    },
+    {
+      key: "alive",
+      label: t("proxy.alive_proxy", { defaultValue: "存活" }),
+      value: statusSummary?.alive ?? 0,
+      meta: t("proxy.refresh_status", { defaultValue: "刷新状态" }),
+      tone: "ready",
+    },
+    {
+      key: "dead",
+      label: t("proxy.dead_proxy", { defaultValue: "不可用" }),
+      value: statusSummary?.dead ?? 0,
+      meta: t("proxy.filter_status", { defaultValue: "状态筛选" }),
+      tone: (statusSummary?.dead ?? 0) > 0 ? "dead" : "ready",
+    },
+    {
+      key: "latency",
+      label: t("proxy.avg_latency", { defaultValue: "平均延迟" }),
+      value: statusSummary?.avgLatencyMs != null ? `${statusSummary.avgLatencyMs} ms` : "—",
+      meta: statusSummary?.checkedAt
+        ? `${t("proxy.last_checked_at_label", { defaultValue: "检测时间：" })}${new Date(statusSummary.checkedAt).toLocaleTimeString()}`
+        : t("dashboard.awaiting_first_sync", { defaultValue: "Awaiting first sync" }),
+      tone: statusSummary?.avgLatencyMs != null && statusSummary.avgLatencyMs > 1500 ? "dead" : "cooldown",
+    },
+  ];
+
   return (
     <div style={{ width: "100%", padding: "0 4px" }} className="cm-table-shell">
-      {/* 页面标题与主操作 */}
-      <div style={{ marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
+      <div className="cm-page-header cm-page-header--dashboard" style={{ marginBottom: 16 }}>
         <div>
-          <Typography.Title level={4} style={{ margin: 0, fontWeight: 600 }}>
+          <Typography.Title level={4} className="cm-page-title" style={{ margin: 0 }}>
             {t("proxy.title", { defaultValue: "IP 池管理" })}
           </Typography.Title>
           <Typography.Text type="secondary" style={{ fontSize: 13 }}>
             {t("proxy.subtitle", {
-              defaultValue: "管理代理 IP、拉取 API、白名单与调度权重，支持按协议、地区筛选与批量导入。",
+              defaultValue: "先看存活与延迟，再处理列表和配置。",
             })}
           </Typography.Text>
         </div>
@@ -522,74 +524,28 @@ const ProxyPoolTab: React.FC = () => {
         </Space>
       </div>
 
-      {/* 统计卡片 */}
-      <Row gutter={16} style={{ marginBottom: 24 }}>
-        <Col xs={24} sm={12} md={6}>
-          <Card size="small" bordered className="cm-glass-card" style={{ borderRadius: 18 }}>
-            <Statistic
-              title={t("proxy.total_proxy", { defaultValue: "总代理数" })}
-              value={statusSummary?.total ?? 0}
-              loading={statusLoading && !statusSummary}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <Card size="small" bordered className="cm-glass-card" style={{ borderRadius: 18, borderLeft: "3px solid #52c41a" }}>
-            <Statistic
-              title={t("proxy.alive_proxy", { defaultValue: "存活" })}
-              value={statusSummary?.alive ?? 0}
-              loading={statusLoading && !statusSummary}
-              valueStyle={{ color: "#52c41a" }}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <Card size="small" bordered className="cm-glass-card" style={{ borderRadius: 18, borderLeft: "3px solid #ff4d4f" }}>
-            <Statistic
-              title={t("proxy.dead_proxy", { defaultValue: "不可用" })}
-              value={statusSummary?.dead ?? 0}
-              loading={statusLoading && !statusSummary}
-              valueStyle={{ color: "#ff4d4f" }}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <Card size="small" bordered className="cm-glass-card" style={{ borderRadius: 18, borderLeft: `3px solid ${getLatencyColor(statusSummary?.avgLatencyMs)}` }}>
-            <Statistic
-              title={t("proxy.avg_latency", { defaultValue: "平均延迟" })}
-              value={statusSummary?.avgLatencyMs ?? "—"}
-              suffix={statusSummary?.avgLatencyMs != null ? "ms" : ""}
-              loading={statusLoading && !statusSummary}
-              valueStyle={{ color: getLatencyColor(statusSummary?.avgLatencyMs) }}
-            />
-          </Card>
-        </Col>
-      </Row>
-      {statusSummary?.checkedAt && (
-        <Typography.Text type="secondary" style={{ fontSize: 12, display: "block", marginBottom: 16 }}>
-          {t("proxy.last_checked_at_label", { defaultValue: "检测时间：" })}
-          {new Date(statusSummary.checkedAt).toLocaleString()}
-        </Typography.Text>
-      )}
+      <div className="cm-summary-metrics" style={{ marginBottom: 16 }}>
+        {proxySummary.map((item) => (
+          <div key={item.key} className={`cm-summary-metric cm-summary-metric--${item.tone}`}>
+            <span className="cm-summary-metric__label">{item.label}</span>
+            <strong className="cm-summary-metric__value">{item.value}</strong>
+            <span className="cm-summary-metric__meta">{item.meta}</span>
+          </div>
+        ))}
+      </div>
 
-      {/* 代理列表主区域 */}
-      <Card
-        title={
-          <Space>
-            <GlobalOutlined />
-            <span>{t("proxy.list_title", { defaultValue: "代理列表" })}</span>
-          </Space>
-        }
-        bordered
-        style={{ marginBottom: 24, borderRadius: 8 }}
-        bodyStyle={{ padding: "16px 24px" }}
-      >
-        <Space wrap direction="vertical" style={{ width: "100%" }} size={12}>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center", justifyContent: "space-between" }}>
-            <Space wrap size="middle">
-              <Button icon={<ReloadOutlined />} onClick={() => loadProxies(page, pageSize, currentFilters())}>
-                刷新列表
-              </Button>
+      <div className="cm-section-card" style={{ padding: 14, marginBottom: 18 }}>
+        <div className="cm-page-header" style={{ marginBottom: 12 }}>
+          <div>
+            <div className="cm-kpi-eyebrow">{t("proxy.list_title", { defaultValue: "代理列表" })}</div>
+            <Typography.Text type="secondary">
+              {t("proxy.total_label", { defaultValue: "共 {{count}} 条", count: total ?? rows.length })}
+            </Typography.Text>
+          </div>
+        </div>
+
+        <div className="cm-toolbar-shell">
+          <div className="cm-toolbar-group">
               <Input.Search
                 placeholder={t("proxy.search_placeholder", { defaultValue: "搜索主机/描述/地区" })}
                 allowClear
@@ -626,15 +582,18 @@ const ProxyPoolTab: React.FC = () => {
                   { label: t("proxy.filter_disabled", { defaultValue: "禁用" }), value: "false" },
                 ]}
               />
-              <Button type="default" onClick={onSearch}>
+              <Button onClick={onSearch}>
                 {t("proxy.search_button", { defaultValue: "查询" })}
               </Button>
-            </Space>
-            <Typography.Text type="secondary">
-              {t("proxy.total_label", { defaultValue: "共 {{count}} 条", count: total ?? rows.length })}
-            </Typography.Text>
           </div>
-        </Space>
+
+          <div className="cm-toolbar-group cm-toolbar-group--actions">
+            <Button icon={<ReloadOutlined />} onClick={() => loadProxies(page, pageSize, currentFilters())}>
+              {t("common.refresh", { defaultValue: "刷新" })}
+            </Button>
+          </div>
+        </div>
+
         <Table
           rowKey="id"
           loading={loading}
@@ -652,157 +611,108 @@ const ProxyPoolTab: React.FC = () => {
           scroll={{ x: 1200 }}
           style={{ marginTop: 16 }}
         />
-      </Card>
+      </div>
 
-      {/* 高级配置：批量导入 + API 与白名单 */}
-      <Collapse
-        defaultActiveKey={[]}
-        items={[
-          {
-            key: "batch",
-            label: (
-              <Space>
-                <SettingOutlined />
-                <span>{t("proxy.batch_panel_title", { defaultValue: "批量导入 IP" })}</span>
-              </Space>
-            ),
-            children: (
-              <Space direction="vertical" style={{ width: "100%" }} size={12}>
-                <Paragraph type="secondary" style={{ marginBottom: 0 }}>
-                  {t("proxy.batch_help", {
-                    defaultValue:
-                      "每行一条，支持 protocol://user:pass@host:port 或 host:port:user:pass。",
-                  })}
-                </Paragraph>
-                <Input.TextArea
-                  rows={5}
-                  placeholder={t("proxy.batch_placeholder", {
-                    defaultValue: "http://user:pass@127.0.0.1:8080",
-                  })}
-                  value={proxyText}
-                  onChange={(e) => setProxyText(e.target.value)}
-                  style={{ fontFamily: "monospace" }}
-                />
-                <Space>
-                  <Button type="primary" onClick={addProxies}>
-                    {t("proxy.batch_import_button", { defaultValue: "导入 IP" })}
-                  </Button>
-                  <Button onClick={() => setProxyText("")}>
-                    {t("proxy.batch_clear_button", { defaultValue: "清空" })}
-                  </Button>
+      <div className="cm-task-grid" style={{ marginBottom: 24 }}>
+        <div className="cm-task-card">
+          <div className="cm-task-card__head">
+            <div>
+              <span className="cm-kpi-eyebrow">{t("proxy.task_step_one", { defaultValue: "步骤 1" })}</span>
+              <Typography.Title level={5} style={{ margin: "6px 0 0" }}>
+                <Space size={8}>
+                  <ApiOutlined />
+                  <span>{t("proxy.fetcher_title", { defaultValue: "IP 拉取 API" })}</span>
                 </Space>
-              </Space>
-            ),
-          },
-          {
-            key: "api",
-            label: (
-              <Space>
-                <ApiOutlined />
-                <span>{t("proxy.api_panel_title", { defaultValue: "IP 拉取 API 与白名单" })}</span>
-                {configLoading && (
-                  <Typography.Text type="secondary">
-                    {t("proxy.loading", { defaultValue: "加载中…" })}
-                  </Typography.Text>
-                )}
-              </Space>
-            ),
-            children: (
-              <Space direction="vertical" style={{ width: "100%" }} size={16}>
-                <div>
-                  <Text strong>
-                    <ApiOutlined style={{ marginRight: 8 }} />
-                    {t("proxy.fetcher_title", { defaultValue: "IP 拉取 API" })}
-                  </Text>
-                  <Paragraph type="secondary" style={{ marginTop: 4, marginBottom: 8 }}>
-                    {t("proxy.fetcher_desc", {
-                      defaultValue: "通过 API 自动拉取最新 IP 列表，并按周期刷新到系统中。",
-                    })}
-                  </Paragraph>
-                  <Space wrap style={{ width: "100%" }}>
-                    <Input
-                      style={{ width: 320 }}
-                      placeholder={t("proxy.fetcher_url_placeholder", { defaultValue: "拉取 API 地址" })}
-                      value={fetcherApiUrl}
-                      onChange={(e) => setFetcherApiUrl(e.target.value)}
-                    />
-                    <InputNumber
-                      min={1}
-                      value={fetcherInterval}
-                      onChange={(v) => setFetcherInterval(Number(v || 5))}
-                      addonAfter={t("proxy.minutes_suffix", { defaultValue: "分钟" })}
-                    />
-                    <Input
-                      style={{ width: 260 }}
-                      placeholder={t("proxy.auth_header_placeholder", {
-                        defaultValue: "认证头（可选）",
-                      })}
-                      value={fetcherAuthHeader}
-                      onChange={(e) => setFetcherAuthHeader(e.target.value)}
-                    />
-                    <Button type="primary" onClick={configureFetcher}>
-                      {t("proxy.fetcher_save_button", { defaultValue: "保存拉取配置" })}
-                    </Button>
-                    <Button icon={<ReloadOutlined />} onClick={refreshProxyPool}>
-                      {t("proxy.refresh_now_button", { defaultValue: "立即刷新 IP 池" })}
-                    </Button>
-                  </Space>
-                </div>
-                <div>
-                  <Text strong>
-                    <CloudServerOutlined style={{ marginRight: 8 }} />
-                    {t("proxy.whitelist_title", { defaultValue: "白名单 API" })}
-                  </Text>
-                  <Paragraph type="secondary" style={{ marginTop: 4, marginBottom: 8 }}>
-                    {t("proxy.whitelist_desc", {
-                      defaultValue: "将当前服务器公网 IP 推送到上游代理白名单。",
-                    })}
-                  </Paragraph>
-                  <Space wrap>
-                    <Input
-                      style={{ width: 300 }}
-                      placeholder={t("proxy.whitelist_url_placeholder", { defaultValue: "白名单 API 地址" })}
-                      value={whitelistApiUrl}
-                      onChange={(e) => setWhitelistApiUrl(e.target.value)}
-                    />
-                    <Input
-                      style={{ width: 220 }}
-                      placeholder={t("proxy.auth_header_placeholder", {
-                        defaultValue: "认证头（可选）",
-                      })}
-                      value={whitelistAuthHeader}
-                      onChange={(e) => setWhitelistAuthHeader(e.target.value)}
-                    />
-                    <Button onClick={configureWhitelist}>
-                      {t("proxy.whitelist_save_button", { defaultValue: "保存白名单配置" })}
-                    </Button>
-                  </Space>
-                </div>
-                <div>
-                  <Text strong>{t("proxy.server_ip_title", { defaultValue: "服务器公网 IP" })}</Text>
-                  <Paragraph type="secondary" style={{ marginTop: 4, marginBottom: 8 }}>
-                    {t("proxy.server_ip_desc", {
-                      defaultValue: "填写后点击「更新白名单」推送到上游。",
-                    })}
-                  </Paragraph>
-                  <Space wrap>
-                    <Input
-                      style={{ width: 200 }}
-                      placeholder={t("proxy.server_ip_placeholder", { defaultValue: "服务器公网 IP" })}
-                      value={serverIp}
-                      onChange={(e) => setServerIp(e.target.value)}
-                    />
-                    <Button type="primary" onClick={updateWhitelist}>
-                      {t("proxy.server_ip_update_button", { defaultValue: "更新白名单" })}
-                    </Button>
-                  </Space>
-                </div>
-              </Space>
-            ),
-          },
-        ]}
-        style={{ marginBottom: 24 }}
-      />
+              </Typography.Title>
+            </div>
+            {configLoading ? (
+              <Text type="secondary">{t("proxy.loading", { defaultValue: "加载中…" })}</Text>
+            ) : null}
+          </div>
+          <Text type="secondary" className="cm-task-card__copy">
+            {t("proxy.fetcher_desc", {
+              defaultValue: "保存 API 地址后可自动拉取代理，并按周期刷新。",
+            })}
+          </Text>
+          <div className="cm-task-card__stack">
+            <Input
+              placeholder={t("proxy.fetcher_url_placeholder", { defaultValue: "拉取 API 地址" })}
+              value={fetcherApiUrl}
+              onChange={(e) => setFetcherApiUrl(e.target.value)}
+            />
+            <div className="cm-task-card__row">
+              <InputNumber
+                min={1}
+                value={fetcherInterval}
+                onChange={(v) => setFetcherInterval(Number(v || 5))}
+                addonAfter={t("proxy.minutes_suffix", { defaultValue: "分钟" })}
+                style={{ minWidth: 120 }}
+              />
+              <Input
+                placeholder={t("proxy.auth_header_placeholder", {
+                  defaultValue: "认证头（可选）",
+                })}
+                value={fetcherAuthHeader}
+                onChange={(e) => setFetcherAuthHeader(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="cm-task-card__actions">
+            <Button type="primary" onClick={configureFetcher}>
+              {t("proxy.fetcher_save_button", { defaultValue: "保存拉取配置" })}
+            </Button>
+            <Button icon={<ReloadOutlined />} onClick={refreshProxyPool}>
+              {t("proxy.refresh_now_button", { defaultValue: "立即刷新 IP 池" })}
+            </Button>
+          </div>
+        </div>
+
+        <div className="cm-task-card">
+          <div className="cm-task-card__head">
+            <div>
+              <span className="cm-kpi-eyebrow">{t("proxy.task_step_two", { defaultValue: "步骤 2" })}</span>
+              <Typography.Title level={5} style={{ margin: "6px 0 0" }}>
+                <Space size={8}>
+                  <CloudServerOutlined />
+                  <span>{t("proxy.whitelist_title", { defaultValue: "白名单更新" })}</span>
+                </Space>
+              </Typography.Title>
+            </div>
+          </div>
+          <Text type="secondary" className="cm-task-card__copy">
+            {t("proxy.whitelist_desc", {
+              defaultValue: "先保存上游白名单接口，再提交当前服务器公网 IP。",
+            })}
+          </Text>
+          <div className="cm-task-card__stack">
+            <Input
+              placeholder={t("proxy.whitelist_url_placeholder", { defaultValue: "白名单 API 地址" })}
+              value={whitelistApiUrl}
+              onChange={(e) => setWhitelistApiUrl(e.target.value)}
+            />
+            <Input
+              placeholder={t("proxy.auth_header_placeholder", {
+                defaultValue: "认证头（可选）",
+              })}
+              value={whitelistAuthHeader}
+              onChange={(e) => setWhitelistAuthHeader(e.target.value)}
+            />
+            <div className="cm-task-card__row">
+              <Input
+                placeholder={t("proxy.server_ip_placeholder", { defaultValue: "服务器公网 IP" })}
+                value={serverIp}
+                onChange={(e) => setServerIp(e.target.value)}
+              />
+              <Button onClick={configureWhitelist}>
+                {t("proxy.whitelist_save_button", { defaultValue: "保存接口" })}
+              </Button>
+              <Button type="primary" onClick={updateWhitelist}>
+                {t("proxy.server_ip_update_button", { defaultValue: "更新白名单" })}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <Modal
         title={

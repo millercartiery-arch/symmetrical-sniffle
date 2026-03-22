@@ -3,7 +3,24 @@ import jwt from "jsonwebtoken";
 import argon2 from "argon2";
 import { pool } from "../shared/db.js";
 
-type AppRole = "admin" | "operator";
+type AppRole =
+  | "admin"
+  | "operator"
+  | "super_admin"
+  | "agent"
+  | "user"
+  | "tenant_admin"
+  | "member";
+
+const LOGIN_ALLOWED_ROLES: AppRole[] = [
+  "admin",
+  "operator",
+  "super_admin",
+  "agent",
+  "user",
+  "tenant_admin",
+  "member",
+];
 
 type StoredUser = {
   id: number;
@@ -53,9 +70,9 @@ const findUserFromDatabase = async (
       `SELECT id, username, password, role, tenant_id
        FROM users
        WHERE username = ?
-         AND role IN ('admin', 'operator')
+         AND role IN (${LOGIN_ALLOWED_ROLES.map(() => '?').join(', ')})
        LIMIT 1`,
-      [username]
+      [username, ...LOGIN_ALLOWED_ROLES]
     );
 
     const row = Array.isArray(rows) ? rows[0] : null;
@@ -67,7 +84,7 @@ const findUserFromDatabase = async (
     return {
       id: Number(row.id),
       username: String(row.username),
-      role: String(row.role) === "admin" ? "admin" : "operator",
+      role: String(row.role) as AppRole,
       tenantId: row.tenant_id == null ? undefined : Number(row.tenant_id),
     };
   } catch (error: any) {

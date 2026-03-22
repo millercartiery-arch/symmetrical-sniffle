@@ -30,6 +30,12 @@ import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import { clearAuth } from '../utils/jwt-auth';
+import { getUserRole } from '../utils/jwt-auth';
+import {
+  canAccessAccountManager,
+  canUseConversations,
+  canUseTasks,
+} from '../utils/access-control';
 import WorkTaskCreateModal from '../components/WorkTaskCreateModal';
 
 const { Header, Sider, Content } = Layout;
@@ -55,6 +61,7 @@ const AdminLayout: React.FC = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
+  const userRole = getUserRole();
 
   // ------------------- 状态 -------------------
   const [taskModalOpen, setTaskModalOpen] = useState(false);
@@ -84,17 +91,28 @@ const AdminLayout: React.FC = () => {
       icon: <DashboardOutlined />,
       label: t('menu.dashboard', { defaultValue: '账户概览' }),
     },
-    {
-      key: '/admin/conversations',
-      icon: <MessageOutlined />,
-      label: t('menu.chat', { defaultValue: '消息管理' }),
-    },
-    {
-      key: '/admin/accounts',
-      icon: <TeamOutlined />,
-      label: t('menu.accounts', { defaultValue: '资源管理' }),
-    },
-  ], [t]);
+    ...(canUseConversations(userRole)
+      ? [{
+          key: '/admin/conversations',
+          icon: <MessageOutlined />,
+          label: t('menu.chat', { defaultValue: '消息管理' }),
+        }]
+      : []),
+    ...(canUseTasks(userRole)
+      ? [{
+          key: '/admin/tasks',
+          icon: <RiseOutlined />,
+          label: t('menu.tasks', { defaultValue: '任务进度' }),
+        }]
+      : []),
+    ...(canAccessAccountManager(userRole)
+      ? [{
+          key: '/admin/accounts',
+          icon: <TeamOutlined />,
+          label: t('menu.accounts', { defaultValue: '资源管理' }),
+        }]
+      : []),
+  ], [t, userRole]);
 
   // ------------------- 样式对象 -------------------
   const layoutStyle: React.CSSProperties = {
@@ -118,8 +136,8 @@ const AdminLayout: React.FC = () => {
 
   const contentStyle: React.CSSProperties = {
     margin: 13,
-    background: 'var(--cm-surface)',
-    borderRadius: token.borderRadiusLG,
+    background: 'transparent',
+    borderRadius: 0,
     minHeight: 400,
     overflow: 'auto',
   };
@@ -161,8 +179,8 @@ const AdminLayout: React.FC = () => {
                 gap: 12,
                 padding: isSiderCollapsed ? 0 : '10px 14px',
                 borderRadius: 18,
-                border: '1px solid rgba(85, 97, 108, 0.14)',
-                background: 'linear-gradient(135deg, var(--cm-surface), var(--cm-surface-elevated))',
+                border: '1px solid rgba(198, 31, 58, 0.14)',
+                background: 'linear-gradient(135deg, rgba(255,255,255,0.92), rgba(255,245,247,0.94))',
               }}
             >
             <div
@@ -170,7 +188,7 @@ const AdminLayout: React.FC = () => {
                 width: isNarrow ? 34 : 38,
                 height: isNarrow ? 34 : 38,
                 borderRadius: 18,
-                background: 'linear-gradient(135deg, #55616c, #70808b)',
+                background: 'linear-gradient(135deg, #db2447, #9d142d)',
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -210,7 +228,7 @@ const AdminLayout: React.FC = () => {
           <div style={{ marginTop: 'auto', padding: 16 }}>
             <div className="cm-health-pill" style={{ background: 'rgba(255,255,255,0.9)' }}>
               <HeartFilled style={{ color: '#16a34a' }} />
-              <span>{t('shell.system_health', { defaultValue: 'System Health 98%' })}</span>
+              <span>{t('shell.system_health', { defaultValue: 'System Health' })}</span>
             </div>
           </div>
         )}
@@ -227,7 +245,7 @@ const AdminLayout: React.FC = () => {
             <div>
               <Text style={{ color: 'var(--cm-text-secondary)', fontSize: 12 }}>
                 {t('shell.subtitle', {
-                  defaultValue: 'Secure operations dashboard for accounts, chat routing and proxy orchestration.',
+                  defaultValue: 'Accounts, chats and routing in one workspace.',
                 })}
               </Text>
             </div>
@@ -235,8 +253,8 @@ const AdminLayout: React.FC = () => {
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
             <div className="cm-health-pill" style={{ marginRight: 4, padding: '6px 12px', fontSize: 12, opacity: 0.92 }}>
-              <RiseOutlined style={{ color: '#3f69ff' }} />
-              <span>{t('shell.proxy_status_stable', { defaultValue: 'Proxy Status Stable' })}</span>
+              <RiseOutlined style={{ color: 'var(--cm-brand-color)' }} />
+              <span>{t('shell.proxy_status_stable', { defaultValue: 'Routing Watch' })}</span>
             </div>
             {/* 语言切换 */}
             <Dropdown
@@ -258,17 +276,19 @@ const AdminLayout: React.FC = () => {
             </Dropdown>
 
             {/* 创建任务按钮 */}
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => setTaskModalOpen(true)}
-              className="cm-primary-button"
-              style={{ borderRadius: token.borderRadiusSM, fontWeight: 600 }}
-            >
-              {isCompact
-                ? t('tasks.create_short', { defaultValue: '创建' })
-                : t('tasks.create', { defaultValue: '创建任务' })}
-            </Button>
+            {canUseTasks(userRole) && (
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => setTaskModalOpen(true)}
+                className="cm-primary-button"
+                style={{ borderRadius: token.borderRadiusSM, fontWeight: 600 }}
+              >
+                {isCompact
+                  ? t('tasks.create_short', { defaultValue: '创建' })
+                  : t('tasks.create', { defaultValue: '创建任务' })}
+              </Button>
+            )}
 
             {/* 个人中心 & 退出 */}
             <Dropdown
@@ -317,13 +337,15 @@ const AdminLayout: React.FC = () => {
 
       {/* -------------------- 模态框 & 抽屉 -------------------- */}
       {/* 任务创建弹窗 */}
-      <WorkTaskCreateModal
-        open={taskModalOpen}
-        onClose={() => setTaskModalOpen(false)}
-        onSuccess={() => {
-          /* 成功回调（可选：刷新任务列表、toast等） */
-        }}
-      />
+      {canUseTasks(userRole) && (
+        <WorkTaskCreateModal
+          open={taskModalOpen}
+          onClose={() => setTaskModalOpen(false)}
+          onSuccess={() => {
+            /* 成功回调（可选：刷新任务列表、toast等） */
+          }}
+        />
+      )}
     </Layout>
   );
 };

@@ -3,19 +3,18 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { Spin } from "antd";
 import { apiUrl } from "../api";
 import { getAuthToken, getUserInfo, clearAuth, USER_INFO_KEY } from "../utils/jwt-auth";
-
-type AppRole = "admin" | "operator";
+import { type CanonicalRole, normalizeAppRole } from "../utils/access-control";
 
 interface ProtectedRouteProps {
-  allowedRoles?: AppRole[];
+  allowedRoles?: CanonicalRole[];
   children?: React.ReactNode;
 }
 
-const normalizeRole = (raw: unknown): AppRole | null => {
-  const role = String(raw || "").toLowerCase();
-  if (role === "admin" || role === "super_admin" || role === "tenant_admin") return "admin";
-  if (role === "operator" || role === "member") return "operator";
-  return null;
+type VerifiedUser = {
+  id?: number;
+  username?: string;
+  role: CanonicalRole;
+  tenantId?: number;
 };
 
 const VERIFY_TIMEOUT_MS = 25000; // 与 api 超时一致，避免弱网下验证未完成就超时
@@ -26,7 +25,7 @@ const fetchWithTimeout = (url: string, options: RequestInit, ms: number): Promis
   return fetch(url, { ...options, signal: controller.signal }).finally(() => clearTimeout(timeoutId));
 };
 
-const verifyRoleFromToken = async (token: string): Promise<AppRole | null> => {
+const verifyRoleFromToken = async (token: string): Promise<VerifiedUser | null> => {
   try {
     const res = await fetchWithTimeout(
       apiUrl("/me"),
@@ -35,8 +34,15 @@ const verifyRoleFromToken = async (token: string): Promise<AppRole | null> => {
     );
     if (!res.ok) return null;
     const data = await res.json();
-    const role = normalizeRole(data?.data?.role ?? data?.user?.role);
-    return role ?? null;
+    const payload = data?.data ?? data?.user ?? {};
+    const role = normalizeAppRole(payload?.role);
+    if (!role) return null;
+    return {
+      id: payload?.userId ?? payload?.id,
+      username: payload?.username,
+      role,
+      tenantId: payload?.tenantId,
+    };
   } catch (err) {
     console.error("Token verification failed:", err);
     return null;
@@ -46,7 +52,7 @@ const verifyRoleFromToken = async (token: string): Promise<AppRole | null> => {
 const ProtectedRoute = ({ allowedRoles, children }: ProtectedRouteProps) => {
   const location = useLocation();
   const [status, setStatus] = useState<"checking" | "ok" | "fail">("checking");
-  const [role, setRole] = useState<AppRole | null>(null);
+  const [role, setRole] = useState<CanonicalRole | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -60,27 +66,30 @@ const ProtectedRoute = ({ allowedRoles, children }: ProtectedRouteProps) => {
     }
 
     if (cachedUser) {
-      const cachedRole = normalizeRole(cachedUser.role);
+      const cachedRole = normalizeAppRole(cachedUser.role);
       if (cachedRole && !cancelled) {
         setRole(cachedRole);
       }
     }
 
     verifyRoleFromToken(token)
-      .then((verifiedRole) => {
+      .then((verifiedUser) => {
         if (cancelled) return;
-        if (!verifiedRole) {
+        if (!verifiedUser) {
           throw new Error("role verify failed");
         }
         
-        // 更新缓存中的角色信息
+        // 用 /me 的返回值回写缓存，避免本地只剩 role 没有用户信息。
         const nextUser = {
           ...(cachedUser || {}),
-          role: verifiedRole
+          id: verifiedUser.id ?? cachedUser?.id,
+          username: verifiedUser.username ?? cachedUser?.username,
+          tenantId: verifiedUser.tenantId ?? cachedUser?.tenantId,
+          role: verifiedUser.role,
         };
         localStorage.setItem(USER_INFO_KEY, JSON.stringify(nextUser));
         
-        setRole(verifiedRole);
+        setRole(verifiedUser.role);
         setStatus("ok");
       })
       .catch(() => {

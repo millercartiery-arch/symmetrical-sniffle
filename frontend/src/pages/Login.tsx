@@ -6,6 +6,7 @@ import { message } from 'antd';
 import { clearAuth, setAuthToken } from '../utils/jwt-auth';
 import { apiUrl } from '../api';
 import { useTheme } from '../context/ThemeContext';
+import { getDefaultAdminRoute, normalizeAppRole } from '../utils/access-control';
 import './Login.css';
 
 const createCaptcha = () =>
@@ -85,7 +86,7 @@ const Login: React.FC = () => {
         setPassword('');
       }
 
-      navigate('/admin/accounts', { replace: true });
+      navigate(getDefaultAdminRoute(normalizeAppRole(user.role)), { replace: true });
     } catch (err: any) {
       clearAuth();
       let msg = err?.response?.data?.error || err?.response?.data?.message || err?.message || (isZh ? '登录失败' : 'Login failed');

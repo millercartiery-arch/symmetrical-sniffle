@@ -10,7 +10,6 @@ import React, {
 import {
   Input,
   Select,
-  Space,
   Button,
   Table,
   Alert,
@@ -20,7 +19,6 @@ import {
 } from 'antd';
 import {
   SearchOutlined,
-  DownloadOutlined,
   ReloadOutlined,
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
@@ -49,8 +47,7 @@ export interface AccountsTabProps<T extends AccountRecord> {
   /** 分页状态 */
   setAccPagination: React.Dispatch<React.SetStateAction<PaginationProps>>;
 
-  /** 导出、刷新回调 */
-  handleExportTrigger: () => void;
+  /** 刷新回调 */
   fetchAccounts: () => void;
 
   /** 表格列定义（AntD ColumnsType） */
@@ -88,7 +85,6 @@ const AccountsToolbar = memo(
     accountStatusFilter,
     setAccountStatusFilter,
     setAccPagination,
-    handleExportTrigger,
     fetchAccounts,
   }: Pick<
     AccountsTabProps<AccountRecord>,
@@ -98,7 +94,6 @@ const AccountsToolbar = memo(
     | 'accountStatusFilter'
     | 'setAccountStatusFilter'
     | 'setAccPagination'
-    | 'handleExportTrigger'
     | 'fetchAccounts'
   >) => {
     const selectOptions = useMemo(
@@ -133,20 +128,8 @@ const AccountsToolbar = memo(
     );
 
     return (
-      <div
-        className="cm-section-card"
-        style={{
-          marginBottom: 16,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: 16,
-          borderRadius: 20,
-          flexWrap: 'wrap',
-          gap: 12,
-        }}
-      >
-        <Space align="center" size="large">
+      <div className="cm-toolbar-shell">
+        <div className="cm-toolbar-group">
           <Input
             placeholder={t('accounts.search_id', {
               defaultValue: 'Search by ID',
@@ -168,19 +151,9 @@ const AccountsToolbar = memo(
               defaultValue: 'Filter by status',
             })}
           />
-        </Space>
+        </div>
 
-        <Space>
-          <Button
-            type="default"
-            icon={<DownloadOutlined />}
-            onClick={handleExportTrigger}
-            title={t('accounts.export_tooltip', {
-              defaultValue: 'Export Accounts',
-            })}
-          >
-            {t('accounts.export', { defaultValue: 'Export' })}
-          </Button>
+        <div className="cm-toolbar-group cm-toolbar-group--actions">
           <Button
             type="primary"
             icon={<ReloadOutlined />}
@@ -189,7 +162,7 @@ const AccountsToolbar = memo(
           >
             {t('accounts.refresh', { defaultValue: 'Refresh' })}
           </Button>
-        </Space>
+        </div>
       </div>
     );
   },
@@ -261,7 +234,6 @@ function AccountsTab<T extends AccountRecord>(props: AccountsTabProps<T>) {
     accountStatusFilter,
     setAccountStatusFilter,
     setAccPagination,
-    handleExportTrigger,
     fetchAccounts,
     accountColumns,
     accounts,
@@ -319,7 +291,6 @@ function AccountsTab<T extends AccountRecord>(props: AccountsTabProps<T>) {
         accountStatusFilter={accountStatusFilter}
         setAccountStatusFilter={setAccountStatusFilter}
         setAccPagination={setAccPagination}
-        handleExportTrigger={handleExportTrigger}
         fetchAccounts={fetchAccounts}
       />
 

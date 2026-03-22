@@ -12,6 +12,12 @@ import './styles/global-polish.css';
 import ProtectedRoute from './components/ProtectedRoute';
 import RouteErrorFallback from './components/RouteErrorFallback';
 import { isAuthenticated, getUserRole } from './utils/jwt-auth';
+import {
+  canAccessAccountManager,
+  canUseConversations,
+  canUseTasks,
+  getDefaultAdminRoute,
+} from './utils/access-control';
 
 import AdminLayout from './layouts/AdminLayout';
 import DesktopTitleBar from './components/DesktopTitleBar';
@@ -41,10 +47,11 @@ const App = () => {
 
   const isLoggedIn = isAuthenticated();
   const userRole = getUserRole();
+  const defaultAdminRoute = getDefaultAdminRoute(userRole);
 
   const defaultRoute = useMemo(
-    () => (isLoggedIn ? '/admin/accounts' : '/login'),
-    [isLoggedIn]
+    () => (isLoggedIn ? defaultAdminRoute : '/login'),
+    [defaultAdminRoute, isLoggedIn]
   );
 
   const antdTheme = useMemo(() => ({
@@ -104,16 +111,24 @@ const App = () => {
 
             <Route
               element={
-                <ProtectedRoute allowedRoles={['admin', 'operator']}>
+                <ProtectedRoute allowedRoles={['super_admin', 'agent', 'user']}>
                   <AdminLayout />
                 </ProtectedRoute>
               }
             >
               <Route path="/admin/dashboard" element={<Dashboard />} />
-              <Route path="/admin/accounts" element={<AccountManager />} />
-              <Route path="/admin/conversations" element={<Chat />} />
-              {/* 任务列表从侧边栏移除，但路由保留以兼容旧书签 */}
-              <Route path="/admin/tasks" element={<TaskList />} />
+              <Route
+                path="/admin/accounts"
+                element={canAccessAccountManager(userRole) ? <AccountManager /> : <Navigate to={defaultAdminRoute} replace />}
+              />
+              <Route
+                path="/admin/conversations"
+                element={canUseConversations(userRole) ? <Chat /> : <Navigate to={defaultAdminRoute} replace />}
+              />
+              <Route
+                path="/admin/tasks"
+                element={canUseTasks(userRole) ? <TaskList /> : <Navigate to={defaultAdminRoute} replace />}
+              />
               <Route path="/admin/profile" element={<Profile />} />
               {/* /admin/settings 重定向到 profile（设置已合并） */}
               <Route path="/admin/settings" element={<Profile />} />

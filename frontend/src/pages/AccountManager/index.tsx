@@ -2,17 +2,20 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Layout, Tabs, message, Button } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
-import { DatabaseOutlined, EditOutlined, LinkOutlined, RocketOutlined, ThunderboltOutlined } from '@ant-design/icons';
+import { EditOutlined } from '@ant-design/icons';
 import api from '../../api';
 import AccountsTab from './components/AccountsTab';
 import SubAccountsTab from './components/SubAccountsTab';
-import ExportFieldsModal from './components/ExportFieldsModal';
 import ActivateCardModal from './components/ActivateCardModal';
 import AccountConfigDrawer from './components/AccountConfigDrawer';
 import ProxyPoolTab from './components/ProxyPoolTab';
 import { useSelectionStyle } from '../../hooks/useSelectionStyle';
 import StatusTag from '../../components/Common/StatusTag';
 import { getSocket } from '../../utils/socket';
+import { getUserRole } from '../../utils/jwt-auth';
+import {
+  canManageSubaccounts,
+} from '../../utils/access-control';
 import type { PaginationProps } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 
@@ -20,6 +23,8 @@ const { Content } = Layout;
 
 const AccountManager: React.FC = () => {
   const { t } = useTranslation();
+  const userRole = getUserRole();
+  const canManageAgents = canManageSubaccounts(userRole);
   const td = useMemo(
     () => (key: string, fallback: string, options: Record<string, any> = {}) =>
       t(key, { defaultValue: fallback, ...options }),
@@ -41,13 +46,10 @@ const AccountManager: React.FC = () => {
   const [subAccountFilters, setSubAccountFilters] = useState<{ status?: string; region?: string; proxy_id?: string }>({});
 
   const [modals, setModals] = useState({
-    exportFields: false,
     activateCard: false,
     accountConfig: false,
   });
   const [selectedAccount, setSelectedAccount] = useState<any>(null);
-  const [selectedExportFields, setSelectedExportFields] = useState<string[]>(['phone', 'username', 'password', 'token', 'proxy_url']);
-  const [exportFormat, setExportFormat] = useState<'csv' | 'json'>('csv');
 
   const { selectedKeys, setSelectedKeys, handleMouseEnter, handleMouseLeave, getSelectionClass } = useSelectionStyle(accounts);
 
@@ -150,73 +152,6 @@ const AccountManager: React.FC = () => {
     }
   };
 
-  const exportWithSelectedFields = async () => {
-    if (selectedExportFields.length === 0) {
-      message.warning(td('accounts.select_export_field_required', '请至少选择一个导出字段'));
-      return;
-    }
-    let dataToExport = accounts;
-    const total = (accPagination.total as number) ?? 0;
-    if (total > accounts.length) {
-      const hide = message.loading(td('accounts.loading_full_export_data', '正在加载完整导出数据...'), 0);
-      try {
-        const res: any = await api.get('/accounts', {
-          params: {
-            page: 1,
-            limit: 1000,
-            search: searchText || undefined,
-            status: accountStatusFilter === 'all' ? undefined : accountStatusFilter,
-          },
-        });
-        dataToExport = Array.isArray(res?.items) ? res.items : accounts;
-      } catch (err) {
-        message.warning(
-          td('accounts.export_current_page_only', '仅导出当前页数据')
-        );
-      } finally {
-        hide();
-      }
-    }
-    const picked = dataToExport.map((acc) => {
-      const row: Record<string, any> = {};
-      selectedExportFields.forEach((k) => {
-        row[k] = acc?.[k] ?? '';
-      });
-      return row;
-    });
-    const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-    let blob: Blob;
-    let filename: string;
-    if (exportFormat === 'csv') {
-      const escapeCsv = (v: any) => {
-        const s = String(v ?? '');
-        if (/[",\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
-        return s;
-      };
-      const header = selectedExportFields.join(',');
-      const rows = picked.map((row) => selectedExportFields.map((k) => escapeCsv(row[k])).join(','));
-      blob = new Blob([[header, ...rows].join('\n')], { type: 'text/csv;charset=utf-8' });
-      filename = `tn_accounts_export_${ts}.csv`;
-    } else {
-      blob = new Blob([JSON.stringify(picked, null, 2)], { type: 'application/json;charset=utf-8' });
-      filename = `tn_accounts_export_${ts}.json`;
-    }
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(url);
-    closeModal('exportFields');
-    message.success(
-      td('accounts.export_completed', '导出完成：{{filename}}（{{count}} 条）', { filename, count: picked.length })
-    );
-    api.post('/audit/log', {
-      action: 'EXPORT',
-      details: { filename, count: picked.length, fields: selectedExportFields, format: exportFormat },
-    }).catch(console.error);
-  };
-
   const accountColumns: ColumnsType<any> = [
     { title: 'ID', dataIndex: 'id', width: 80, className: 'text-xs opacity-60' },
     { title: td('accounts.phone', '手机号'), dataIndex: 'phone', render: (val: string) => <span className="font-mono">{val}</span> },
@@ -293,6 +228,29 @@ const AccountManager: React.FC = () => {
     const tnReady = accounts.filter((item) => Number(item.tn_ready) > 0).length;
     return { total, ready, cooldown, tnReady };
   }, [accPagination.total, accounts]);
+  const inventorySummary = [
+    {
+      key: 'total',
+      label: td('accounts.visible_inventory', '当前可见库存'),
+      value: inventoryStats.total,
+      meta: td('accounts.visible_inventory_meta', '正在展示的账号总数'),
+      tone: 'cooldown',
+    },
+    {
+      key: 'ready',
+      label: td('accounts.ready_pool', 'Ready 池'),
+      value: inventoryStats.ready,
+      meta: td('accounts.ready_pool_meta', '可直接调度的账号'),
+      tone: 'ready',
+    },
+    {
+      key: 'protocol',
+      label: td('accounts.tn_protocol_ready', 'TN 协议就绪'),
+      value: inventoryStats.tnReady,
+      meta: td('accounts.tn_protocol_ready_meta', '可进入发送调度的账号'),
+      tone: inventoryStats.tnReady > 0 ? 'ready' : 'dead',
+    },
+  ];
 
   const inventoryFocus =
     inventoryStats.tnReady === 0
@@ -311,32 +269,34 @@ const AccountManager: React.FC = () => {
           }
         : {
             title: td('accounts.focus.healthy_title', '库存健康'),
-            copy: td('accounts.focus.healthy_copy', '当前可用库存正常，可以直接导出干净资源。'),
-            action: td('accounts.focus.export_clean_inventory', '导出干净库存'),
-            onClick: () => openModal('exportFields'),
+            copy: td('accounts.focus.healthy_copy_no_export', '当前可用库存正常，继续查看子账号分发与协议配置。'),
+            action: td('accounts.focus.open_sub_accounts', '查看子账号'),
+            onClick: () => setActiveTab('sub-accounts'),
           };
 
   return (
     <Content className="cm-page" style={{ padding: 16 }}>
-        <div className="cm-page-header">
+      <div className="cm-page-header cm-page-header--dashboard">
         <div>
           <div className="cm-kpi-eyebrow">{td('accounts.page_eyebrow', '资源管理')}</div>
           <h1 className="cm-page-title cm-brand-title" style={{ fontSize: 32 }}>
             {td('accounts.page_title', '资源与路由控制台')}
           </h1>
           <div className="cm-page-subtitle">
-            {td('accounts.page_subtitle', '资源库存、子账号激活和代理调度都收在同一个工作台里。')}
+            {td('accounts.page_subtitle', '先看库存，再进子账号和代理池。')}
           </div>
         </div>
       </div>
 
-      <div className="cm-hero-band">
-        <div className="cm-hero-panel">
-          <div className="cm-kpi-eyebrow">{td('accounts.inventory_command', '库存指令')}</div>
+      <div className="cm-summary-strip">
+        <div className="cm-summary-focus">
+          <div className="cm-summary-focus__head">
+            <div className="cm-kpi-eyebrow">{td('accounts.inventory_command', '库存指令')}</div>
+          </div>
           <h2 className="cm-page-title" style={{ fontSize: 28, marginTop: 8 }}>
             {inventoryFocus.title}
           </h2>
-          <div className="cm-page-subtitle" style={{ marginTop: 8 }}>
+          <div className="cm-summary-focus__copy">
             {inventoryFocus.copy}
           </div>
           <div className="cm-priority-actions">
@@ -344,80 +304,21 @@ const AccountManager: React.FC = () => {
               {inventoryFocus.action}
             </Button>
             <Button onClick={() => setActiveTab('accounts')}>{td('accounts.inspect_inventory', '查看库存')}</Button>
-            <Button onClick={() => setActiveTab('sub-accounts')}>{td('accounts.open_sub_accounts', '打开子账号')}</Button>
-          </div>
-          <div className="cm-hero-metrics">
-            <div className="cm-mini-stat">
-              <div className="cm-kpi-eyebrow">{td('accounts.visible_inventory', '当前可见库存')}</div>
-              <strong>{inventoryStats.total}</strong>
-              <span>{td('accounts.visible_inventory_meta', '正在展示的账号总数')}</span>
-            </div>
-            <div className="cm-mini-stat">
-              <div className="cm-kpi-eyebrow">{td('accounts.ready_pool', 'Ready 池')}</div>
-              <strong>{inventoryStats.ready}</strong>
-              <span>{td('accounts.ready_pool_meta', '可直接调度的账号')}</span>
-            </div>
-            <div className="cm-mini-stat">
-              <div className="cm-kpi-eyebrow">{td('accounts.cooldown_pressure', '冷却压力')}</div>
-              <strong>{inventoryStats.cooldown}</strong>
-              <span>{td('accounts.cooldown_pressure_meta', '处于冷却中的账号')}</span>
-            </div>
-            <div className="cm-mini-stat">
-              <div className="cm-kpi-eyebrow">{td('accounts.tn_protocol_ready', 'TN 协议就绪')}</div>
-              <strong>{inventoryStats.tnReady}</strong>
-              <span>{td('accounts.tn_protocol_ready_meta', '可进入发送调度的账号')}</span>
-            </div>
+            {canManageAgents && (
+              <Button onClick={() => setActiveTab('sub-accounts')}>{td('accounts.open_sub_accounts', '打开子账号')}</Button>
+            )}
+            <Button onClick={fetchAccounts}>{td('common.refresh', '刷新')}</Button>
           </div>
         </div>
 
-        <div className="cm-hero-panel">
-          <div className="cm-kpi-eyebrow">{td('accounts.operator_guidance', '操作提示')}</div>
-          <div className="cm-signal-list" style={{ marginTop: 16 }}>
-            <div className="cm-signal-item">
-              <div>
-                <strong>{td('accounts.guidance_refresh_title', '刷新列表')}</strong>
-                <span>{td('accounts.guidance_refresh_copy', '先同步最新账号状态，再继续后续操作。')}</span>
-              </div>
-              <Button size="small" onClick={fetchAccounts}>{td('common.refresh', '刷新')}</Button>
+        <div className="cm-summary-metrics">
+          {inventorySummary.map((item) => (
+            <div key={item.key} className={`cm-summary-metric cm-summary-metric--${item.tone}`}>
+              <span className="cm-summary-metric__label">{item.label}</span>
+              <strong className="cm-summary-metric__value">{item.value}</strong>
+              <span className="cm-summary-metric__meta">{item.meta}</span>
             </div>
-            <div className="cm-signal-item">
-              <div>
-                <strong>{td('accounts.guidance_clean_title', '清理就绪库存')}</strong>
-                <span>{td('accounts.guidance_clean_copy', '优先查看 Ready 账号，减少不可用项干扰。')}</span>
-              </div>
-              <Button size="small" onClick={() => setAccountStatusFilter('Ready')}>{td('accounts.show_ready', '只看 Ready')}</Button>
-            </div>
-            <div className="cm-signal-item">
-              <div>
-                <strong>{td('accounts.guidance_proxy_title', '检查代理池')}</strong>
-                <span>{td('accounts.guidance_proxy_copy', '确认账号代理已绑定且出口稳定。')}</span>
-              </div>
-              <Button size="small" onClick={() => setActiveTab('proxy-pool')}>{td('accounts.open_proxy_pool', '打开代理池')}</Button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="cm-feature-grid" style={{ marginBottom: 14 }}>
-        <div className="cm-feature-card">
-          <DatabaseOutlined style={{ fontSize: 18, color: 'var(--cm-brand-color)' }} />
-          <div style={{ color: 'var(--cm-text-primary)', marginTop: 10, fontWeight: 600 }}>{td('accounts.feature_sync_title', '账号同步')}</div>
-          <div style={{ color: 'var(--cm-text-secondary)', marginTop: 4 }}>{td('accounts.feature_sync_copy', '导入、刷新、导出保持同一套流程。')}</div>
-        </div>
-        <div className="cm-feature-card">
-          <RocketOutlined style={{ fontSize: 18, color: 'var(--cm-brand-color)' }} />
-          <div style={{ color: 'var(--cm-text-primary)', marginTop: 10, fontWeight: 600 }}>{td('accounts.feature_auto_reply_title', '自动回复')}</div>
-          <div style={{ color: 'var(--cm-text-secondary)', marginTop: 4 }}>{td('accounts.feature_auto_reply_copy', '后续可接入会话自动化规则。')}</div>
-        </div>
-        <div className="cm-feature-card">
-          <LinkOutlined style={{ fontSize: 18, color: 'var(--cm-brand-color)' }} />
-          <div style={{ color: 'var(--cm-text-primary)', marginTop: 10, fontWeight: 600 }}>{td('accounts.feature_ai_title', 'AI 辅助')}</div>
-          <div style={{ color: 'var(--cm-text-secondary)', marginTop: 4 }}>{td('accounts.feature_ai_copy', '翻译、回复建议和策略分析可按需接入。')}</div>
-        </div>
-        <div className="cm-feature-card">
-          <ThunderboltOutlined style={{ fontSize: 18, color: 'var(--cm-brand-color)' }} />
-          <div style={{ color: 'var(--cm-text-primary)', marginTop: 10, fontWeight: 600 }}>{td('accounts.feature_proxy_review_title', '代理复核')}</div>
-          <div style={{ color: 'var(--cm-text-secondary)', marginTop: 4 }}>{td('accounts.feature_proxy_review_copy', '提前识别代理异常，避免任务卡死。')}</div>
+          ))}
         </div>
       </div>
 
@@ -437,7 +338,6 @@ const AccountManager: React.FC = () => {
                 accountStatusFilter={accountStatusFilter}
                 setAccountStatusFilter={setAccountStatusFilter}
                 setAccPagination={setAccPagination}
-                handleExportTrigger={() => openModal('exportFields')}
                 fetchAccounts={fetchAccounts}
                 accountColumns={accountColumns}
                 accounts={accounts}
@@ -452,50 +352,44 @@ const AccountManager: React.FC = () => {
               />
             ),
           },
-          {
-            key: 'sub-accounts',
-            label: td('accounts.sub_account_management', '子账号管理'),
-            children: (
-              <SubAccountsTab
-                onOpenActivate={() => openModal('activateCard')}
-                fetchSubAccounts={() => fetchSubAccounts()}
-                subAccounts={subAccounts}
-                subLoading={subAccLoading}
-                pagination={subAccPagination}
-                onPaginationChange={(page, pageSize) => fetchSubAccounts(page, pageSize)}
-                filters={subAccountFilters}
-                onFiltersChange={setSubAccountFilters}
-              />
-            ),
-          },
-          {
-            key: 'proxy-pool',
-            label: td('accounts.proxy_pool', '代理池'),
-            children: <ProxyPoolTab />,
-          },
+          ...(canManageAgents
+            ? [{
+                key: 'sub-accounts',
+                label: td('accounts.sub_account_management', '子账号管理'),
+                children: (
+                  <SubAccountsTab
+                    onOpenActivate={() => openModal('activateCard')}
+                    fetchSubAccounts={() => fetchSubAccounts()}
+                    subAccounts={subAccounts}
+                    subLoading={subAccLoading}
+                    pagination={subAccPagination}
+                    onPaginationChange={(page, pageSize) => fetchSubAccounts(page, pageSize)}
+                    filters={subAccountFilters}
+                    onFiltersChange={setSubAccountFilters}
+                  />
+                ),
+              }]
+            : []),
+          ...(canManageAgents
+            ? [{
+                key: 'proxy-pool',
+                label: td('accounts.proxy_pool', '代理池'),
+                children: <ProxyPoolTab />,
+              }]
+            : []),
         ]}
       />
 
-      <ExportFieldsModal
-        open={modals.exportFields}
-        onCancel={() => closeModal('exportFields')}
-        onConfirm={exportWithSelectedFields}
-        exportFormat={exportFormat}
-        setExportFormat={setExportFormat}
-        selectedExportFields={selectedExportFields}
-        setSelectedExportFields={setSelectedExportFields}
-        allFieldOptions={['phone', 'email', 'username', 'password', 'token', 'proxy_url', 'system_type', 'status', 'tn_client_id', 'tn_device_model', 'tn_os_version', 'tn_user_agent', 'tn_uuid', 'tn_vid', 'signature', 'app_version', 'brand', 'language', 'fp', 'tn_session_id']}
-        presetFields={['phone', 'username', 'password', 'token', 'proxy_url']}
-        accountsCount={(accPagination.total as number) ?? 0}
-      />
+      {canManageAgents && (
         <ActivateCardModal
-        open={modals.activateCard}
-        onCancel={() => closeModal('activateCard')}
-        onSuccess={() => {
-          message.success(td('accounts.activate_card_success', '激活卡成功'));
-          fetchSubAccounts();
-        }}
-      />
+          open={modals.activateCard}
+          onCancel={() => closeModal('activateCard')}
+          onSuccess={() => {
+            message.success(td('accounts.activate_card_success', '激活卡成功'));
+            fetchSubAccounts();
+          }}
+        />
+      )}
       <AccountConfigDrawer
         open={modals.accountConfig}
         selectedAccount={selectedAccount}
