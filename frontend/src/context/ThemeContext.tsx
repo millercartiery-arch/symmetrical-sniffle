@@ -28,8 +28,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   });
   const [brandColor, setBrandColor] = useState<string>(() => {
     const saved = localStorage.getItem('brandColor');
-    if (!saved || saved === '#1890ff' || saved === '#0052D9' || saved === '#10a37f' || saved === '#8B0000' || saved === '#55616c') {
-      return '#8a5a53';
+    if (!saved || saved === '#1890ff' || saved === '#0052D9' || saved === '#10a37f' || saved === '#8B0000' || saved === '#55616c' || saved === '#8a5a53') {
+      return '#c61f3a';
     }
     return saved;
   });

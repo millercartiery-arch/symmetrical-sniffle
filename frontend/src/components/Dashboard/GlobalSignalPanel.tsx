@@ -13,6 +13,7 @@ import {
 } from "antd";
 import {
   CheckCircleOutlined,
+  ClockCircleOutlined,
   CloseCircleOutlined,
   ReloadOutlined,
   RiseOutlined,
@@ -153,6 +154,10 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
     0,
     (data.runningTasks ?? 0) - ((data.onlineAccounts ?? 0) * 2 || 0)
   );
+  const riskLoad = (data.deadAccounts ?? 0) + (data.cooldownAccounts ?? 0);
+  const lastUpdatedLabel = data.system?.lastUpdate
+    ? new Date(data.system.lastUpdate).toLocaleString()
+    : t("dashboard.awaiting_first_sync", { defaultValue: "Awaiting first sync" });
   const focusTone =
     (data.todayFailed ?? 0) > 0
       ? {
@@ -181,6 +186,52 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
               cta: t("dashboard.focus.clear_cta"),
               target: "/admin/conversations",
             };
+  const commandChips = [
+    {
+      key: "ready",
+      label: t("dashboard.ready_capacity"),
+      value: data.onlineAccounts ?? 0,
+      tone: "ready",
+      meta: t("dashboard.ready_capacity_meta"),
+    },
+    {
+      key: "running",
+      label: t("dashboard.running_load"),
+      value: data.runningTasks ?? 0,
+      tone: executionPressure > 0 ? "busy" : "cooldown",
+      meta: t("dashboard.running_of_total", { running: data.runningTasks ?? 0, total: data.totalTasks ?? 0 }),
+    },
+    {
+      key: "risk",
+      label: t("dashboard.risk_inventory"),
+      value: riskLoad,
+      tone: riskLoad > 0 ? "dead" : "ready",
+      meta: t("dashboard.risk_inventory_meta"),
+    },
+  ];
+  const healthSignals = [
+    {
+      key: "coverage",
+      label: t("dashboard.inventory_coverage"),
+      meta: t("dashboard.inventory_coverage_meta"),
+      value: `${onlineRatio}%`,
+      color: onlineRatio >= 40 ? "green" : "orange",
+    },
+    {
+      key: "quality",
+      label: t("dashboard.execution_quality"),
+      meta: t("dashboard.execution_quality_meta"),
+      value: `${completionRate}%`,
+      color: completionRate >= 80 ? "green" : "orange",
+    },
+    {
+      key: "failures",
+      label: t("dashboard.failure_pressure"),
+      meta: t("dashboard.failure_pressure_meta"),
+      value: String(data.todayFailed ?? 0),
+      color: (data.todayFailed ?? 0) > 0 ? "orange" : "green",
+    },
+  ];
 
   const accountCards = useMemo(
     () => [
@@ -269,7 +320,7 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
 
   return (
     <div className="cm-page" style={{ padding: 18 }}>
-      <div className="cm-page-header">
+      <div className="cm-page-header cm-page-header--dashboard">
         <div>
           <Text className="cm-kpi-eyebrow">{t("dashboard.overview_eyebrow")}</Text>
           <Title level={2} className="cm-page-title cm-brand-title">
@@ -279,10 +330,14 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
             {t("dashboard.page_subtitle")}
           </Text>
         </div>
-        <Space wrap>
+        <Space wrap className="cm-dashboard-toolbar">
           <div className="cm-health-pill">
             <CheckCircleOutlined style={{ color: "var(--cm-green)" }} />
             <span>{t("dashboard.system_health")}: {healthScore}%</span>
+          </div>
+          <div className="cm-health-pill cm-health-pill--muted">
+            <ClockCircleOutlined style={{ color: "var(--cm-text-secondary)" }} />
+            <span>{lastUpdatedLabel}</span>
           </div>
           <Button icon={<ReloadOutlined />} onClick={refresh}>
             {t("common.refresh")}
@@ -290,32 +345,16 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
         </Space>
       </div>
 
-      <div className="cm-hero-band">
-        <div className="cm-hero-panel">
-          <Text className="cm-kpi-eyebrow">{t("dashboard.today_focus")}</Text>
-          <Title level={3} style={{ color: "var(--cm-text-primary)", margin: "8px 0 8px" }}>
+      <div className="cm-summary-strip">
+        <div className="cm-summary-focus">
+          <div className="cm-summary-focus__head">
+            <Text className="cm-kpi-eyebrow">{t("dashboard.today_focus")}</Text>
+            <Tag color={healthScore >= 75 ? "green" : "orange"}>{healthScore}%</Tag>
+          </div>
+          <Title level={4} className="cm-page-title" style={{ marginTop: 6 }}>
             {focusTone.title}
           </Title>
-          <Text style={{ color: "var(--cm-text-secondary)", lineHeight: 1.7 }}>
-            {focusTone.copy}
-          </Text>
-          <div className="cm-hero-metrics">
-            <div className="cm-mini-stat">
-              <div className="cm-kpi-eyebrow">{t("dashboard.ready_capacity")}</div>
-              <strong>{data.onlineAccounts ?? 0}</strong>
-              <span>{t("dashboard.ready_capacity_meta")}</span>
-            </div>
-            <div className="cm-mini-stat">
-              <div className="cm-kpi-eyebrow">{t("dashboard.running_load")}</div>
-              <strong>{data.runningTasks ?? 0}</strong>
-              <span>{t("dashboard.running_load_meta")}</span>
-            </div>
-            <div className="cm-mini-stat">
-              <div className="cm-kpi-eyebrow">{t("dashboard.risk_inventory")}</div>
-              <strong>{(data.deadAccounts ?? 0) + (data.cooldownAccounts ?? 0)}</strong>
-              <span>{t("dashboard.risk_inventory_meta")}</span>
-            </div>
-          </div>
+          <Text className="cm-summary-focus__copy">{focusTone.copy}</Text>
           <div className="cm-priority-actions">
             <Button type="primary" className="cm-primary-button" onClick={() => navigate(focusTone.target)}>
               {focusTone.cta}
@@ -324,34 +363,14 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
           </div>
         </div>
 
-        <div className="cm-hero-panel">
-          <Text className="cm-kpi-eyebrow">{t("dashboard.operator_brief")}</Text>
-          <Title level={4} style={{ color: "var(--cm-text-primary)", margin: "8px 0 14px" }}>
-            {t("dashboard.business_readout")}
-          </Title>
-          <div className="cm-signal-list">
-            <div className="cm-signal-item">
-              <div>
-                <strong>{t("dashboard.inventory_coverage")}</strong>
-                <span>{t("dashboard.inventory_coverage_meta")}</span>
-              </div>
-              <Tag color={onlineRatio >= 40 ? "green" : "orange"}>{onlineRatio}%</Tag>
+        <div className="cm-summary-metrics">
+          {commandChips.map((chip) => (
+            <div key={chip.key} className={`cm-summary-metric cm-summary-metric--${chip.tone}`}>
+              <span className="cm-summary-metric__label">{chip.label}</span>
+              <strong className="cm-summary-metric__value">{chip.value}</strong>
+              <span className="cm-summary-metric__meta">{chip.meta}</span>
             </div>
-            <div className="cm-signal-item">
-              <div>
-                <strong>{t("dashboard.execution_quality")}</strong>
-                <span>{t("dashboard.execution_quality_meta")}</span>
-              </div>
-              <Tag color={completionRate >= 80 ? "green" : "orange"}>{completionRate}%</Tag>
-            </div>
-            <div className="cm-signal-item">
-              <div>
-                <strong>{t("dashboard.failure_pressure")}</strong>
-                <span>{t("dashboard.failure_pressure_meta")}</span>
-              </div>
-              <Tag color={(data.todayFailed ?? 0) > 0 ? "orange" : "green"}>{data.todayFailed ?? 0}</Tag>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
 
@@ -367,12 +386,12 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
               textAlign: "left",
             }}
           >
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
+            <div className="cm-kpi-card__header">
               <div>
                 <div className="cm-kpi-eyebrow">{card.title}</div>
                 <strong className="cm-kpi-value">{card.value}</strong>
               </div>
-              <div>{card.icon}</div>
+              <div className="cm-kpi-card__icon">{card.icon}</div>
             </div>
             <div className="cm-kpi-meta" style={{ marginTop: 12 }}>
               {card.meta}
@@ -380,35 +399,12 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
             {card.progress ? <div style={{ marginTop: 14 }}>{card.progress}</div> : null}
             {card.sparkline ? <div style={{ marginTop: 12 }}>{card.sparkline}</div> : null}
             {card.trend ? (
-              <Text style={{ color: "#c5aea8", fontSize: 12, marginTop: 10, display: "block" }}>
+              <Text className="cm-kpi-card__trend">
                 {card.trend}
               </Text>
             ) : null}
           </button>
         ))}
-      </div>
-
-      <div className="cm-priority-grid">
-        <div className="cm-priority-card">
-          <Text className="cm-kpi-eyebrow">{t("dashboard.recovery_eyebrow")}</Text>
-          <h3>{t("dashboard.recovery_title")}</h3>
-          <p>{t("dashboard.recovery_copy")}</p>
-          <div className="cm-priority-actions">
-            <Button onClick={() => navigate("/admin/accounts?status=Dead")}>{t("dashboard.locked_inventory")}</Button>
-            <Button onClick={() => navigate("/admin/accounts?tab=proxy-pool")}>{t("dashboard.proxy_routing")}</Button>
-          </div>
-        </div>
-        <div className="cm-priority-card">
-          <Text className="cm-kpi-eyebrow">{t("dashboard.execution_eyebrow")}</Text>
-          <h3>{t("dashboard.execution_title")}</h3>
-          <p>{t("dashboard.execution_copy")}</p>
-          <div className="cm-priority-actions">
-            <Button type="primary" className="cm-primary-button" onClick={() => navigate("/admin/conversations")}>
-              {t("dashboard.open_conversation_center")}
-            </Button>
-            <Button onClick={() => navigate("/admin/tasks")}>{t("dashboard.review_task_flow")}</Button>
-          </div>
-        </div>
       </div>
 
       <Row gutter={[16, 16]}>
@@ -470,6 +466,15 @@ const GlobalSignalPanel: React.FC<GlobalSignalPanelProps> = ({ compact = false }
               {t("dashboard.operational_signals")}
             </Title>
             <div className="cm-signal-list" style={{ marginTop: 10 }}>
+              {healthSignals.map((signal) => (
+                <div key={signal.key} className="cm-signal-item">
+                  <div>
+                    <strong>{signal.label}</strong>
+                    <span>{signal.meta}</span>
+                  </div>
+                  <Tag color={signal.color}>{signal.value}</Tag>
+                </div>
+              ))}
               <div className="cm-signal-item">
                 <div>
                   <strong>{t("dashboard.cooldown_accounts")}</strong>

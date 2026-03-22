@@ -11,8 +11,11 @@ import GlobalSignalPanel from "../components/Dashboard/GlobalSignalPanel";
  */
 const Dashboard: React.FC = () => {
   return (
-    <section style={{ padding: 12, background: "transparent" }}>
-      <GlobalSignalPanel compact={false} />
+    <section className="cm-dashboard-shell">
+      <div className="cm-dashboard-backdrop" />
+      <div className="cm-dashboard-frame">
+        <GlobalSignalPanel compact={false} />
+      </div>
     </section>
   );
 };

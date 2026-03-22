@@ -207,6 +207,11 @@ const Chat: React.FC = () => {
     ],
     [conversations, remarkStore, t]
   );
+  const chatSummary = chatStats.slice(0, 3).map((item, index) => ({
+    ...item,
+    key: `${index}-${item.label}`,
+    tone: index === 0 ? "cooldown" : index === 1 ? "ready" : "dead",
+  }));
 
   const conversationFocus = useMemo(() => {
     const unreadSignals = conversations.reduce((sum, item) => sum + (item.unreadCount ?? 0), 0);
@@ -471,24 +476,34 @@ const Chat: React.FC = () => {
     }
   };
 
+  const focusComposer = () => {
+    const input = document.querySelector(".cm-compose-shell textarea") as HTMLTextAreaElement | null;
+    input?.focus();
+  };
+
   return (
     <div className="cm-page" style={{ padding: 16 }}>
-      <div className="cm-page-header">
+      <div className="cm-page-header cm-page-header--dashboard">
         <div>
           <Text className="cm-kpi-eyebrow">{t("chat.page_eyebrow")}</Text>
           <Title level={2} className="cm-page-title cm-brand-title">{t("chat.page_title")}</Title>
           <Text className="cm-page-subtitle">{t("chat.page_subtitle")}</Text>
         </div>
-        <Button icon={<ReloadOutlined />} onClick={fetchConversations}>{t("common.refresh")}</Button>
+        <Space wrap>
+          <Button onClick={() => setSettingsOpen(true)}>{t("common.settings")}</Button>
+          <Button icon={<ReloadOutlined />} onClick={fetchConversations}>{t("common.refresh")}</Button>
+        </Space>
       </div>
 
-      <div className="cm-hero-band">
-        <div className="cm-hero-panel">
-          <div className="cm-kpi-eyebrow">{t("chat.conversation_command")}</div>
-          <Title level={3} className="cm-page-title" style={{ marginTop: 8 }}>
+      <div className="cm-summary-strip">
+        <div className="cm-summary-focus">
+          <div className="cm-summary-focus__head">
+            <Text className="cm-kpi-eyebrow">{t("chat.conversation_command")}</Text>
+          </div>
+          <Title level={4} className="cm-page-title" style={{ marginTop: 6 }}>
             {conversationFocus.title}
           </Title>
-          <Text className="cm-page-subtitle" style={{ display: "block", marginTop: 8 }}>
+          <Text className="cm-summary-focus__copy">
             {conversationFocus.copy}
           </Text>
           <div className="cm-priority-actions">
@@ -498,58 +513,36 @@ const Chat: React.FC = () => {
             <Button onClick={() => navigate("/admin/dashboard")}>{t("chat.open_dashboard")}</Button>
             <Button onClick={() => setRemarkOpen(true)} disabled={!selectedChat}>{t("chat.edit_remark")}</Button>
           </div>
-          <div className="cm-hero-metrics">
-            {chatStats.map((item) => (
-              <div key={item.label} className="cm-mini-stat">
-                <div className="cm-kpi-eyebrow">{item.label}</div>
-                <strong>{item.value}</strong>
-                <span>{item.meta}</span>
-              </div>
-            ))}
-          </div>
         </div>
 
-        <div className="cm-hero-panel">
-          <div className="cm-kpi-eyebrow">{t("chat.queue_guidance")}</div>
-          <div className="cm-signal-list" style={{ marginTop: 16 }}>
-            <div className="cm-signal-item">
-              <div>
-                <strong>{t("chat.guidance_search_title")}</strong>
-                <span>{t("chat.guidance_search_copy")}</span>
-              </div>
-              <Button size="small" onClick={() => setStatusTab("all")}>{t("chat.show_all")}</Button>
+        <div className="cm-summary-metrics">
+          {chatSummary.map((item) => (
+            <div key={item.key} className={`cm-summary-metric cm-summary-metric--${item.tone}`}>
+              <span className="cm-summary-metric__label">{item.label}</span>
+              <strong className="cm-summary-metric__value">{item.value}</strong>
+              <span className="cm-summary-metric__meta">{item.meta}</span>
             </div>
-            <div className="cm-signal-item">
-              <div>
-                <strong>{t("chat.guidance_translation_title")}</strong>
-                <span>{t("chat.guidance_translation_copy")}</span>
-              </div>
-              <Button size="small" onClick={() => setTranslateEnabled((prev) => !prev)}>
-                {translateEnabled ? t("chat.disable") : t("chat.enable")}
-              </Button>
-            </div>
-            <div className="cm-signal-item">
-              <div>
-                <strong>{t("chat.selected_thread_health")}</strong>
-                <span>{selectedChat ? t("chat.selected_thread_health_copy", { name: selectedDisplayName, status: selectedConversationHealthLabel }) : t("chat.select_thread_prompt")}</span>
-              </div>
-              <Button size="small" onClick={() => selectedChat && void handleSelectConversation(selectedChat)} disabled={!selectedChat}>
-                {t("chat.refresh_thread")}
-              </Button>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
 
       <div className="cm-chat-shell">
-        <div className="cm-chat-sidebar" style={{ padding: 14 }}>
-          <div style={{ marginBottom: 16 }}>
+        <div className="cm-chat-sidebar cm-chat-sidebar__panel">
+          <div className="cm-chat-sidebar__header">
             <Text className="cm-kpi-eyebrow">{t("chat.conversations")}</Text>
-            <Title level={4} style={{ margin: "6px 0 4px", color: "var(--cm-text-primary)" }}>{t("chat.queue_filters")}</Title>
-            <Text style={{ color: "var(--cm-text-secondary)" }}>{t("chat.queue_filters_copy")}</Text>
+            <Title level={4} style={{ margin: "6px 0 4px", color: "var(--cm-text-primary)" }}>
+              {t("chat.queue_filters")}
+            </Title>
           </div>
-          <Input placeholder={t("chat.search_placeholder")} prefix={<SearchOutlined />} value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} allowClear style={{ marginBottom: 12 }} />
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 14 }}>
+          <Input
+            placeholder={t("chat.search_placeholder")}
+            prefix={<SearchOutlined />}
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+            allowClear
+            style={{ marginBottom: 12 }}
+          />
+          <div className="cm-chat-filter-row">
             {[
               { value: "all", label: t("chat.filter_all") },
               { value: "normal", label: t("chat.filter_normal") },
@@ -557,7 +550,15 @@ const Chat: React.FC = () => {
               { value: "busy", label: t("chat.filter_busy") },
               { value: "banned", label: t("chat.filter_banned") },
             ].map((option) => (
-              <Button key={option.value} size="small" type={statusTab === option.value ? "primary" : "default"} className={statusTab === option.value ? "cm-primary-button" : undefined} onClick={() => setStatusTab(option.value as typeof statusTab)}>{option.label}</Button>
+              <Button
+                key={option.value}
+                size="small"
+                type={statusTab === option.value ? "primary" : "default"}
+                className={statusTab === option.value ? "cm-primary-button" : undefined}
+                onClick={() => setStatusTab(option.value as typeof statusTab)}
+              >
+                {option.label}
+              </Button>
             ))}
           </div>
 
@@ -589,11 +590,35 @@ const Chat: React.FC = () => {
                 const active = selectedChat?.id === chat.id;
                 return (
                   <Dropdown key={chat.id} trigger={["contextMenu"]} menu={{ items: contextMenuItems(chat) }}>
-                    <List.Item onClick={() => void handleSelectConversation(chat)} style={{ background: active ? "rgba(85, 97, 108, 0.10)" : "transparent", borderRadius: 16, border: active ? "1px solid rgba(85, 97, 108, 0.22)" : "1px solid transparent", marginBottom: 8, padding: "10px 12px", cursor: "pointer" }}>
+                    <List.Item
+                      onClick={() => void handleSelectConversation(chat)}
+                      className={`cm-conversation-item${active ? " cm-conversation-item--active" : ""}`}
+                    >
                       <List.Item.Meta
-                        avatar={<Badge dot={Boolean(chat.unreadCount)} offset={[-4, 4]}><Avatar style={{ backgroundColor: token.colorPrimary }}>{displayName?.[0]?.toUpperCase() ?? "?"}</Avatar></Badge>}
-                        title={<Space wrap><Text strong style={{ color: "var(--cm-text-primary)" }}>{displayName}</Text>{remark.company ? <Tag color="blue" style={{ borderRadius: 999 }}>{remark.company}</Tag> : null}<Tag color={statusTone[statusKind]} style={{ borderRadius: 999, marginLeft: "auto" }}>{statusLabel}</Tag></Space>}
-                        description={<div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}><Text type="secondary" ellipsis style={{ maxWidth: 180 }}>{notePreview}</Text><Text type="secondary">{chat.time ?? ""}</Text></div>}
+                        avatar={
+                          <Badge dot={Boolean(chat.unreadCount)} offset={[-4, 4]}>
+                            <Avatar style={{ backgroundColor: token.colorPrimary }}>
+                              {displayName?.[0]?.toUpperCase() ?? "?"}
+                            </Avatar>
+                          </Badge>
+                        }
+                        title={
+                          <Space wrap>
+                            <Text strong style={{ color: "var(--cm-text-primary)" }}>{displayName}</Text>
+                            {remark.company ? <Tag color="blue" style={{ borderRadius: 999 }}>{remark.company}</Tag> : null}
+                            <Tag color={statusTone[statusKind]} style={{ borderRadius: 999, marginLeft: "auto" }}>
+                              {statusLabel}
+                            </Tag>
+                          </Space>
+                        }
+                        description={
+                          <div className="cm-conversation-item__meta">
+                            <Text type="secondary" ellipsis className="cm-conversation-item__preview">
+                              {notePreview}
+                            </Text>
+                            <Text type="secondary">{chat.time ?? ""}</Text>
+                          </div>
+                        }
                       />
                     </List.Item>
                   </Dropdown>
@@ -603,34 +628,92 @@ const Chat: React.FC = () => {
           )}
         </div>
 
-        <div className="cm-chat-pane" style={{ display: "flex", flexDirection: "column", minHeight: 0 }}>
-          <div style={{ padding: "14px 14px 0", display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
+        <div className="cm-chat-pane cm-chat-pane__panel" style={{ display: "flex", flexDirection: "column" }}>
+          <div className="cm-thread-head">
             <div>
               <Text className="cm-kpi-eyebrow">{t("chat.live_thread")}</Text>
-              <Title level={4} style={{ margin: "6px 0 4px", color: "var(--cm-text-primary)" }}>{selectedChat ? selectedDisplayName : t("chat.workspace_title")}</Title>
-              <Text style={{ color: "var(--cm-text-secondary)" }}>{selectedChat ? selectedRemark.notes || formatPhoneNumber(selectedChat.phone) : t("chat.workspace_copy")}</Text>
+              <Title level={4} style={{ margin: "6px 0 4px", color: "var(--cm-text-primary)" }}>
+                {selectedChat ? selectedDisplayName : t("chat.workspace_title")}
+              </Title>
+              <Text style={{ color: "var(--cm-text-secondary)" }}>
+                {selectedChat ? selectedRemark.notes || formatPhoneNumber(selectedChat.phone) : t("chat.workspace_copy")}
+              </Text>
+              {selectedChat ? (
+                <div className="cm-thread-head__meta">
+                  <Tag
+                    color={
+                      selectedConversationHealth === "normal"
+                        ? "green"
+                        : selectedConversationHealth === "paused"
+                          ? "gold"
+                          : selectedConversationHealth === "busy"
+                            ? "blue"
+                            : "red"
+                    }
+                    style={{ borderRadius: 999 }}
+                  >
+                    {selectedConversationHealthLabel}
+                  </Tag>
+                  <Text type="secondary">{formatPhoneNumber(selectedChat.phone)}</Text>
+                  {selectedRemark.company ? <Tag color="blue" style={{ borderRadius: 999 }}>{selectedRemark.company}</Tag> : null}
+                </div>
+              ) : null}
             </div>
-            <Space wrap>
-              <Button icon={<EditOutlined />} onClick={() => setRemarkOpen(true)} disabled={!selectedChat}>{t("chat.remark")}</Button>
-              <Button icon={<SettingOutlined />} onClick={() => setSettingsOpen(true)}>{t("common.settings")}</Button>
+            <Space wrap className="cm-thread-head__actions">
+              <Button icon={<EditOutlined />} onClick={() => setRemarkOpen(true)} disabled={!selectedChat}>
+                {t("chat.remark")}
+              </Button>
+              <Button icon={<ReloadOutlined />} onClick={() => selectedChat && fetchMessages(selectedChat.id)} disabled={!selectedChat}>
+                {t("common.refresh")}
+              </Button>
             </Space>
           </div>
 
-            <div ref={msgListRef} style={{ flex: 1, overflowY: "auto", padding: 12, margin: 14, borderRadius: 16, background: "linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(249, 244, 241, 0.98))" }}>
+          <div ref={msgListRef} className="cm-thread-stream">
             {loadingMsgs ? (
               <Spin />
             ) : !selectedChat ? (
-              <div className="cm-empty-state"><div className="cm-empty-hero"><div className="cm-empty-badge"><ThunderboltOutlined /></div><Title level={3} style={{ color: "var(--cm-text-primary)", marginBottom: 8 }}>{t("chat.workspace_standby_title")}</Title><Text style={{ color: "var(--cm-text-secondary)" }}>{t("chat.workspace_standby_copy")}</Text><Space style={{ marginTop: 16 }}><Button type="primary" className="cm-primary-button" onClick={() => setStatusTab("normal")}>{t("chat.focus_active_queue")}</Button><Button onClick={() => setSettingsOpen(true)}>{t("chat.workspace_settings")}</Button></Space></div></div>
+              <div className="cm-empty-state">
+                <div className="cm-empty-hero">
+                  <div className="cm-empty-badge"><ThunderboltOutlined /></div>
+                  <Title level={3} style={{ color: "var(--cm-text-primary)", marginBottom: 8 }}>
+                    {t("chat.workspace_standby_title")}
+                  </Title>
+                  <Text style={{ color: "var(--cm-text-secondary)" }}>{t("chat.workspace_standby_copy")}</Text>
+                  <Space style={{ marginTop: 16 }}>
+                    <Button type="primary" className="cm-primary-button" onClick={() => setStatusTab("normal")}>
+                      {t("chat.focus_active_queue")}
+                    </Button>
+                    <Button onClick={() => setSettingsOpen(true)}>{t("chat.workspace_settings")}</Button>
+                  </Space>
+                </div>
+              </div>
             ) : messages.length === 0 ? (
-              <div className="cm-empty-state"><div className="cm-empty-hero"><div className="cm-empty-badge"><MessageOutlined /></div><Title level={4} style={{ color: "var(--cm-text-primary)", marginBottom: 8 }}>{t("chat.thread_empty_title")}</Title><Text style={{ color: "var(--cm-text-secondary)" }}>{t("chat.thread_empty_copy")}</Text><Space style={{ marginTop: 16 }}><Button type="primary" className="cm-primary-button" onClick={() => setRemarkOpen(true)}>{t("chat.add_commercial_note")}</Button><Button onClick={() => document.querySelector('textarea')?.focus()}>{t("chat.draft_first_reply")}</Button></Space></div></div>
+              <div className="cm-empty-state">
+                <div className="cm-empty-hero">
+                  <div className="cm-empty-badge"><MessageOutlined /></div>
+                  <Title level={4} style={{ color: "var(--cm-text-primary)", marginBottom: 8 }}>
+                    {t("chat.thread_empty_title")}
+                  </Title>
+                  <Text style={{ color: "var(--cm-text-secondary)" }}>{t("chat.thread_empty_copy")}</Text>
+                  <Space style={{ marginTop: 16 }}>
+                    <Button type="primary" className="cm-primary-button" onClick={() => setRemarkOpen(true)}>
+                      {t("chat.add_commercial_note")}
+                    </Button>
+                    <Button onClick={focusComposer}>{t("chat.draft_first_reply")}</Button>
+                  </Space>
+                </div>
+              </div>
             ) : (
               messages.map((msg) => {
                 const isMine = msg.direction === "outbound";
                 return (
-                  <div key={msg.id} style={{ display: "flex", justifyContent: isMine ? "flex-end" : "flex-start", marginBottom: 12 }}>
-                    <div style={{ maxWidth: "72%", padding: "10px 14px", borderRadius: 16, background: isMine ? "linear-gradient(135deg, var(--cm-brand-color), var(--cm-brand-color-strong))" : "var(--cm-surface)", color: isMine ? "#fff" : "var(--cm-text-primary)", border: isMine ? "none" : "1px solid var(--cm-border)" }}>
+                  <div key={msg.id} className={`cm-message-row${isMine ? " cm-message-row--mine" : ""}`}>
+                    <div className={`cm-message-bubble${isMine ? " cm-message-bubble--mine" : ""}`}>
                       <div>{msg.content}</div>
-                      <div style={{ fontSize: 10, textAlign: "right", marginTop: 4, color: isMine ? "rgba(255,255,255,0.72)" : "var(--cm-text-tertiary)" }}>{formatTime(msg.created_at)} · {formatMessageStatus(msg.status, msg.direction, t)}</div>
+                      <div className={`cm-message-bubble__meta${isMine ? " cm-message-bubble__meta--mine" : ""}`}>
+                        {formatTime(msg.created_at)} · {formatMessageStatus(msg.status, msg.direction, t)}
+                      </div>
                     </div>
                   </div>
                 );
@@ -638,32 +721,91 @@ const Chat: React.FC = () => {
             )}
           </div>
 
-          <div style={{ padding: "0 14px 14px" }}>
-            <div className="cm-section-card" style={{ padding: 12 }}>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 8 }}>
-                <Button size="small" type={translateEnabled ? "primary" : "default"} className={translateEnabled ? "cm-primary-button" : undefined} icon={<TranslationOutlined />} onClick={() => { setTranslateEnabled((prev) => !prev); if (translateEnabled) clearTranslationState(); }}>{translateEnabled ? t("chat.translation_on") : t("chat.translation_off")}</Button>
-                <Select size="small" value={translateTarget} onChange={(value) => setTranslateTarget(value)} style={{ width: 140 }} disabled={!translateEnabled} options={[{ value: "en", label: t("chat.translate_to_en") }, { value: "zh", label: t("chat.translate_to_zh") }]} />
+          <div className="cm-compose-wrap">
+            <div className="cm-section-card cm-compose-shell">
+              <div className="cm-compose-toolbar">
+                <Button
+                  size="small"
+                  type={translateEnabled ? "primary" : "default"}
+                  className={translateEnabled ? "cm-primary-button" : undefined}
+                  icon={<TranslationOutlined />}
+                  onClick={() => {
+                    setTranslateEnabled((prev) => !prev);
+                    if (translateEnabled) clearTranslationState();
+                  }}
+                >
+                  {translateEnabled ? t("chat.translation_on") : t("chat.translation_off")}
+                </Button>
+                <Select
+                  size="small"
+                  value={translateTarget}
+                  onChange={(value) => setTranslateTarget(value)}
+                  style={{ width: 140 }}
+                  disabled={!translateEnabled}
+                  options={[
+                    { value: "en", label: t("chat.translate_to_en") },
+                    { value: "zh", label: t("chat.translate_to_zh") },
+                  ]}
+                />
+                {translateEnabled ? <div className="cm-compose-spacer" /> : null}
                 {translateEnabled ? (
-                  <>
-                    <Button size="small" type={sendMode === "original" ? "primary" : "default"} onClick={() => setSendMode("original")}>{t("chat.send_original")}</Button>
-                    <Button size="small" type={sendMode === "translated" ? "primary" : "default"} onClick={() => setSendMode("translated")} disabled={!translatedDraft}>{t("chat.send_translation")}</Button>
-                  </>
+                  <Space size={8} wrap>
+                    <Button
+                      size="small"
+                      type={sendMode === "original" ? "primary" : "default"}
+                      onClick={() => setSendMode("original")}
+                    >
+                      {t("chat.send_original")}
+                    </Button>
+                    <Button
+                      size="small"
+                      type={sendMode === "translated" ? "primary" : "default"}
+                      onClick={() => setSendMode("translated")}
+                      disabled={!translatedDraft}
+                    >
+                      {t("chat.send_translation")}
+                    </Button>
+                  </Space>
                 ) : null}
               </div>
 
-              <TextArea placeholder={t("chat.message_placeholder")} autoSize={{ minRows: 2, maxRows: 5 }} value={draft} onChange={(event) => setDraft(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); void handleSendMessage(); } }} disabled={sending || !selectedChat} />
+              <TextArea
+                placeholder={t("chat.message_placeholder")}
+                autoSize={{ minRows: 2, maxRows: 5 }}
+                value={draft}
+                onChange={(event) => setDraft(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" && !event.shiftKey) {
+                    event.preventDefault();
+                    void handleSendMessage();
+                  }
+                }}
+                disabled={sending || !selectedChat}
+              />
 
               {translateEnabled ? (
-                <div style={{ marginTop: 10, padding: 10, borderRadius: 12, border: `1px solid ${token.colorBorder}`, background: "var(--cm-surface-elevated)" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
-                    <Text type="secondary">{translating ? t("chat.translating") : translationError ? translationError : translatedDraft ? t("chat.detected_language", { lang: detectedLanguage || "auto" }) : t("chat.translation_hint")}</Text>
-                    {translatedDraft ? <Tag color="blue" style={{ borderRadius: 999 }}>{sendMode === "translated" ? t("chat.current_send_translation") : t("chat.current_send_original")}</Tag> : null}
+                <div className="cm-compose-preview">
+                  <div className="cm-compose-preview__head">
+                    <Text type="secondary">
+                      {translating
+                        ? t("chat.translating")
+                        : translationError
+                          ? translationError
+                          : translatedDraft
+                            ? t("chat.detected_language", { lang: detectedLanguage || "auto" })
+                            : t("chat.translation_hint")}
+                    </Text>
+                    {translatedDraft ? (
+                      <Tag color="blue" style={{ borderRadius: 999 }}>
+                        {sendMode === "translated" ? t("chat.current_send_translation") : t("chat.current_send_original")}
+                      </Tag>
+                    ) : null}
                   </div>
-                  {translatedDraft ? <div style={{ marginTop: 8, whiteSpace: "pre-wrap", color: "var(--cm-text-primary)" }}>{translatedDraft}</div> : null}
+                  {translatedDraft ? <div className="cm-compose-preview__body">{translatedDraft}</div> : null}
                 </div>
               ) : null}
 
-              <div style={{ textAlign: "right", marginTop: 10 }}>
+              <div className="cm-compose-actions">
                 <Button type="primary" className="cm-primary-button" icon={<SendOutlined />} loading={sending} onClick={() => void handleSendMessage()} disabled={!draft.trim() || sending || !selectedChat}>
                   {translateEnabled && sendMode === "translated" && translatedDraft ? t("chat.send_translation_button") : t("chat.send_message_button")}
                 </Button>
