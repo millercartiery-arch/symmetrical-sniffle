@@ -48,6 +48,38 @@ const persistInlineImage = async (req: express.Request, rawMedia: string) => {
     return `${getRequestBaseUrl(req)}/uploads/${fileName}`;
 };
 
+const findDispatchableAccount = async (conn: any, tenantId: number, preferredAccountId?: number | null) => {
+    const baseSql = `
+        SELECT a.id, a.tenant_id
+        FROM accounts a
+        INNER JOIN account_proxy_bindings ap
+            ON ap.account_id = a.id
+           AND ap.is_active = 1
+        INNER JOIN proxies p
+            ON p.id = ap.proxy_id
+           AND p.is_active = 1
+        WHERE a.tenant_id = ?
+          AND a.status = 'Ready'
+          AND (a.locked_at IS NULL OR a.locked_at < DATE_SUB(NOW(), INTERVAL 5 MINUTE))
+    `;
+
+    if (preferredAccountId) {
+        const [preferredRows]: any = await conn.query(
+            `${baseSql} AND a.id = ? ORDER BY ap.is_primary DESC, a.last_used_at ASC LIMIT 1`,
+            [tenantId, preferredAccountId]
+        );
+        if (preferredRows.length > 0) {
+            return preferredRows[0];
+        }
+    }
+
+    const [rows]: any = await conn.query(
+        `${baseSql} ORDER BY ap.is_primary DESC, a.last_used_at ASC LIMIT 1`,
+        [tenantId]
+    );
+    return rows[0] || null;
+};
+
 // Get chat messages for a specific peer (tenant-scoped)
 // 对应排查：点进去不显示 → 此处用 peerPhone+tenant_id 查 message_tasks，无 conversation id，列表与详情同一租户
 // 使用 asyncHandler：未捕获异常会进入全局 errorHandler（计数+审计+统一返回）
@@ -64,7 +96,7 @@ router.get('/user/chat/messages', asyncHandler(async (req, res) => {
             return;
         }
 
-        const [rows]: any = await conn.execute(
+        const [rows]: any = await conn.query(
             `SELECT 
                 id,
                 target_phone as peer_phone,
@@ -80,8 +112,8 @@ router.get('/user/chat/messages', asyncHandler(async (req, res) => {
              FROM message_tasks 
              WHERE target_phone = ? AND tenant_id = ?
              ORDER BY created_at ASC
-             LIMIT ?`,
-            [peerPhone, tenantId, limit]
+             LIMIT ${String(limit)}`,
+            [peerPhone, tenantId]
         );
 
         incrementConversationSuccess();
@@ -117,20 +149,17 @@ router.post('/user/chat/send', async (req, res) => {
             [peerPhone, tenantId]
         );
 
+        const preferredAccountId = existing.length > 0 ? Number(existing[0].account_id) : null;
+        const dispatchableAccount = await findDispatchableAccount(conn, tenantId, preferredAccountId);
+
         let tenantIdForInsert = tenantId;
-        if (existing.length > 0) {
-            accountId = existing[0].account_id;
-        } else {
-            // 2. Fallback: Pick a ready account for this tenant
-            const [accounts]: any = await conn.query("SELECT id, tenant_id FROM accounts WHERE status='Ready' AND tenant_id = ? LIMIT 1", [tenantId]);
-            if (accounts.length > 0) {
-                accountId = accounts[0].id;
-                tenantIdForInsert = Number(accounts[0].tenant_id) || tenantId;
-            }
+        if (dispatchableAccount) {
+            accountId = Number(dispatchableAccount.id);
+            tenantIdForInsert = Number(dispatchableAccount.tenant_id) || tenantId;
         }
 
         if (!accountId) {
-             return res.status(500).json({ code: 500, message: "No available account to send message" });
+             return res.status(409).json({ code: 409, message: "No ready account with active proxy binding is available" });
         }
 
         const [result]: any = await conn.execute(

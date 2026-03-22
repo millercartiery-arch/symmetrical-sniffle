@@ -57,7 +57,7 @@ async function probe(proxyUrl) {
   }
 }
 
-function buildProxyUrl(row) {
+async function buildProxyUrl(row) {
   const protocol = (row.protocol || 'http').trim();
   const user = row.username;
   let pass = row.password;
@@ -100,7 +100,7 @@ async function main() {
   }
   console.log(`探测 ${rows.length} 个代理…`);
   for (const row of rows) {
-    const url = buildProxyUrl(row);
+    const url = await buildProxyUrl(row);
     const result = await probe(url);
     const errMsg = result.error ? String(result.error).slice(0, 500) : null;
     await pool.query(
